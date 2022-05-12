@@ -6,7 +6,7 @@ export class AppController {
   constructor(private readonly animedbService: AnimeDbService) {}
 
   @Get()
-  getAnimeById(@Query('id') id: string): any {
+  async getAnimeById(@Query('id') id: string) {
     return this.animedbService.getAnimeById(id);
   }
 }

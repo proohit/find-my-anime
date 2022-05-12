@@ -2,14 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
+import { AnimeDB } from './interfaces/AnimeDb';
 
 @Injectable()
 export class AnimeDbDownloaderService {
   private readonly ANIME_OFFLINE_DB_FILE_PATH = './anime-offline-database.json';
   private readonly ANIME_OFFLINE_DB_FILE_URL =
     'https://github.com/manami-project/anime-offline-database/raw/master/anime-offline-database-minified.json';
-  private animeDbCache;
-  public async getAnimeDb(): Promise<any> {
+  private animeDbCache: AnimeDB;
+  public async getAnimeDb(): Promise<AnimeDB> {
     if (this.animeDbCache) {
       if (this.shouldUpdateAnimeDb(this.animeDbCache)) {
         this.animeDbCache = await this.downloadAnimeDb();
@@ -31,7 +32,7 @@ export class AnimeDbDownloaderService {
     return animeDb;
   }
 
-  private async downloadAnimeDb(): Promise<any> {
+  private async downloadAnimeDb(): Promise<AnimeDB> {
     const animeDb = await this.fetchAnimeDb();
     animeDb['lastDownloadTime'] = new Date().toISOString();
     await this.saveAnimeDb(animeDb);
@@ -43,7 +44,7 @@ export class AnimeDbDownloaderService {
     return JSON.parse(animeDb);
   }
 
-  private async fetchAnimeDb(): Promise<any> {
+  private async fetchAnimeDb(): Promise<AnimeDB> {
     const res = await axios.get(this.ANIME_OFFLINE_DB_FILE_URL);
     return res.data;
   }
@@ -52,8 +53,8 @@ export class AnimeDbDownloaderService {
     await writeFile(this.ANIME_OFFLINE_DB_FILE_PATH, JSON.stringify(animeDb));
   }
 
-  private shouldUpdateAnimeDb(animeDb: any) {
-    const lastDownloadTime = new Date(animeDb['lastDownloadTime']).getTime();
+  private shouldUpdateAnimeDb(animeDb: AnimeDB) {
+    const lastDownloadTime = new Date(animeDb.lastDownloadTime).getTime();
     const currentTime = new Date().getTime();
     const maxAge = 1000 * 60 * 60 * 24 * 5; // 5 days
     return currentTime - lastDownloadTime > maxAge;
