@@ -1,12 +1,27 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { ApiParam } from '@nestjs/swagger';
 import { AnimeDbService } from './animedb.service';
+import { Provider } from './constants/Provider';
+import { GetAnimeByIdResponseDto } from './dtos/GetAnimeByIdDto';
 
 @Controller()
 export class AppController {
   constructor(private readonly animedbService: AnimeDbService) {}
 
   @Get()
-  async getAnimeById(@Query('id') id: string) {
-    return this.animedbService.getAnimeById(id);
+  @ApiParam({ name: 'id', required: true, type: String })
+  @ApiParam({ name: 'provider', required: false, enum: Provider })
+  async getAnimeById(
+    @Query('id') id: string,
+    @Query('provider') provider?: string,
+  ): Promise<GetAnimeByIdResponseDto> {
+    if (provider && !Object.values(Provider).includes(provider as Provider)) {
+      throw new Error(
+        `Invalid provider. Valid providers: ${Object.values(Provider).join(
+          ', ',
+        )}`,
+      );
+    }
+    return this.animedbService.getAnimeById(id, provider as Provider);
   }
 }
