@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ANIME_OFFLINE_DB_FILE_URL } from '@shared/constants/urls';
 import axios from 'axios';
 import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
@@ -7,8 +8,7 @@ import { AnimeDB } from './interfaces/AnimeDb';
 @Injectable()
 export class AnimeDbDownloaderService {
   private readonly ANIME_OFFLINE_DB_FILE_PATH = './anime-offline-database.json';
-  private readonly ANIME_OFFLINE_DB_FILE_URL =
-    'https://github.com/manami-project/anime-offline-database/raw/master/anime-offline-database-minified.json';
+
   private animeDbCache: AnimeDB;
   public async getAnimeDb(): Promise<AnimeDB> {
     if (this.animeDbCache) {
@@ -18,7 +18,7 @@ export class AnimeDbDownloaderService {
       return this.animeDbCache;
     }
 
-    let animeDb;
+    let animeDb: AnimeDB;
     if (!this.localDbExists()) {
       Logger.log("Local DB doesn't exist. Downloading anime db...");
       animeDb = await this.downloadAnimeDb();
@@ -45,7 +45,7 @@ export class AnimeDbDownloaderService {
   }
 
   private async fetchAnimeDb(): Promise<AnimeDB> {
-    const res = await axios.get(this.ANIME_OFFLINE_DB_FILE_URL);
+    const res = await axios.get(ANIME_OFFLINE_DB_FILE_URL);
     return res.data;
   }
 
