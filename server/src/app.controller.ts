@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ApiParam } from '@nestjs/swagger';
 import { AnimeDbService } from './animedb.service';
 import { Provider } from './constants/Provider';
-import { GetAnimeByIdResponseDto } from './dtos/GetAnimeByIdDto';
+import { Anime } from './interfaces/AnimeDb';
 
 @Controller()
 export class AppController {
@@ -14,7 +14,7 @@ export class AppController {
   async getAnimeById(
     @Query('id') id: string,
     @Query('provider') provider?: string,
-  ): Promise<GetAnimeByIdResponseDto> {
+  ): Promise<Anime> {
     if (provider && !Object.values(Provider).includes(provider as Provider)) {
       throw new Error(
         `Invalid provider. Valid providers: ${Object.values(Provider).join(
