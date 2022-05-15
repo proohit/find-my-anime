@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { Provider, ProviderDomain } from '@shared/constants/Provider';
 import { AnimeDbDownloaderService } from './animedb-downloader.service';
-import { Provider, ProviderDomain } from './constants/Provider';
 import { Anime } from './interfaces/AnimeDb';
 
 @Injectable()
