@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ANIME_OFFLINE_DB_FILE_URL } from '@shared/constants/urls';
+import { AnimeDB } from '@shared/interfaces/AnimeDb';
 import axios from 'axios';
 import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
-import { AnimeDB } from './interfaces/AnimeDb';
 
 @Injectable()
 export class AnimeDbDownloaderService {

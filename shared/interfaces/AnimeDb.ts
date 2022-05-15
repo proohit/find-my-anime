@@ -1,3 +1,5 @@
+import { Provider } from '../constants/Provider';
+
 export interface AnimeDB {
   license: License;
   repository: string;
@@ -17,6 +19,8 @@ export interface Anime {
   synonyms: string[];
   relations: string[];
   tags: string[];
+  description?: string;
+  provider?: Provider;
 }
 
 export interface AnimeSeason {

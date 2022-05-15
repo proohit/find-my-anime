@@ -1,15 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { Provider, ProviderDomain } from '@shared/constants/Provider';
+import { Anime } from '@shared/interfaces/AnimeDb';
+import { getProviderId, getProviders } from '@shared/anime/sources';
+import { AnilistClient } from './anilist-client.service';
 import { AnimeDbDownloaderService } from './animedb-downloader.service';
-import { Anime } from './interfaces/AnimeDb';
 
 @Injectable()
 export class AnimeDbService {
-  constructor(private animeDbDownloaderService: AnimeDbDownloaderService) {}
+  constructor(
+    private animeDbDownloaderService: AnimeDbDownloaderService,
+    private readonly anilistClient: AnilistClient,
+  ) {}
 
   public async getAnimeById(id: string, provider?: Provider): Promise<Anime> {
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
-    return animeDb.data.find((anime) => this.idMatches(id, anime, provider));
+    const animeFromDb = animeDb.data.find((anime) =>
+      this.idMatches(id, anime, provider),
+    );
+    if (this.isEnrichable(animeFromDb, provider)) {
+      const providers = getProviders(animeFromDb);
+      return this.enrichAnime(animeFromDb, providers);
+    }
+    return animeFromDb;
   }
 
   private idMatches(id: string, anime: Anime, provider?: Provider): boolean {
@@ -21,7 +33,8 @@ export class AnimeDbService {
           source.includes(providerDomain),
         );
         if (source) {
-          return source.includes(id);
+          const sourceId = source.split('/').pop();
+          return sourceId === id;
         }
       } else {
         const sourcesIds = sources.map((source) => source.split('/').pop());
@@ -29,5 +42,29 @@ export class AnimeDbService {
       }
     }
     return false;
+  }
+
+  private isEnrichable(anime: Anime, provider?: Provider): boolean {
+    if (provider && provider === Provider.Anilist) {
+      return true;
+    }
+    const providers = getProviders(anime);
+    return providers.includes(Provider.Anilist);
+  }
+
+  private async enrichAnime(
+    anime: Anime,
+    providers?: Provider[],
+  ): Promise<Anime> {
+    const enrichedAnime = { ...anime };
+    if (providers.includes(Provider.Anilist)) {
+      const providerId = getProviderId(anime, Provider.Anilist);
+      const animeFromAnilist = await this.anilistClient.queryMedia(providerId);
+      if (animeFromAnilist) {
+        enrichedAnime.description = animeFromAnilist.description;
+        enrichedAnime.provider = Provider.Anilist;
+      }
+    }
+    return enrichedAnime;
   }
 }

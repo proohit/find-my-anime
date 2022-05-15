@@ -1,8 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiParam } from '@nestjs/swagger';
 import { Provider } from '@shared/constants/Provider';
+import { Anime } from '@shared/interfaces/AnimeDb';
 import { AnimeDbService } from './animedb.service';
-import { Anime } from './interfaces/AnimeDb';
 
 @Controller()
 export class AppController {
