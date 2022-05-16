@@ -27,6 +27,18 @@ export const getProviders = (anime: Anime): Provider[] => {
   return [];
 };
 
+export const getProvider = (anime: Anime, source: string) => {
+  const providers = getProviders(anime);
+  for (const provider of providers) {
+    if (source.includes(ProviderDomain[provider])) {
+      return Object.entries(Provider).find(
+        ([, value]) => value === provider,
+      )?.[0];
+    }
+  }
+  return null;
+};
+
 export const getSource = (anime: Anime, provider: Provider): string => {
   const sources = anime.sources;
   if (sources) {

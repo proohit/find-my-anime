@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { getProviders } from '@shared/anime/sources';
+import { getProviders, hasSource } from '@shared/anime/sources';
 import { Provider, ProviderDomain } from '@shared/constants/Provider';
 import { Anime } from '@shared/interfaces/AnimeDb';
 import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
@@ -22,6 +22,42 @@ export class AnimeDbService {
       return this.animeEnricherService.enrichAnime(animeFromDb, providers);
     }
     return animeFromDb;
+  }
+  public async queryAnime(
+    query: string,
+    provider?: Provider,
+  ): Promise<Anime[]> {
+    const animeDb = await this.animeDbDownloaderService.getAnimeDb();
+    const animesFromDb = animeDb.data.filter((anime) =>
+      this.queryMatches(anime, query, provider),
+    );
+    return animesFromDb;
+    // for (let i = 0; i < animesFromDb.length; i++) {
+    //   const providers = getProviders(animesFromDb[i]);
+    //   if (this.animeEnricherService.isEnrichable(animesFromDb[i], provider)) {
+    //     animesFromDb[i] = await this.animeEnricherService.enrichAnime(
+    //       animesFromDb[i],
+    //       providers,
+    //     );
+    //   }
+    // }
+    // return animesFromDb;
+  }
+
+  private queryMatches(
+    anime: Anime,
+    query: string,
+    provider?: Provider,
+  ): boolean {
+    const queryMatches =
+      anime.title.toLowerCase().includes(query.toLowerCase()) ||
+      anime.synonyms?.some((synonym) =>
+        synonym.toLowerCase().includes(query.toLowerCase()),
+      );
+    if (provider) {
+      return hasSource(anime, provider) && queryMatches;
+    }
+    return queryMatches;
   }
 
   private idMatches(id: string, anime: Anime, provider?: Provider): boolean {

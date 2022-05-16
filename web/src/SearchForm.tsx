@@ -24,6 +24,7 @@ type Props = {
 };
 
 export interface Filter {
+  query?: string;
   id?: string;
   provider?: Provider;
 }
@@ -44,7 +45,11 @@ export const SearchForm: FC<Props> = ({
     <Box w="100%">
       <form>
         <InputGroup>
-          <Input placeholder="Type to search..." />
+          <Input
+            name="query"
+            placeholder="Type to search..."
+            onChange={handleChange}
+          />
           <InputRightAddon p="0" w="24">
             <Button
               w="100%"
