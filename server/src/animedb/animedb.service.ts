@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { getProviders } from '@shared/anime/sources';
 import { Provider, ProviderDomain } from '@shared/constants/Provider';
 import { Anime } from '@shared/interfaces/AnimeDb';
+import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
 import { AnimeDbDownloaderService } from './animedb-downloader.service';
-import { AnimeEnricherService } from './enrichment/anime-enricher.service';
 
 @Injectable()
 export class AnimeDbService {

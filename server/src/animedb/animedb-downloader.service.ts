@@ -1,15 +1,18 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ANIME_OFFLINE_DB_FILE_URL } from '@shared/constants/urls';
 import { AnimeDB } from '@shared/interfaces/AnimeDb';
-import axios from 'axios';
 import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class AnimeDbDownloaderService {
   private readonly ANIME_OFFLINE_DB_FILE_PATH = './anime-offline-database.json';
-
   private animeDbCache: AnimeDB;
+
+  constructor(private httpService: HttpService) {}
+
   public async getAnimeDb(): Promise<AnimeDB> {
     if (this.animeDbCache) {
       if (this.shouldUpdateAnimeDb(this.animeDbCache)) {
@@ -45,7 +48,9 @@ export class AnimeDbDownloaderService {
   }
 
   private async fetchAnimeDb(): Promise<AnimeDB> {
-    const res = await axios.get(ANIME_OFFLINE_DB_FILE_URL);
+    const res = await lastValueFrom(
+      this.httpService.get(ANIME_OFFLINE_DB_FILE_URL),
+    );
     return res.data;
   }
 
