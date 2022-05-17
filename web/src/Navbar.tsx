@@ -240,18 +240,7 @@ interface NavItem {
 
 const NAV_ITEMS: Array<NavItem> = [
   {
-    label: "Find",
-    children: [
-      {
-        label: "Anime",
-        subLabel: "Find anime",
-        href: "#",
-      },
-    ],
-    href: "/find",
-  },
-  {
     label: "API",
-    href: "/api",
+    href: "/api/docs",
   },
 ];
