@@ -1,19 +1,14 @@
 import { Provider } from "@find-my-anime/shared/constants/Provider";
 import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
+import { SERVER_PATH, SERVER_BASE } from "./urls";
 
 class AnimeApi {
-  private SERVER_BASE =
-    import.meta.env.MODE === "development"
-      ? "http://localhost:3004"
-      : `https://${window.location.host}`;
-  private SERVER_PATH = "/api";
-
   public queryAnime = async (
     query?: string,
     id?: string,
     provider?: Provider
   ): Promise<Anime[]> => {
-    const url = new URL(this.SERVER_PATH, this.SERVER_BASE);
+    const url = new URL(SERVER_PATH, SERVER_BASE);
     if (query) {
       url.searchParams.append("query", query);
     }

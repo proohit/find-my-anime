@@ -22,8 +22,9 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
+import { SERVER_BASE, SERVER_PATH } from "./urls";
 
-export default function WithSubnavigation() {
+export default () => {
   const { isOpen, onToggle } = useDisclosure();
 
   return (
@@ -84,7 +85,7 @@ export default function WithSubnavigation() {
       </Collapse>
     </Box>
   );
-}
+};
 
 const DesktopNav = () => {
   const linkColor = useColorModeValue("gray.600", "gray.200");
@@ -240,7 +241,18 @@ interface NavItem {
 
 const NAV_ITEMS: Array<NavItem> = [
   {
+    label: "About",
+    href: "#",
+  },
+  {
     label: "API",
-    href: "/api/docs",
+    children: [
+      {
+        label: "Docs",
+        subLabel: "Human readable documentation of the API",
+        href: `${SERVER_BASE}${SERVER_PATH}/docs`,
+      },
+    ],
+    href: `${SERVER_BASE}${SERVER_PATH}/docs`,
   },
 ];
