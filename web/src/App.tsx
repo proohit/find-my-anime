@@ -1,33 +1,24 @@
-import {
-  Box,
-  ChakraProvider,
-  Spinner,
-  theme,
-  useDisclosure,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, ChakraProvider, Spinner, theme, VStack } from "@chakra-ui/react";
 import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import AnimeList from "./AnimeList";
 import Api from "./Api";
 import WithSubnavigation from "./Navbar";
 import { Filter, SearchForm } from "./SearchForm";
 
 export const App = () => {
-  const { isOpen, onToggle } = useDisclosure();
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [filters, setFilters] = useState<Filter>({});
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const filterActive = useMemo(
-    () =>
-      Object.values(filters).reduce(
-        (active, value) => active || !!value,
-        false
-      ),
-    [filters]
-  );
   const updateFiltersAndRequest = async (newFilters: Filter) => {
-    if (!Object.values(newFilters).some((value) => !!value)) {
+    const hasAnyFilters = Object.values(newFilters).some((value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return !!value;
+    });
+    if (!hasAnyFilters) {
       setAnimes([]);
       return;
     }
@@ -36,13 +27,21 @@ export const App = () => {
     const filteredAnimes = await Api.queryAnime(
       newFilters.query,
       newFilters.id,
-      newFilters.provider
+      newFilters.provider,
+      newFilters.tags
     );
     if (filteredAnimes) {
       setAnimes(filteredAnimes);
     }
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    Api.getTags().then((tags) => {
+      setAvailableTags(tags);
+    });
+  }, []);
+
   return (
     <ChakraProvider theme={theme}>
       <WithSubnavigation />
@@ -51,9 +50,7 @@ export const App = () => {
           <SearchForm
             onFiltersChanged={updateFiltersAndRequest}
             filters={filters}
-            onToggle={onToggle}
-            filterActive={filterActive}
-            isOpen={isOpen}
+            tags={availableTags}
           />
           {animes.length > 0 && <AnimeList animes={animes} />}
           {isLoading && <Spinner />}

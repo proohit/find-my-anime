@@ -9,8 +9,10 @@ export class AppController {
 
   @Get()
   async queryAnime(
-    @Query('query') query: string,
+    @Query('id') id?: string,
+    @Query('query') query?: string,
     @Query('provider') provider?: string,
+    @Query('tags') tags?: string,
   ): Promise<Anime[]> {
     if (provider && !Object.values(Provider).includes(provider as Provider)) {
       throw new Error(
@@ -20,8 +22,15 @@ export class AppController {
       );
     }
     return this.animedbService.queryAnime(
-      decodeURIComponent(query),
+      id,
+      query && decodeURIComponent(query),
       provider as Provider,
+      tags && decodeURIComponent(tags).split(','),
     );
+  }
+
+  @Get('/tags')
+  async getTags(): Promise<string[]> {
+    return this.animedbService.getTags();
   }
 }

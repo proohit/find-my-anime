@@ -27,14 +27,17 @@ export class AnimeDbService {
     return animeFromDb;
   }
   public async queryAnime(
-    query: string,
+    id?: string,
+    query?: string,
     provider?: Provider,
+    tags?: string[],
+    limit?: number,
   ): Promise<Anime[]> {
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
     const animesFromDb = animeDb.data.filter((anime) =>
-      this.queryMatches(anime, query, provider),
+      this.queryMatches(anime, id, query, provider, tags),
     );
-    return animesFromDb;
+    return animesFromDb.slice(0, limit || 20);
     // for (let i = 0; i < animesFromDb.length; i++) {
     //   const providers = getProviders(animesFromDb[i]);
     //   if (this.animeEnricherService.isEnrichable(animesFromDb[i], provider)) {
@@ -46,21 +49,41 @@ export class AnimeDbService {
     // }
     // return animesFromDb;
   }
-
+  public async getTags(): Promise<string[]> {
+    const animeDb = await this.animeDbDownloaderService.getAnimeDb();
+    const tags = new Set(
+      animeDb.data
+        .map((anime) => anime.tags)
+        .filter((tag) => tag)
+        .flat(),
+    );
+    return [...tags];
+  }
   private queryMatches(
     anime: Anime,
-    query: string,
+    id?: string,
+    query?: string,
     provider?: Provider,
+    tags?: string[],
   ): boolean {
-    const queryMatches =
-      anime.title.toLowerCase().includes(query.toLowerCase()) ||
-      anime.synonyms?.some((synonym) =>
-        synonym.toLowerCase().includes(query.toLowerCase()),
-      );
-    if (provider) {
-      return hasSource(anime, provider) && queryMatches;
+    let matches = true;
+    if (id && !this.idMatches(id, anime, provider)) {
+      return false;
     }
-    return queryMatches;
+    if (query) {
+      matches =
+        anime.title.toLowerCase().includes(query.toLowerCase()) ||
+        anime.synonyms?.some((synonym) =>
+          synonym.toLowerCase().includes(query.toLowerCase()),
+        );
+    }
+    if (provider) {
+      matches = hasSource(anime, provider) && matches;
+    }
+    if (tags) {
+      matches = tags?.every((tag) => anime?.tags.includes(tag)) && matches;
+    }
+    return matches;
   }
 
   private idMatches(id: string, anime: Anime, provider?: Provider): boolean {

@@ -8,7 +8,15 @@ import {
   Image,
   LinkBox,
   LinkOverlay,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
   Stack,
+  Text,
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
@@ -47,28 +55,26 @@ const AnimeList: FC<Props> = (props) => {
               alignItems="center"
               p={1}
               pt={2}
-              w="100%"
             >
               <Heading fontSize={"2xl"} fontFamily={"body"}>
                 {anime.title}
               </Heading>
-              <HStack
-                p={2}
-                justifyContent={"flex-start"}
-                flexWrap="wrap"
-                gap={1}
-              >
-                {anime.tags.slice(0, 9).map((tag) => (
-                  <Badge
-                    px={2}
-                    py={1}
-                    bg={useColorModeValue("gray.50", "gray.800")}
-                    fontWeight={"400"}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </HStack>
+              <Popover>
+                <PopoverTrigger>
+                  <Box>
+                    <TagList tags={anime.tags} limit={10} />
+                    {anime.tags?.length >= 10 && <Text>...</Text>}
+                  </Box>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <PopoverArrow />
+                  <PopoverCloseButton />
+                  <PopoverHeader>All Tags</PopoverHeader>
+                  <PopoverBody>
+                    <TagList tags={anime.tags} />
+                  </PopoverBody>
+                </PopoverContent>
+              </Popover>
 
               <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
                 {anime.sources.map((source) => (
@@ -90,3 +96,24 @@ const AnimeList: FC<Props> = (props) => {
 };
 
 export default AnimeList;
+interface TagListProps {
+  tags: string[];
+  limit?: number;
+}
+const TagList: FC<TagListProps> = (props) => {
+  const { tags, limit } = props;
+  return (
+    <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap" gap={1}>
+      {tags.slice(0, limit).map((tag) => (
+        <Badge
+          px={2}
+          py={1}
+          bg={useColorModeValue("gray.200", "gray.900")}
+          fontWeight={"400"}
+        >
+          {tag}
+        </Badge>
+      ))}
+    </HStack>
+  );
+};

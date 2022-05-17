@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^2.0.0",
+    "@choc-ui/chakra-autocomplete": "^4.22.0",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@find-my-anime/shared": "file:../shared",
