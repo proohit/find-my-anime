@@ -7,12 +7,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
-import debounce from "lodash/debounce";
-import { useState, useMemo, useCallback } from "react";
+import AwesomeDebouncePromise from "awesome-debounce-promise";
+import { useMemo, useState } from "react";
 import AnimeList from "./AnimeList";
 import Api from "./Api";
 import WithSubnavigation from "./Navbar";
 import { Filter, SearchForm } from "./SearchForm";
+
+const debouncedRequest = AwesomeDebouncePromise(Api.queryAnime, 1000);
 
 export const App = () => {
   const { isOpen, onToggle } = useDisclosure();
@@ -26,10 +28,6 @@ export const App = () => {
         false
       ),
     [filters]
-  );
-  const debouncedRequest = useCallback(
-    debounce(Api.queryAnime, 2000, { leading: true }),
-    []
   );
   const updateFiltersAndRequest = async (newFilters: Filter) => {
     if (!newFilters.query) {
