@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import {
-  Anime,
   getProviderId,
   getProviders,
-  Provider,
-} from '@find-my-anime/shared';
+} from '@find-my-anime/shared/anime/sources';
+import { Provider } from '@find-my-anime/shared/constants/Provider';
+import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { Injectable } from '@nestjs/common';
 import { AnilistClient } from '../api-clients/anilist-client.service';
 
 @Injectable()

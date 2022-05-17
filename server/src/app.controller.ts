@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { Anime, Provider } from '@find-my-anime/shared';
 import { AnimeDbService } from './animedb/animedb.service';
+import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { Provider } from '@find-my-anime/shared/constants/Provider';
 
 @Controller()
 export class AppController {

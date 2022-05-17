@@ -1,4 +1,7 @@
 import { Provider } from '../constants/Provider';
+import { Season } from '../constants/Season';
+import { Status } from '../constants/Status';
+import { Type } from '../constants/Type';
 
 export interface AnimeDB {
   license: License;
@@ -26,29 +29,6 @@ export interface Anime {
 export interface AnimeSeason {
   season: Season;
   year?: number;
-}
-
-export enum Season {
-  Fall = 'FALL',
-  Spring = 'SPRING',
-  Summer = 'SUMMER',
-  Undefined = 'UNDEFINED',
-  Winter = 'WINTER',
-}
-
-export enum Status {
-  Finished = 'FINISHED',
-  Ongoing = 'ONGOING',
-  Upcoming = 'UPCOMING',
-}
-
-export enum Type {
-  Movie = 'MOVIE',
-  Ona = 'ONA',
-  Ova = 'OVA',
-  Special = 'SPECIAL',
-  Tv = 'TV',
-  Unknown = 'UNKNOWN',
 }
 
 export interface License {

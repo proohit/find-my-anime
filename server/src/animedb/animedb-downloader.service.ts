@@ -1,6 +1,7 @@
+import { ANIME_OFFLINE_DB_FILE_URL } from '@find-my-anime/shared/constants/urls';
+import { AnimeDB } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { AnimeDB, ANIME_OFFLINE_DB_FILE_URL } from '@find-my-anime/shared';
 import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import { lastValueFrom } from 'rxjs';

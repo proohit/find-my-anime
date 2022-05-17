@@ -1,4 +1,5 @@
-import { Anime, Provider } from "@find-my-anime/shared";
+import { Provider } from "@find-my-anime/shared/constants/Provider";
+import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
 
 class AnimeApi {
   private SERVER_URL =

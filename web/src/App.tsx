@@ -6,7 +6,7 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { Anime } from "@find-my-anime/shared";
+import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
 import debounce from "lodash/debounce";
 import { useState, useMemo, useCallback } from "react";
 import AnimeList from "./AnimeList";

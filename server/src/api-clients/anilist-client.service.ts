@@ -1,8 +1,7 @@
 import { ANILIST_API_URL } from '@find-my-anime/shared/constants/urls';
-import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
-
 @Injectable()
 export class AnilistClient {
   constructor(private httpService: HttpService) {}
