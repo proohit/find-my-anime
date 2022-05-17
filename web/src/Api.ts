@@ -15,7 +15,7 @@ class AnimeApi {
   ): Promise<Anime[]> => {
     const url = new URL(this.SERVER_PATH, this.SERVER_BASE);
     if (query) {
-      url.searchParams.append("query", query.replace(/\s/g, "%20"));
+      url.searchParams.append("query", query);
     }
     if (id) {
       url.searchParams.append("id", id);

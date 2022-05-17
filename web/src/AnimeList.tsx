@@ -19,7 +19,8 @@ interface Props {
   animes: Anime[];
 }
 
-const AnimeList: FC<Props> = ({ animes }) => {
+const AnimeList: FC<Props> = (props) => {
+  const { animes } = props;
   return (
     <Box w="100%">
       {animes.map((anime) => (

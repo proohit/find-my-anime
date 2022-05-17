@@ -11,7 +11,7 @@ import {
 import React, { ChangeEvent, FC } from "react";
 import { FaFilter } from "react-icons/fa";
 import { Provider } from "@find-my-anime/shared/constants/Provider";
-
+import { useDebouncedCallback } from "use-debounce";
 type Props = {
   onToggle: () => void;
   filterActive: boolean;
@@ -33,10 +33,19 @@ export const SearchForm: FC<Props> = ({
   filters,
   onFiltersChanged,
 }) => {
+  const [localFilter, setLocalFilter] = React.useState<Filter>({ ...filters });
+  const debouncedEmitChange = useDebouncedCallback(onFiltersChanged, 1000, {
+    trailing: true,
+  });
+
   const handleChange = (
     event: ChangeEvent<HTMLSelectElement | HTMLInputElement>
-  ) =>
-    onFiltersChanged({ ...filters, [event.target.name]: event.target.value });
+  ) => {
+    const { name, value } = event.target;
+    const updatedFilters = { ...localFilter, [name]: value };
+    setLocalFilter(updatedFilters);
+    debouncedEmitChange(updatedFilters);
+  };
 
   return (
     <Box w="100%">
@@ -82,3 +91,6 @@ export const SearchForm: FC<Props> = ({
     </Box>
   );
 };
+function useDebounce(onFiltersChanged: (filter: Filter) => void, arg1: number) {
+  throw new Error("Function not implemented.");
+}
