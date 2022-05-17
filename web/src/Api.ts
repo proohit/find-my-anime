@@ -5,7 +5,7 @@ class AnimeApi {
   private SERVER_BASE =
     import.meta.env.MODE === "development"
       ? "http://localhost:3004"
-      : window.location.host;
+      : `https://${window.location.host}`;
   private SERVER_PATH = "/api";
 
   public queryAnime = async (
