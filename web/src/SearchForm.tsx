@@ -78,7 +78,7 @@ export const SearchForm: FC<Props> = (props) => {
             ))
           }
         </AutoCompleteInput>
-        <AutoCompleteList bg={useColorModeValue("white", "gray.800")}>
+        <AutoCompleteList bg={useColorModeValue("white", "gray.700")}>
           {tags.map((tag) => (
             <AutoCompleteItem
               key={`option-${tag}`}
