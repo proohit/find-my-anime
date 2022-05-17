@@ -1,5 +1,5 @@
-import { Provider } from "@shared/constants/Provider";
-import { Anime } from "@shared/interfaces/AnimeDb";
+import { Anime, Provider } from "find-my-anime-shared";
+
 class AnimeApi {
   private SERVER_URL =
     import.meta.env.MODE === "development" ? "http://localhost:3000/" : "/";

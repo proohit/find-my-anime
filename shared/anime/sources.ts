@@ -1,5 +1,5 @@
-import { Provider, ProviderDomain } from '@shared/constants/Provider';
-import { Anime } from '@shared/interfaces/AnimeDb';
+import { Provider, ProviderDomain } from '../constants/Provider';
+import { Anime } from '../interfaces/AnimeDb';
 
 export const hasSource = (anime: Anime, provider: Provider): boolean => {
   const sources = anime.sources;

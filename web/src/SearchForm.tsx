@@ -2,16 +2,13 @@ import {
   Box,
   Button,
   Collapse,
-  Flex,
-  IconButton,
   Input,
   InputGroup,
   InputRightAddon,
   Select,
   useColorModeValue,
-  VStack,
 } from "@chakra-ui/react";
-import { Provider } from "@shared/constants/Provider";
+import { Provider } from "find-my-anime-shared";
 import React, { ChangeEvent, FC } from "react";
 import { FaFilter } from "react-icons/fa";
 

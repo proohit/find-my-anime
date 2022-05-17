@@ -1,6 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { Provider } from '@shared/constants/Provider';
-import { Anime } from '@shared/interfaces/AnimeDb';
+import { Anime, Provider } from 'find-my-anime-shared';
 import { AnimeDbService } from './animedb/animedb.service';
 
 @Controller()

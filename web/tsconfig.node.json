@@ -4,6 +4,5 @@
     "module": "esnext",
     "moduleResolution": "node"
   },
-  "include": ["vite.config.ts"],
-  "references": [{ "path": "../shared" }]
+  "include": ["vite.config.ts"]
 }

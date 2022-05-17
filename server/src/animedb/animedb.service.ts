@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { getProviders, hasSource } from '@shared/anime/sources';
-import { Provider, ProviderDomain } from '@shared/constants/Provider';
-import { Anime } from '@shared/interfaces/AnimeDb';
+import {
+  Anime,
+  getProviders,
+  hasSource,
+  ProviderDomain,
+  Provider,
+} from 'find-my-anime-shared';
 import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
 import { AnimeDbDownloaderService } from './animedb-downloader.service';
 
