@@ -12,7 +12,7 @@ import {
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
-import { Anime, getProvider } from "find-my-anime-shared";
+import { Anime, getProvider } from "@find-my-anime/shared";
 import { FC } from "react";
 
 interface Props {

@@ -8,7 +8,7 @@ import {
   Select,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { Provider } from "find-my-anime-shared";
+import { Provider } from "@find-my-anime/shared";
 import React, { ChangeEvent, FC } from "react";
 import { FaFilter } from "react-icons/fa";
 

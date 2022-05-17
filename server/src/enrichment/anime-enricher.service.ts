@@ -4,7 +4,7 @@ import {
   getProviderId,
   getProviders,
   Provider,
-} from 'find-my-anime-shared';
+} from '@find-my-anime/shared';
 import { AnilistClient } from '../api-clients/anilist-client.service';
 
 @Injectable()

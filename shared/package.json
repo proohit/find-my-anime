@@ -1,5 +1,5 @@
 {
-    "name": "find-my-anime-shared",
+    "name": "@find-my-anime/shared",
     "main": "./index.ts",
     "types": "./index.ts"
 }

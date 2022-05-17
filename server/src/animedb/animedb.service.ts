@@ -5,7 +5,7 @@ import {
   hasSource,
   ProviderDomain,
   Provider,
-} from 'find-my-anime-shared';
+} from '@find-my-anime/shared';
 import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
 import { AnimeDbDownloaderService } from './animedb-downloader.service';
 
