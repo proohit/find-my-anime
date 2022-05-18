@@ -32,7 +32,7 @@ const AnimeList: FC<Props> = (props) => {
   return (
     <Box w="100%">
       {animes.map((anime) => (
-        <Center py={6}>
+        <Center py={6} key={anime.title}>
           <Stack
             borderWidth="1px"
             borderRadius="lg"
@@ -78,7 +78,7 @@ const AnimeList: FC<Props> = (props) => {
 
               <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
                 {anime.sources.map((source) => (
-                  <LinkBox>
+                  <LinkBox key={source}>
                     <LinkOverlay href={source} isExternal>
                       <Badge color={useColorModeValue("blue.500", "blue.200")}>
                         {getProvider(anime, source)}
@@ -106,6 +106,7 @@ const TagList: FC<TagListProps> = (props) => {
     <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap" gap={1}>
       {tags.slice(0, limit).map((tag) => (
         <Badge
+          key={tag}
           px={2}
           py={1}
           bg={useColorModeValue("gray.200", "gray.900")}

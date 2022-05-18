@@ -8,9 +8,9 @@ import { Filter, SearchForm } from "./SearchForm";
 
 export const App = () => {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
-  const [filters, setFilters] = useState<Filter>({});
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
   const updateFiltersAndRequest = async (newFilters: Filter) => {
     const hasAnyFilters = Object.values(newFilters).some((value) => {
       if (Array.isArray(value)) {
@@ -20,13 +20,13 @@ export const App = () => {
     });
     if (!hasAnyFilters) {
       setAnimes([]);
+      setIsLoading(false);
       return;
     }
-    setFilters(newFilters);
     setIsLoading(true);
     const filteredAnimes = await Api.queryAnime(
-      newFilters.query,
       newFilters.id,
+      newFilters.query,
       newFilters.provider,
       newFilters.tags
     );
@@ -48,8 +48,8 @@ export const App = () => {
       <Box textAlign="center" fontSize="xl">
         <VStack spacing={8} w={"lg"} ml="auto" mr="auto" mt="10">
           <SearchForm
+            onLoadingChanged={setIsLoading}
             onFiltersChanged={updateFiltersAndRequest}
-            filters={filters}
             tags={availableTags}
           />
           {animes.length > 0 && <AnimeList animes={animes} />}

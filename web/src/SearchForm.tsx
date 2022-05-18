@@ -1,23 +1,19 @@
 import {
-  FormLabel,
   Input,
   Select,
   useColorModeValue,
   VStack,
+  Wrap,
 } from "@chakra-ui/react";
-import {
-  AutoComplete,
-  AutoCompleteInput,
-  AutoCompleteItem,
-  AutoCompleteList,
-  AutoCompleteTag,
-} from "@choc-ui/chakra-autocomplete";
 import { Provider } from "@find-my-anime/shared/constants/Provider";
 import React, { ChangeEvent, FC } from "react";
 import { useDebouncedCallback } from "use-debounce";
+import { Autocomplete } from "./Autocomplete";
+import { FilterTag } from "./FilterTag";
+
 type Props = {
   onFiltersChanged: (filter: Filter) => void;
-  filters: Filter;
+  onLoadingChanged: (loading: boolean) => void;
   tags: string[];
 };
 
@@ -29,30 +25,48 @@ export interface Filter {
 }
 
 export const SearchForm: FC<Props> = (props) => {
-  const { filters, onFiltersChanged, tags } = props;
-
-  const [localFilter, setLocalFilter] = React.useState<Filter>({ ...filters });
+  const { onFiltersChanged, tags, onLoadingChanged } = props;
+  const [filters, setFilters] = React.useState<Filter>({});
   const debouncedEmitChange = useDebouncedCallback(onFiltersChanged, 1000, {
     trailing: true,
   });
-
   const handleChange = (
     event: ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
     const { name, value } = event.target;
-    const updatedFilters = { ...localFilter, [name]: value };
-    setLocalFilter(updatedFilters);
+    const updatedFilters = { ...filters, [name]: value };
+    setFilters(updatedFilters);
+    onLoadingChanged(true);
     debouncedEmitChange(updatedFilters);
   };
 
   const handleTagChange = (filterTags: string[]) => {
-    const updatedFilters = { ...localFilter, tags: filterTags };
-    setLocalFilter(updatedFilters);
+    const updatedFilters = { ...filters, tags: filterTags };
+    setFilters(updatedFilters);
+    onLoadingChanged(true);
     debouncedEmitChange(updatedFilters);
   };
 
+  const handleTagAdd = (tag: string) => {
+    const updatedTags = new Set([...(filters.tags || []), tag]);
+    const updatedFilters = { ...filters, tags: [...updatedTags] };
+    setFilters(updatedFilters);
+    onLoadingChanged(true);
+    debouncedEmitChange(updatedFilters);
+  };
+
+  const handleTagRemove = (tag: string) => {
+    if (filters.tags) {
+      handleTagChange(filters.tags.filter((t) => t !== tag));
+    }
+  };
+
   return (
-    <VStack bg={useColorModeValue("white.100", "gray.800")} w="100%">
+    <VStack
+      alignItems="flex-start"
+      bg={useColorModeValue("white.100", "gray.800")}
+      w="100%"
+    >
       <Input name="query" placeholder="Title" onChange={handleChange} />
       <Input name="id" onChange={handleChange} placeholder="Id" />
       <Select
@@ -65,35 +79,12 @@ export const SearchForm: FC<Props> = (props) => {
           <option key={provider}>{provider}</option>
         ))}
       </Select>
-      <AutoComplete freeSolo openOnFocus multiple onChange={handleTagChange}>
-        <FormLabel>Tags</FormLabel>
-        <AutoCompleteInput>
-          {({ tags: itemTags }) =>
-            itemTags.map((tag, tid) => (
-              <AutoCompleteTag
-                key={tid}
-                label={tag.label}
-                onRemove={tag.onRemove}
-              />
-            ))
-          }
-        </AutoCompleteInput>
-        <AutoCompleteList bg={useColorModeValue("white", "gray.700")}>
-          {tags.map((tag) => (
-            <AutoCompleteItem
-              key={`option-${tag}`}
-              value={tag}
-              textTransform="capitalize"
-              _hover={{ bg: useColorModeValue("gray.100", "whiteAlpha.100") }}
-              _selected={{
-                bg: useColorModeValue("gray.300", "whiteAlpha.300"),
-              }}
-            >
-              {tag}
-            </AutoCompleteItem>
-          ))}
-        </AutoCompleteList>
-      </AutoComplete>
+      <Autocomplete items={tags} onItemClick={handleTagAdd} />
+      <Wrap spacing="3">
+        {filters.tags?.map((tag) => (
+          <FilterTag tag={tag} onClick={() => handleTagRemove(tag)} />
+        ))}
+      </Wrap>
     </VStack>
   );
 };
