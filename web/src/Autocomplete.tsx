@@ -31,10 +31,10 @@ export const Autocomplete: FC<{
 
   const filterItems = (query: string) => {
     const bestMatch = findBestMatch(query, items);
-    const sortedAndSlicedMatches = [...bestMatch.ratings]
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, 15);
-    const matches = sortedAndSlicedMatches.map((match) => match.target);
+    const sortedMatches = [...bestMatch.ratings].sort(
+      (a, b) => b.rating - a.rating
+    );
+    const matches = sortedMatches.map((match) => match.target);
     if (matches) {
       setFilteredItems(matches);
     }
