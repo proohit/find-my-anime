@@ -1,8 +1,11 @@
 import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, HttpException, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AnimeDbService } from './animedb/animedb.service';
+import { arrayQueryTransformer } from './validators/Array';
+import { validateEnumQueryTransformer as enumQueryTransformer } from './validators/Enum';
+import { stringQueryTransformer } from './validators/String';
 
 @Controller()
 export class AppController {
@@ -43,23 +46,14 @@ export class AppController {
   })
   async queryAnime(
     @Query('id') id?: string,
-    @Query('query') query?: string,
-    @Query('provider') provider?: string,
-    @Query('tags') tags?: string,
+    @Query('query', stringQueryTransformer())
+    query?: string,
+    @Query('provider', enumQueryTransformer({ enumType: Provider }))
+    provider?: Provider,
+    @Query('tags', arrayQueryTransformer({ separator: ',', trim: true }))
+    tags?: string[],
   ): Promise<Anime[]> {
-    if (provider && !Object.values(Provider).includes(provider as Provider)) {
-      throw new Error(
-        `Invalid provider. Valid providers: ${Object.values(Provider).join(
-          ', ',
-        )}`,
-      );
-    }
-    return this.animedbService.queryAnime(
-      id,
-      query && decodeURIComponent(query),
-      provider as Provider,
-      tags && decodeURIComponent(tags).split(','),
-    );
+    return this.animedbService.queryAnime(id, query, provider, tags);
   }
   @ApiOperation({
     description: 'Get all available tags',
