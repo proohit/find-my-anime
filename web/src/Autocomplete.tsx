@@ -15,8 +15,9 @@ import { useDebouncedCallback } from "use-debounce";
 export const Autocomplete: FC<{
   items: string[];
   onItemClick: (item: string) => void;
+  selectedItems?: string[];
 }> = (props) => {
-  const { items, onItemClick } = props;
+  const { items, onItemClick, selectedItems } = props;
   const [filteredItems, setFilteredItems] = useState<string[]>(items || []);
   useEffect(() => {
     setFilteredItems(items);
@@ -25,12 +26,10 @@ export const Autocomplete: FC<{
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    console.log("event");
     debouncedFilter(value);
   };
 
   const filterItems = (query: string) => {
-    console.log("filtering");
     const bestMatch = findBestMatch(query, items);
     const sortedAndSlicedMatches = [...bestMatch.ratings]
       .sort((a, b) => b.rating - a.rating)
@@ -53,6 +52,7 @@ export const Autocomplete: FC<{
           <Box bg={useColorModeValue("white", "gray.700")} w="100%">
             <VirtualizedItemList
               items={filteredItems}
+              selectedItems={selectedItems}
               onItemClick={onItemClick}
             />
           </Box>

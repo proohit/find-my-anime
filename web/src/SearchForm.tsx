@@ -48,11 +48,15 @@ export const SearchForm: FC<Props> = (props) => {
   };
 
   const handleTagAdd = (tag: string) => {
-    const updatedTags = new Set([...(filters.tags || []), tag]);
-    const updatedFilters = { ...filters, tags: [...updatedTags] };
-    setFilters(updatedFilters);
-    onLoadingChanged(true);
-    debouncedEmitChange(updatedFilters);
+    if (filters.tags?.includes(tag)) {
+      handleTagRemove(tag);
+    } else {
+      const updatedTags = [...(filters.tags || []), tag];
+      const updatedFilters = { ...filters, tags: [...updatedTags] };
+      setFilters(updatedFilters);
+      onLoadingChanged(true);
+      debouncedEmitChange(updatedFilters);
+    }
   };
 
   const handleTagRemove = (tag: string) => {
@@ -79,7 +83,11 @@ export const SearchForm: FC<Props> = (props) => {
           <option key={provider}>{provider}</option>
         ))}
       </Select>
-      <Autocomplete items={tags} onItemClick={handleTagAdd} />
+      <Autocomplete
+        items={tags}
+        onItemClick={handleTagAdd}
+        selectedItems={filters.tags}
+      />
       <Wrap spacing="3">
         {filters.tags?.map((tag) => (
           <FilterTag tag={tag} onClick={() => handleTagRemove(tag)} />

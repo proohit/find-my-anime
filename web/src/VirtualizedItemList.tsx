@@ -4,9 +4,10 @@ import { FixedSizeList as List } from "react-window";
 
 export const VirtualizedItemList: FC<{
   items: string[];
+  selectedItems?: string[];
   onItemClick: (item: string) => void;
 }> = (props) => {
-  const { items, onItemClick } = props;
+  const { items, onItemClick, selectedItems } = props;
   return (
     <List
       height={300}
@@ -17,6 +18,7 @@ export const VirtualizedItemList: FC<{
     >
       {({ index, style, data }) => (
         <VirtualizedItem
+          selected={selectedItems?.includes(data[index])}
           index={index}
           data={data}
           style={style}
@@ -31,9 +33,10 @@ const VirtualizedItem: FC<{
   index: number;
   style?: CSSProperties;
   data: string[];
+  selected?: boolean;
   onItemClick: (tag: string) => void;
 }> = (props) => {
-  const { index, style, data, onItemClick } = props;
+  const { index, style, data, onItemClick, selected } = props;
   const item = data?.[index];
   return (
     <Box
@@ -44,6 +47,7 @@ const VirtualizedItem: FC<{
       textTransform="capitalize"
       color={useColorModeValue("gray.700", "gray.300")}
       w="100%"
+      aria-selected={selected}
       _hover={{
         bg: useColorModeValue("gray.100", "whiteAlpha.100"),
       }}
