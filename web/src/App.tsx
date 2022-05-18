@@ -46,7 +46,13 @@ export const App = () => {
     <ChakraProvider theme={theme}>
       <WithSubnavigation />
       <Box textAlign="center" fontSize="xl">
-        <VStack spacing={8} w={"lg"} ml="auto" mr="auto" mt="10">
+        <VStack
+          spacing={8}
+          w={["xs", "sm", "lg", "xl"]}
+          ml="auto"
+          mr="auto"
+          mt="10"
+        >
           <SearchForm
             onLoadingChanged={setIsLoading}
             onFiltersChanged={updateFiltersAndRequest}
