@@ -1,0 +1,12 @@
+{
+    "name": "find-my-anime",
+    "private": "true",
+    "scripts": {
+        "start": "npm run start -w server",
+        "build": "npm run build -w server & npm run build -w web"
+    },
+    "workspaces": [
+        "server",
+        "web"
+    ]
+}
