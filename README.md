@@ -12,12 +12,20 @@ npm install
 
 ## Running
 
-Run the whole app in production mode:
+The easiest way is to use Docker:
+
+```bash
+docker run -d -p 3000:3000 proohit/find-my-anime
+```
+
+Or to run the whole app without docker in production mode:
 
 ```bash
 npm run build
 npm start
 ```
+
+Then you can access the app at http://localhost:3000 or whatever port you configured.
 
 ## Developing
 
