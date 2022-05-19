@@ -1,6 +1,17 @@
 {
     "name": "find-my-anime",
     "private": "true",
+    "repository": {
+        "url": "https://github.com/proohit/find-my-anime",
+        "type": "git"
+    },
+    "keywords": [
+        "anime",
+        "search",
+        "api"
+    ],
+    "author": "proohit <direnc99@gmail.com>",
+    "license": "AGPL-3.0",
     "scripts": {
         "start": "npm run start -w server",
         "build": "npm run build -w server & npm run build -w web"
