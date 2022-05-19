@@ -15,6 +15,7 @@ npm install
 Run the whole app in production mode:
 
 ```bash
+npm run build
 npm start
 ```
 

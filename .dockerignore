@@ -1,7 +1,10 @@
+node_modules
+
 server/node_modules
 web/node_modules
 
 server/dist
+server/coverage
 web/dist
 
 .git
