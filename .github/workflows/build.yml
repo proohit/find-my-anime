@@ -23,7 +23,7 @@ jobs:
       - name: "Check if tests pass"
         working-directory: ./server
         run: |
-          npm run test
+          npm run test:cov
       - uses: codecov/codecov-action@v2
         with:
-          files: ./server/coverage/lcov.info
+          directory: ./server/coverage
