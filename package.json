@@ -13,8 +13,11 @@
     "author": "proohit <direnc99@gmail.com>",
     "license": "AGPL-3.0",
     "scripts": {
+        "prestart": "npm run build",
         "start": "npm run start -w server",
-        "build": "npm run build -w server & npm run build -w web"
+        "build": "npm run build -w server & npm run build -w web",
+        "start:dev:server": "npm run start:dev -w server",
+        "start:dev:web": "npm run start:dev -w web"
     },
     "workspaces": [
         "server",
