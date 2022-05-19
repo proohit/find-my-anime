@@ -21,10 +21,12 @@ RUN /usr/local/bin/node-prune ./server/node_modules
 FROM node:16-alpine
 
 WORKDIR /usr/app
+
 ## Copy runtime build files
-COPY --from=BUILD_IMAGE /usr/app/server/dist ./server/dist
-COPY --from=BUILD_IMAGE /usr/app/server/node_modules ./server/node_modules
-COPY --from=BUILD_IMAGE /usr/app/web/dist ./web/dist
+COPY --from=BUILD_IMAGE /usr/app/server/dist /usr/app/server/dist
+COPY --from=BUILD_IMAGE /usr/app/server/node_modules /usr/app/server/node_modules
+COPY --from=BUILD_IMAGE /usr/app/web/dist /usr/app/web/dist
 
+EXPOSE 3000
 
-CMD [ "node", "./server/dist/main.js" ]
+CMD [ "node", "./server/dist/server/src/main.js", "--port=3000" ]
