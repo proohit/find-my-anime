@@ -7,16 +7,16 @@ type ArrayTransformerOptions = TransformerOptions & {
   trim?: boolean;
 };
 export const arrayQueryTransformer = (
-  options: ArrayTransformerOptions,
+  options?: ArrayTransformerOptions,
 ): PipeTransform<string, string[]> => ({
   transform: (value, metadata) => {
-    const { separator, trim, required } = options;
-    if (!value && required) {
+    const DEFAULT_SEPARATOR = ',';
+    if (!value && options?.required) {
       throw new MissingQuery(metadata.data);
     }
     if (value) {
-      let values = value.split(separator);
-      if (trim) {
+      let values = value.split(options?.separator || DEFAULT_SEPARATOR);
+      if (options?.trim) {
         values = values.map((v) => v.trim());
       }
       return values;

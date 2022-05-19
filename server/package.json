@@ -63,6 +63,9 @@
       "ts"
     ],
     "rootDir": "src",
+    "moduleNameMapper": {
+      "@find-my-anime/shared/(.*)": "<rootDir>/../../shared/$1"
+    },
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
