@@ -16,7 +16,7 @@ jobs:
           node-version: 16.x
       - name: "Install dependencies"
         run: |
-          npm ci
+          npm install
       - name: "Check if build runs"
         run: |
           npm run build
