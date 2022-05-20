@@ -15,17 +15,6 @@ export class AnimeDbService {
     private readonly animeEnricherService: AnimeEnricherService,
   ) {}
 
-  public async getAnimeById(id: string, provider?: Provider): Promise<Anime> {
-    const animeDb = await this.animeDbDownloaderService.getAnimeDb();
-    const animeFromDb = animeDb.data.find((anime) =>
-      this.idMatches(id, anime, provider),
-    );
-    if (this.animeEnricherService.isEnrichable(animeFromDb, provider)) {
-      const providers = getProviders(animeFromDb);
-      return this.animeEnricherService.enrichAnime(animeFromDb, providers);
-    }
-    return animeFromDb;
-  }
   public async queryAnime(
     id?: string,
     query?: string,

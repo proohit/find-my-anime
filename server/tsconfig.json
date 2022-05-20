@@ -21,5 +21,6 @@
       "@find-my-anime/shared/*": ["../shared/*"]
     }
   },
+  "files": ["node_modules/jest-extended/types/index.d.ts"],
   "references": [{ "path": "../shared" }]
 }
