@@ -77,7 +77,7 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "setupFilesAfterEnv": [
-      "jest-extended/all"
+      "../test/setupTestsAfterEnv.ts"
     ]
   }
 }
