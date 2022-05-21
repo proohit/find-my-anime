@@ -1,15 +1,17 @@
-import { getProviders, hasSource } from '@find-my-anime/shared/anime/sources';
+import { hasSource } from '@find-my-anime/shared/anime/sources';
 import {
   Provider,
   ProviderDomain,
 } from '@find-my-anime/shared/constants/Provider';
-import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { Anime, AnimeDB } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Injectable } from '@nestjs/common';
+import Fuse from 'fuse.js';
 import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
 import { AnimeDbDownloaderService } from './animedb-downloader.service';
 
 @Injectable()
 export class AnimeDbService {
+  private readonly UPPER_LIMIT = 100;
   constructor(
     private animeDbDownloaderService: AnimeDbDownloaderService,
     private readonly animeEnricherService: AnimeEnricherService,
@@ -20,13 +22,14 @@ export class AnimeDbService {
     query?: string,
     provider?: Provider,
     tags?: string[],
-    limit?: number,
+    limit = 20,
   ): Promise<Anime[]> {
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
-    const animesFromDb = animeDb.data.filter((anime) =>
-      this.queryMatches(anime, id, query, provider, tags),
+
+    return this.getMatches(animeDb, query, id, provider, tags).slice(
+      0,
+      Math.min(isNaN(limit) ? Infinity : limit, this.UPPER_LIMIT),
     );
-    return animesFromDb.slice(0, limit || 20);
     // for (let i = 0; i < animesFromDb.length; i++) {
     //   const providers = getProviders(animesFromDb[i]);
     //   if (this.animeEnricherService.isEnrichable(animesFromDb[i], provider)) {
@@ -38,6 +41,7 @@ export class AnimeDbService {
     // }
     // return animesFromDb;
   }
+
   public async getTags(): Promise<string[]> {
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
     const tags = new Set(
@@ -48,43 +52,73 @@ export class AnimeDbService {
     );
     return [...tags];
   }
-  private queryMatches(
+
+  private getMatches(
+    animeDb: AnimeDB,
+    query: string,
+    id: string,
+    provider: Provider,
+    tags: string[],
+  ) {
+    let matchedAnimes: Anime[];
+    const matchTitle = !!query;
+    if (matchTitle) {
+      const fuse = new Fuse(animeDb.data, {
+        keys: ['title', 'synonyms'],
+        shouldSort: true,
+        threshold: 0.6,
+        isCaseSensitive: false,
+        findAllMatches: true,
+      });
+      matchedAnimes = fuse
+        .search({
+          $or: [{ title: query }, { synonyms: query }],
+        })
+        .map((result) => result.item);
+    }
+    matchedAnimes = (matchTitle ? matchedAnimes : animeDb.data).filter(
+      (anime) => this.strictMatches(anime, id, provider, tags),
+    );
+    return matchedAnimes;
+  }
+
+  private strictMatches(
     anime: Anime,
     id?: string,
-    query?: string,
     provider?: Provider,
     tags?: string[],
   ): boolean {
     let matches = true;
-    if (id && !this.idMatches(id, anime, provider)) {
+    if (id && !this.idMatches(anime, id, provider)) {
       return false;
     }
-    if (query) {
-      matches =
-        anime.title.toLowerCase().includes(query.toLowerCase()) ||
-        anime.synonyms?.some((synonym) =>
-          synonym.toLowerCase().includes(query.toLowerCase()),
-        );
-    }
     if (provider) {
-      matches = hasSource(anime, provider) && matches;
+      matches = this.providerMatches(anime, provider) && matches;
     }
     if (tags) {
-      matches = tags?.every((tag) => anime?.tags.includes(tag)) && matches;
+      matches = this.tagsMatch(anime, tags) && matches;
     }
     return matches;
   }
 
-  private idMatches(id: string, anime: Anime, provider?: Provider): boolean {
+  private providerMatches(anime: Anime, provider: Provider): boolean {
+    return hasSource(anime, provider);
+  }
+
+  private tagsMatch(anime: Anime, tags: string[]) {
+    return tags?.every((tag) => anime?.tags.includes(tag));
+  }
+
+  private idMatches(anime: Anime, id: string, provider?: Provider): boolean {
     const sources = anime.sources;
     if (sources) {
       if (provider) {
         const providerDomain = ProviderDomain[provider];
-        const source = sources.find((source) =>
+        const foundSource = sources.find((source) =>
           source.includes(providerDomain),
         );
-        if (source) {
-          const sourceId = source.split('/').pop();
+        if (foundSource) {
+          const sourceId = foundSource.split('/').pop();
           return sourceId === id;
         }
       } else {
