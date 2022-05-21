@@ -58,8 +58,8 @@ export const App = () => {
             onFiltersChanged={updateFiltersAndRequest}
             tags={availableTags}
           />
-          {animes.length > 0 && <AnimeList animes={animes} />}
           {isLoading && <Spinner />}
+          {animes.length > 0 && <AnimeList animes={animes} />}
         </VStack>
       </Box>
     </ChakraProvider>
