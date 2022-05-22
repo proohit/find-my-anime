@@ -8,6 +8,7 @@ import { AnimeDbService } from './animedb.service';
 
 describe('AnimeDbService', () => {
   let animeDbService: AnimeDbService;
+  let animeDbDownloaderService: AnimeDbDownloaderService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,8 +29,10 @@ describe('AnimeDbService', () => {
         },
       ],
     }).compile();
-
     animeDbService = module.get<AnimeDbService>(AnimeDbService);
+    animeDbDownloaderService = module.get<AnimeDbDownloaderService>(
+      AnimeDbDownloaderService,
+    );
   });
 
   describe('tags', () => {
@@ -119,15 +122,45 @@ describe('AnimeDbService', () => {
 
     it('should search by synonym', async () => {
       const givenSynonym = 'SAO';
-      const results = await animeDbService.queryAnime(
-        undefined,
-        givenSynonym,
-        undefined,
-        undefined,
-        undefined,
-      );
+      const results = await animeDbService.queryAnime(undefined, givenSynonym);
       expect(results.length).not.toBe(0);
       expect(results[0].synonyms).toInclude(givenSynonym);
+    });
+
+    it('should accept limit', async () => {
+      const results = await animeDbService.queryAnime(
+        undefined,
+        'a',
+        undefined,
+        undefined,
+        1,
+      );
+      expect(results.length).toBe(1);
+    });
+
+    it('should have upper limit of 100', async () => {
+      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
+        Promise.resolve({
+          ...mockAnimeDb,
+          data: [
+            ...mockAnimeDb.data,
+            ...mockAnimeDb.data,
+            ...mockAnimeDb.data,
+            ...mockAnimeDb.data,
+            ...mockAnimeDb.data,
+            ...mockAnimeDb.data,
+            ...mockAnimeDb.data,
+          ],
+        }),
+      );
+      const results = await animeDbService.queryAnime(
+        undefined,
+        'a',
+        undefined,
+        undefined,
+        101,
+      );
+      expect(results.length).toBe(100);
     });
   });
 });

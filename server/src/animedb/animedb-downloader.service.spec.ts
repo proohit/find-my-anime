@@ -10,23 +10,26 @@ jest.mock('rxjs', () => ({
 
 describe('AnimeDbDownloaderService', () => {
   let animeDbDownloaderService: AnimeDbDownloaderService;
-  const mockHttpService = {
-    provide: HttpService,
-    useValue: {
-      get: () => Promise.resolve(mockAnimeDb),
-    },
-  };
+  let httpService: HttpService;
   beforeEach(async () => {
     (rxjs.lastValueFrom as jest.Mock).mockReturnValue(
       Promise.resolve({ data: mockAnimeDb }),
     );
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AnimeDbDownloaderService, mockHttpService],
+      providers: [
+        AnimeDbDownloaderService,
+        {
+          provide: HttpService,
+          useValue: {
+            get: () => Promise.resolve(mockAnimeDb),
+          },
+        },
+      ],
     }).compile();
-
     animeDbDownloaderService = module.get<AnimeDbDownloaderService>(
       AnimeDbDownloaderService,
     );
+    httpService = module.get<HttpService>(HttpService);
   });
 
   describe('getAnimeDb', () => {
@@ -36,10 +39,26 @@ describe('AnimeDbDownloaderService', () => {
     });
 
     it('should return cached animedb', async () => {
-      const mockGet = jest.spyOn(mockHttpService.useValue, 'get');
+      const mockGet = jest.spyOn(httpService, 'get');
       await animeDbDownloaderService.getAnimeDb();
       await animeDbDownloaderService.getAnimeDb();
       expect(mockGet).toHaveBeenCalledTimes(1);
+    });
+
+    it('should check for last download time', async () => {
+      const mockGet = jest.spyOn(httpService, 'get');
+      await animeDbDownloaderService.getAnimeDb();
+      Object.defineProperty(animeDbDownloaderService, 'animeDbCache', {
+        get: jest.fn(() => ({
+          ...mockAnimeDb,
+          lastDownloadTime: new Date(
+            new Date().getTime() - 1000 * 60 * 60 * 24 * 7,
+          ).toISOString(),
+        })),
+        set: jest.fn(),
+      });
+      await animeDbDownloaderService.getAnimeDb();
+      expect(mockGet).toHaveBeenCalledTimes(2);
     });
   });
 });

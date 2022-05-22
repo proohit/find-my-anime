@@ -61,12 +61,12 @@ export class AnimeDbService {
     tags: string[],
   ) {
     let matchedAnimes: Anime[];
-    const matchTitle = !!query;
-    if (matchTitle) {
+    const shouldMatchTitle = !!query;
+    if (shouldMatchTitle) {
       const fuse = new Fuse(animeDb.data, {
-        keys: ['title', 'synonyms'],
+        keys: ['synonyms', 'title'],
         shouldSort: true,
-        threshold: 0.6,
+        threshold: 0.5,
         isCaseSensitive: false,
         findAllMatches: true,
       });
@@ -76,7 +76,7 @@ export class AnimeDbService {
         })
         .map((result) => result.item);
     }
-    matchedAnimes = (matchTitle ? matchedAnimes : animeDb.data).filter(
+    matchedAnimes = (shouldMatchTitle ? matchedAnimes : animeDb.data).filter(
       (anime) => this.strictMatches(anime, id, provider, tags),
     );
     return matchedAnimes;
