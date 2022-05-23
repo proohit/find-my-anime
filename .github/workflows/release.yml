@@ -24,22 +24,22 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           script: ${{ secrets.SCRIPT }}
-  # release_docker:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: build container
-  #       run: |
-  #         docker build -t proohit/find-my-anime:latest .
-  #     - name: Login to DockerHub
-  #       uses: docker/login-action@v2
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
-  #     - name: Tag versions and push to DockerHub
-  #       working-directory: ./server
-  #       run: |
-  #         VERSION=$(node -p "require('./package.json').version")
-  #         docker tag proohit/find-my-anime:latest proohit/find-my-anime:$VERSION
-  #         docker push proohit/find-my-anime:$VERSION
-  #         docker push proohit/find-my-anime:latest
+  release_docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: build container
+        run: |
+          docker build -t proohit/find-my-anime:latest .
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Tag versions and push to DockerHub
+        working-directory: ./server
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          docker tag proohit/find-my-anime:latest proohit/find-my-anime:$VERSION
+          docker push proohit/find-my-anime:$VERSION
+          docker push proohit/find-my-anime:latest
