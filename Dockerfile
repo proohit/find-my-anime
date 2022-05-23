@@ -13,9 +13,11 @@ ADD ./ ./
 RUN npm install
 RUN npm run build
 
-## Cleanup and size optimization
+# ## Cleanup and size optimization
 RUN npm prune --production --workspaces
+RUN npm prune --production
 RUN /usr/local/bin/node-prune ./server/node_modules
+RUN /usr/local/bin/node-prune ./node_modules
 
 # Runtime image
 FROM node:16-alpine
@@ -26,7 +28,7 @@ WORKDIR /usr/app
 COPY --from=BUILD_IMAGE /usr/app/server/dist /usr/app/server/dist
 COPY --from=BUILD_IMAGE /usr/app/server/node_modules /usr/app/server/node_modules
 COPY --from=BUILD_IMAGE /usr/app/web/dist /usr/app/web/dist
-
+COPY --from=BUILD_IMAGE /usr/app/node_modules /usr/app/node_modules
 EXPOSE 3000
 
 CMD [ "node", "./server/dist/server/src/main.js", "--port=3000" ]
