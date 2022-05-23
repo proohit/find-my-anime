@@ -16,10 +16,14 @@
         "start": "npm run start -w server",
         "build": "npm run build -w server & npm run build -w web",
         "start:dev:server": "npm run start:dev -w server",
-        "start:dev:web": "npm run start:dev -w web"
+        "start:dev:web": "npm run start:dev -w web",
+        "release": "bump **/package*.json --tag"
     },
     "workspaces": [
         "server",
         "web"
-    ]
+    ],
+    "devDependencies": {
+        "@jsdevtools/version-bump-prompt": "^6.1.0"
+    }
 }
