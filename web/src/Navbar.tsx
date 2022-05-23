@@ -3,12 +3,14 @@ import {
   Collapse,
   Flex,
   Heading,
+  Hide,
   Icon,
   IconButton,
   Link,
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Show,
   Stack,
   Text,
   useColorModeValue,
@@ -23,6 +25,7 @@ import {
 } from "react-icons/fa";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { SERVER_BASE, SERVER_PATH } from "./urls";
+import packageJson from "../package.json";
 
 export default () => {
   const { isOpen, onToggle } = useDisclosure();
@@ -64,9 +67,15 @@ export default () => {
         <Stack
           flex={{ base: 1, md: 0 }}
           justify={"flex-end"}
+          alignItems="center"
           direction={"row"}
           spacing={6}
         >
+          <Show above="sm">
+            <Text display={{}} fontSize="xs">
+              v{packageJson.version}
+            </Text>
+          </Show>
           <ColorModeSwitcher />
           <IconButton
             as={"a"}
@@ -183,6 +192,11 @@ const MobileNav = () => {
       {NAV_ITEMS.map((navItem) => (
         <MobileNavItem key={navItem.label} {...navItem} />
       ))}
+      <Hide above="sm">
+        <Text display={{}} fontSize="xs">
+          v{packageJson.version}
+        </Text>
+      </Hide>
     </Stack>
   );
 };
