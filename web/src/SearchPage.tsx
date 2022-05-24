@@ -6,7 +6,7 @@ import Api from "./Api";
 import WithSubnavigation from "./Navbar";
 import { Filter, SearchForm } from "./SearchForm";
 
-export const App = () => {
+export const SearchPage = () => {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,25 +43,22 @@ export const App = () => {
   }, []);
 
   return (
-    <ChakraProvider theme={theme}>
-      <WithSubnavigation />
-      <Box textAlign="center" fontSize="xl">
-        <VStack
-          spacing={8}
-          w={["xs", "sm", "lg", "xl"]}
-          ml="auto"
-          mr="auto"
-          mt="10"
-        >
-          <SearchForm
-            onLoadingChanged={setIsLoading}
-            onFiltersChanged={updateFiltersAndRequest}
-            tags={availableTags}
-          />
-          {isLoading && <Spinner />}
-          {animes.length > 0 && <AnimeList animes={animes} />}
-        </VStack>
-      </Box>
-    </ChakraProvider>
+    <Box textAlign="center" fontSize="xl">
+      <VStack
+        spacing={8}
+        w={["xs", "sm", "lg", "xl"]}
+        ml="auto"
+        mr="auto"
+        mt="10"
+      >
+        <SearchForm
+          onLoadingChanged={setIsLoading}
+          onFiltersChanged={updateFiltersAndRequest}
+          tags={availableTags}
+        />
+        {isLoading && <Spinner />}
+        {animes.length > 0 && <AnimeList animes={animes} />}
+      </VStack>
+    </Box>
   );
 };
