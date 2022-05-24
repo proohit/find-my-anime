@@ -5,9 +5,11 @@ import { join } from 'path';
 import { AnimeDbModule } from './animedb/animedb.module';
 import { AppController } from './app.controller';
 import { AnimeEnricherModule } from './enrichment/anime-enricher.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
+    StatsModule,
     AnimeEnricherModule,
     AnimeDbModule,
     ConfigModule.forRoot({

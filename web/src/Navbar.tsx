@@ -256,7 +256,7 @@ interface NavItem {
 const NAV_ITEMS: Array<NavItem> = [
   {
     label: "About",
-    href: "#",
+    href: "/",
   },
   {
     label: "API",
@@ -268,5 +268,9 @@ const NAV_ITEMS: Array<NavItem> = [
       },
     ],
     href: `${SERVER_BASE}${SERVER_PATH}/docs`,
+  },
+  {
+    label: "Stats",
+    href: "/stats",
   },
 ];
