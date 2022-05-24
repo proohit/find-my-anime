@@ -28,19 +28,27 @@ export const StatisticsPage: FC = () => {
   }, []);
 
   return (
-    <Box textAlign="center" fontSize="xl">
-      <VStack
-        spacing={8}
-        w={["xs", "sm", "lg", "xl"]}
-        ml="auto"
-        mr="auto"
-        mt="10"
-      >
+    <Box textAlign="center" fontSize="xl" p={8}>
+      <VStack spacing={8} w={["xs", "sm", "lg", "xl"]} ml="auto" mr="auto">
         {statistics && (
           <>
             <StatisticsTopic heading="Anime stats">
-              <Text textAlign="left">Total count of anime:</Text>
-              <Text>{statistics.anime.count}</Text>
+              <StatisticsSubTopic heading="Total count of anime:">
+                <Text>{statistics.anime.count}</Text>
+              </StatisticsSubTopic>
+              <StatisticsSubTopic heading="Count of anime by season">
+                <Box borderWidth="1px" borderRadius="lg">
+                  <List maxH={["sm", "md"]} overflow="auto">
+                    {Object.entries(statistics.anime.seasons).map(
+                      ([season, count]) => (
+                        <ListItem key={season}>
+                          {season} ({count})
+                        </ListItem>
+                      )
+                    )}
+                  </List>
+                </Box>
+              </StatisticsSubTopic>
             </StatisticsTopic>
             <StatisticsTopic heading="Tags">
               <StatisticsSubTopic heading="Total count of tags:">
