@@ -4,6 +4,7 @@ import { mockAnimeDb } from '../../test/mockData';
 import { AnimeDbDownloaderService } from './animedb-downloader.service';
 import * as rxjs from 'rxjs';
 jest.mock('fs');
+jest.mock('fs/promises');
 jest.mock('rxjs', () => ({
   lastValueFrom: jest.fn(),
 }));
