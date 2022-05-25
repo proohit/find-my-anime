@@ -1,7 +1,27 @@
+import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Season } from '@find-my-anime/shared/constants/Season';
 import { Status } from '@find-my-anime/shared/constants/Status';
 import { Type } from '@find-my-anime/shared/constants/Type';
-import { AnimeDB } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { Anime, AnimeDB } from '@find-my-anime/shared/interfaces/AnimeDb';
+
+export const emptyAnime: Anime = {
+  animeSeason: {
+    season: Season.Undefined,
+    year: NaN,
+  },
+  episodes: NaN,
+  picture: '',
+  title: '',
+  type: Type.Unknown,
+  relations: [],
+  tags: [],
+  sources: [],
+  status: Status.Finished,
+  synonyms: [],
+  thumbnail: '',
+  description: '',
+  provider: Provider.AniDB,
+};
 
 export const mockAnimeDb: AnimeDB = {
   lastDownloadTime: '',
