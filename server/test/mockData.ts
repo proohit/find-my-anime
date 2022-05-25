@@ -3,6 +3,7 @@ import { Season } from '@find-my-anime/shared/constants/Season';
 import { Status } from '@find-my-anime/shared/constants/Status';
 import { Type } from '@find-my-anime/shared/constants/Type';
 import { Anime, AnimeDB } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { DbStatistics } from '@find-my-anime/shared/interfaces/DbStatistics';
 
 export const emptyAnime: Anime = {
   animeSeason: {
@@ -21,6 +22,17 @@ export const emptyAnime: Anime = {
   thumbnail: '',
   description: '',
   provider: Provider.AniDB,
+};
+
+export const emptyMockStats: DbStatistics = {
+  anime: {
+    count: 0,
+    seasons: {},
+  },
+  tags: {
+    count: 0,
+    mostUsedTags: {},
+  },
 };
 
 export const mockAnimeDb: AnimeDB = {
