@@ -1,9 +1,8 @@
-import { Box, ChakraProvider, Spinner, theme, VStack } from "@chakra-ui/react";
+import { Spinner, VStack } from "@chakra-ui/react";
 import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
 import { useEffect, useState } from "react";
 import AnimeList from "./AnimeList";
 import Api from "./Api";
-import WithSubnavigation from "./Navbar";
 import { Filter, SearchForm } from "./SearchForm";
 
 export const SearchPage = () => {
@@ -43,22 +42,14 @@ export const SearchPage = () => {
   }, []);
 
   return (
-    <Box textAlign="center" fontSize="xl">
-      <VStack
-        spacing={8}
-        w={["xs", "sm", "lg", "xl"]}
-        ml="auto"
-        mr="auto"
-        mt="10"
-      >
-        <SearchForm
-          onLoadingChanged={setIsLoading}
-          onFiltersChanged={updateFiltersAndRequest}
-          tags={availableTags}
-        />
-        {isLoading && <Spinner />}
-        {animes.length > 0 && <AnimeList animes={animes} />}
-      </VStack>
-    </Box>
+    <VStack spacing={8} mt="10">
+      <SearchForm
+        onLoadingChanged={setIsLoading}
+        onFiltersChanged={updateFiltersAndRequest}
+        tags={availableTags}
+      />
+      {isLoading && <Spinner />}
+      {animes.length > 0 && <AnimeList animes={animes} />}
+    </VStack>
   );
 };

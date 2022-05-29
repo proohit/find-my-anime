@@ -1,13 +1,13 @@
 import {
   Box,
-  VStack,
-  Spinner,
-  Heading,
-  Text,
-  useColorModeValue,
   Divider,
+  Heading,
   List,
   ListItem,
+  Spinner,
+  Text,
+  useColorModeValue,
+  VStack,
 } from "@chakra-ui/react";
 import { DbStatistics } from "@find-my-anime/shared/interfaces/DbStatistics";
 import { FC, ReactNode, useEffect, useState } from "react";
@@ -28,51 +28,49 @@ export const StatisticsPage: FC = () => {
   }, []);
 
   return (
-    <Box textAlign="center" fontSize="xl" p={8}>
-      <VStack spacing={8} w={["xs", "sm", "lg", "xl"]} ml="auto" mr="auto">
-        {statistics && (
-          <>
-            <StatisticsTopic heading="Anime stats">
-              <StatisticsSubTopic heading="Total count of anime:">
-                <Text>{statistics.anime.count}</Text>
-              </StatisticsSubTopic>
-              <StatisticsSubTopic heading="Count of anime by season">
-                <Box borderWidth="1px" borderRadius="lg">
-                  <List maxH={["sm", "md"]} overflow="auto">
-                    {Object.entries(statistics.anime.seasons).map(
-                      ([season, count]) => (
-                        <ListItem key={season}>
-                          {season} ({count})
-                        </ListItem>
-                      )
-                    )}
-                  </List>
-                </Box>
-              </StatisticsSubTopic>
-            </StatisticsTopic>
-            <StatisticsTopic heading="Tags">
-              <StatisticsSubTopic heading="Total count of tags:">
-                <Text>{statistics.tags.count}</Text>
-              </StatisticsSubTopic>
-              <StatisticsSubTopic heading="Most common tags:">
-                <Box borderWidth="1px" borderRadius="lg">
-                  <List maxH={["sm", "md"]} overflow="auto">
-                    {Object.entries(statistics.tags.mostUsedTags).map(
-                      ([tag, count]) => (
-                        <ListItem key={tag}>
-                          {tag} ({count})
-                        </ListItem>
-                      )
-                    )}
-                  </List>
-                </Box>
-              </StatisticsSubTopic>
-            </StatisticsTopic>
-          </>
-        )}
-        {isLoading && <Spinner />}
-      </VStack>
-    </Box>
+    <VStack spacing={8} mt="10">
+      {statistics && (
+        <>
+          <StatisticsTopic heading="Anime stats">
+            <StatisticsSubTopic heading="Total count of anime:">
+              <Text>{statistics.anime.count}</Text>
+            </StatisticsSubTopic>
+            <StatisticsSubTopic heading="Count of anime by season">
+              <Box borderWidth="1px" borderRadius="lg">
+                <List maxH={["sm", "md"]} overflow="auto">
+                  {Object.entries(statistics.anime.seasons).map(
+                    ([season, count]) => (
+                      <ListItem key={season}>
+                        {season} ({count})
+                      </ListItem>
+                    )
+                  )}
+                </List>
+              </Box>
+            </StatisticsSubTopic>
+          </StatisticsTopic>
+          <StatisticsTopic heading="Tags">
+            <StatisticsSubTopic heading="Total count of tags:">
+              <Text>{statistics.tags.count}</Text>
+            </StatisticsSubTopic>
+            <StatisticsSubTopic heading="Most common tags:">
+              <Box borderWidth="1px" borderRadius="lg">
+                <List maxH={["sm", "md"]} overflow="auto">
+                  {Object.entries(statistics.tags.mostUsedTags).map(
+                    ([tag, count]) => (
+                      <ListItem key={tag}>
+                        {tag} ({count})
+                      </ListItem>
+                    )
+                  )}
+                </List>
+              </Box>
+            </StatisticsSubTopic>
+          </StatisticsTopic>
+        </>
+      )}
+      {isLoading && <Spinner />}
+    </VStack>
   );
 };
 

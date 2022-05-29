@@ -31,13 +31,14 @@ interface Props {
 const AnimeList: FC<Props> = (props) => {
   const { animes } = props;
   return (
-    <Box w="100%">
+    <Box>
       {animes.map((anime) => (
         <Center py={6} key={anime.title}>
           <Stack
             borderWidth="1px"
             borderRadius="lg"
             w={{ md: "100%" }}
+            h={{ lg: "md" }}
             direction={{ base: "column", md: "row" }}
             bg={useColorModeValue("white", "gray.900")}
             boxShadow={"2xl"}
