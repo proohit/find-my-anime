@@ -8,7 +8,7 @@ const AppWrapper: FC<{ children: ReactNode }> = ({ children }) => {
       <WithSubnavigation />
       <Box
         textAlign="center"
-        w={["xs", "sm", "lg", "xl", "1200px"]}
+        w={["xs", "sm", "md", "800px", "1200px", "1400px"]}
         ml="auto"
         mr="auto"
       >
