@@ -4,6 +4,7 @@ export * from './constants/Season';
 export * from './constants/Status';
 export * from './constants/Type';
 export * from './anime/sources';
+export * from './anime/id';
 
 export type {
   Anime,

@@ -20,7 +20,13 @@ import {
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
-import { Anime, getProvider } from "@find-my-anime/shared";
+import {
+  Anime,
+  getAnyIdOfAnime,
+  getProvider,
+  getProviderIdOfAnime,
+  getProviders,
+} from "@find-my-anime/shared";
 import { FC } from "react";
 import { TagList } from "./TagList";
 
@@ -31,9 +37,32 @@ interface Props {
 const AnimeList: FC<Props> = (props) => {
   const { animes } = props;
   return (
-    <Box>
+    <>
       {animes.map((anime) => (
-        <Center py={6} key={anime.title}>
+        <AnimeSearchEntry anime={anime} key={anime.title} />
+      ))}
+    </>
+  );
+};
+
+export default AnimeList;
+
+const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
+  const { anime } = props;
+  const providers = getProviders(anime);
+  const provider = providers.length > 0 ? providers[0] : undefined;
+  const id = provider
+    ? getProviderIdOfAnime(anime, provider)
+    : getAnyIdOfAnime(anime);
+  const getUrlOfAnime = () => {
+    if (provider) {
+      return `/anime/${id}?provider=${provider}`;
+    } else return `/anime/${id}`;
+  };
+  return (
+    <LinkBox>
+      <LinkOverlay href={getUrlOfAnime()}>
+        <Center py={6}>
           <Stack
             borderWidth="1px"
             borderRadius="lg"
@@ -92,9 +121,7 @@ const AnimeList: FC<Props> = (props) => {
             </VStack>
           </Stack>
         </Center>
-      ))}
-    </Box>
+      </LinkOverlay>
+    </LinkBox>
   );
 };
-
-export default AnimeList;

@@ -50,13 +50,3 @@ export const getSource = (anime: Anime, provider: Provider): string => {
   }
   return '';
 };
-
-export const getProviderId = (
-  anime: Anime,
-  provider: Provider,
-): string | undefined => {
-  const source = getSource(anime, provider);
-  if (source) {
-    return source.split('/').pop();
-  }
-};

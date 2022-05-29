@@ -16,21 +16,31 @@ import {
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
-import { Anime, getProvider } from "@find-my-anime/shared";
-import { FC, PropsWithChildren, useEffect, useState } from "react";
+import { Anime, getProvider, Provider } from "@find-my-anime/shared";
+import { FC, PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Api from "./Api";
 import { TagList } from "./TagList";
+import { useQuery } from "./useQuery";
 
 const AnimePage: FC = () => {
   const params = useParams();
+  const query = useQuery();
   const [anime, setAnime] = useState<Anime | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const provider = useMemo(() => {
+    const queryProvider = query.get("provider") as Provider | undefined;
+    if (!queryProvider) return undefined;
+    if (Object.values(Provider).includes(queryProvider)) {
+      return queryProvider;
+    }
+    return undefined;
+  }, [query.has("provider")]);
 
   useEffect(() => {
     if (params.id) {
       setIsLoading(true);
-      Api.queryAnime(params.id)
+      Api.queryAnime(params.id, undefined, provider)
         .then((animes) => {
           if (animes?.length > 0) {
             setAnime(animes[0]);
@@ -38,17 +48,18 @@ const AnimePage: FC = () => {
         })
         .finally(() => setIsLoading(false));
     }
-  }, [params.id]);
+  }, [params.id, provider]);
 
   return (
     <VStack mt="10" spacing={8}>
       {isLoading && <Spinner />}
       {anime && (
-        <Center py={6} key={anime.title}>
+        <Center py={6}>
           <Stack
             borderWidth="1px"
             borderRadius="lg"
             direction={{ base: "column", lg: "row" }}
+            maxH={"xl"}
             bg={useColorModeValue("white", "gray.900")}
             boxShadow={"2xl"}
             padding={4}
