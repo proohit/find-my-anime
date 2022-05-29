@@ -1,20 +1,15 @@
 import {
   Badge,
   Box,
+  BoxProps,
   Center,
   Flex,
   Heading,
+  HeadingProps,
   HStack,
   Image,
   LinkBox,
   LinkOverlay,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
   Spinner,
   Stack,
   Text,
@@ -22,7 +17,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Anime, getProvider } from "@find-my-anime/shared";
-import { FC, useEffect, useState } from "react";
+import { FC, PropsWithChildren, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Api from "./Api";
 import { TagList } from "./TagList";
@@ -31,6 +26,7 @@ const AnimePage: FC = () => {
   const params = useParams();
   const [anime, setAnime] = useState<Anime | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     if (params.id) {
       setIsLoading(true);
@@ -43,61 +39,53 @@ const AnimePage: FC = () => {
         .finally(() => setIsLoading(false));
     }
   }, [params.id]);
-  return (
-    <Box textAlign="center" fontSize="xl">
-      <VStack
-        spacing={8}
-        w={["xs", "sm", "lg", "xl"]}
-        ml="auto"
-        mr="auto"
-        mt="10"
-      >
-        {isLoading && <Spinner />}
-        {anime && (
-          <Center py={6} key={anime.title}>
-            <Stack
-              borderWidth="1px"
-              borderRadius="lg"
-              w={{ md: "100%" }}
-              direction={{ base: "column", md: "row" }}
-              bg={useColorModeValue("white", "gray.900")}
-              boxShadow={"2xl"}
-              padding={4}
-            >
-              <Flex flex={1} justifyContent="center" alignItems="center">
-                <Image
-                  objectFit="contain"
-                  boxSize={{ sm: "50%", md: "100%" }}
-                  src={anime.picture}
-                />
-              </Flex>
-              <VStack
-                flex={1}
-                justifyContent="center"
-                alignItems="center"
-                p={1}
-                pt={2}
-              >
-                <Heading fontSize={"2xl"} fontFamily={"body"}>
-                  {anime.title}
-                </Heading>
-                <Popover>
-                  <PopoverTrigger>
-                    <Box>
-                      <TagList tags={anime.tags} limit={10} />
-                      {anime.tags?.length >= 10 && <Text>...</Text>}
-                    </Box>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <PopoverArrow />
-                    <PopoverCloseButton />
-                    <PopoverHeader>All Tags</PopoverHeader>
-                    <PopoverBody>
-                      <TagList tags={anime.tags} />
-                    </PopoverBody>
-                  </PopoverContent>
-                </Popover>
 
+  return (
+    <VStack mt="10" spacing={8}>
+      {isLoading && <Spinner />}
+      {anime && (
+        <Center py={6} key={anime.title}>
+          <Stack
+            borderWidth="1px"
+            borderRadius="lg"
+            direction={{ base: "column", lg: "row" }}
+            bg={useColorModeValue("white", "gray.900")}
+            boxShadow={"2xl"}
+            padding={4}
+          >
+            <Flex flex={1} justifyContent="center" alignItems="center">
+              <Image
+                objectFit="contain"
+                boxSize={{ sm: "50%", md: "100%" }}
+                src={anime.picture}
+              />
+            </Flex>
+            <VStack
+              flex={1}
+              justifyContent="center"
+              alignItems="center"
+              p={1}
+              pt={2}
+            >
+              <Heading fontSize={"2xl"} fontFamily={"body"}>
+                {anime.title}
+              </Heading>
+              <AnimeTopic>
+                <AnimeTopicHeader>Alternative titles</AnimeTopicHeader>
+                <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
+                  {anime.synonyms.map((synonym) => (
+                    <Text fontSize={["sm", "md", "lg", "xl"]} textAlign="left">
+                      {synonym}
+                    </Text>
+                  ))}
+                </HStack>
+              </AnimeTopic>
+              <AnimeTopic>
+                <AnimeTopicHeader>Tags</AnimeTopicHeader>
+                <TagList tags={anime.tags} />
+              </AnimeTopic>
+              <AnimeTopic>
+                <AnimeTopicHeader>Links</AnimeTopicHeader>
                 <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
                   {anime.sources.map((source) => (
                     <LinkBox key={source}>
@@ -111,12 +99,26 @@ const AnimePage: FC = () => {
                     </LinkBox>
                   ))}
                 </HStack>
-              </VStack>
-            </Stack>
-          </Center>
-        )}
-      </VStack>
-    </Box>
+              </AnimeTopic>
+            </VStack>
+          </Stack>
+        </Center>
+      )}
+    </VStack>
   );
 };
 export default AnimePage;
+
+const AnimeTopic: FC<PropsWithChildren<BoxProps>> = (props) => {
+  const { children, ...rest } = props;
+  return <Box {...rest}>{children}</Box>;
+};
+
+const AnimeTopicHeader: FC<PropsWithChildren<HeadingProps>> = (props) => {
+  const { children, ...rest } = props;
+  return (
+    <Heading variant="h6" fontSize="md" textAlign="left" {...rest}>
+      {children}
+    </Heading>
+  );
+};
