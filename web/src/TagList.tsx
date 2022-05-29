@@ -14,7 +14,7 @@ export const TagList: FC<TagListProps> = (props) => {
           key={tag}
           px={2}
           py={1}
-          bg={useColorModeValue("gray.200", "gray.900")}
+          bg={useColorModeValue("gray.200", "gray.700")}
           fontWeight={"400"}
         >
           {tag}
