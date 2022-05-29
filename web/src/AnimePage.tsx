@@ -2,7 +2,6 @@ import {
   Badge,
   Box,
   BoxProps,
-  Center,
   Flex,
   Heading,
   HeadingProps,
@@ -54,66 +53,55 @@ const AnimePage: FC = () => {
     <VStack mt="10" spacing={8}>
       {isLoading && <Spinner />}
       {anime && (
-        <Center py={6}>
-          <Stack
-            borderWidth="1px"
-            borderRadius="lg"
-            direction={{ base: "column", lg: "row" }}
-            maxH={"xl"}
-            bg={useColorModeValue("white", "gray.900")}
-            boxShadow={"2xl"}
-            padding={4}
-          >
-            <Flex flex={1} justifyContent="center" alignItems="center">
-              <Image
-                objectFit="contain"
-                boxSize={{ sm: "50%", md: "100%" }}
-                src={anime.picture}
-              />
-            </Flex>
-            <VStack
-              flex={1}
-              justifyContent="center"
-              alignItems="center"
-              p={1}
-              pt={2}
-            >
-              <Heading fontSize={"2xl"} fontFamily={"body"}>
-                {anime.title}
-              </Heading>
-              <AnimeTopic>
-                <AnimeTopicHeader>Alternative titles</AnimeTopicHeader>
-                <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
-                  {anime.synonyms.map((synonym) => (
-                    <Text fontSize={["sm", "md", "lg", "xl"]} textAlign="left">
-                      {synonym}
-                    </Text>
-                  ))}
-                </HStack>
-              </AnimeTopic>
-              <AnimeTopic>
-                <AnimeTopicHeader>Tags</AnimeTopicHeader>
-                <TagList tags={anime.tags} />
-              </AnimeTopic>
-              <AnimeTopic>
-                <AnimeTopicHeader>Links</AnimeTopicHeader>
-                <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
-                  {anime.sources.map((source) => (
-                    <LinkBox key={source}>
-                      <LinkOverlay href={source} isExternal>
-                        <Badge
-                          color={useColorModeValue("blue.500", "blue.200")}
-                        >
-                          {getProvider(anime, source)}
-                        </Badge>
-                      </LinkOverlay>
-                    </LinkBox>
-                  ))}
-                </HStack>
-              </AnimeTopic>
-            </VStack>
-          </Stack>
-        </Center>
+        <Stack
+          borderWidth="1px"
+          borderRadius="lg"
+          direction={{ base: "column", lg: "row" }}
+          bg={useColorModeValue("white", "gray.900")}
+          boxShadow={"2xl"}
+          padding={4}
+        >
+          <Flex flex={1} justifyContent="center" alignItems="center">
+            <Image
+              objectFit="contain"
+              boxSize={["xs", "sm", "md", "lg", "xl"]}
+              src={anime.picture}
+            />
+          </Flex>
+          <VStack flex={1} p={1} pt={2}>
+            <Heading fontSize={"2xl"} fontFamily={"body"}>
+              {anime.title}
+            </Heading>
+            <AnimeTopic>
+              <AnimeTopicHeader>Alternative titles</AnimeTopicHeader>
+              <HStack justifyContent={"flex-start"} flexWrap="wrap">
+                {anime.synonyms.map((synonym) => (
+                  <Text fontSize={["sm", "md", "lg", "xl"]} textAlign="left">
+                    {synonym}
+                  </Text>
+                ))}
+              </HStack>
+            </AnimeTopic>
+            <AnimeTopic>
+              <AnimeTopicHeader>Tags</AnimeTopicHeader>
+              <TagList tags={anime.tags} />
+            </AnimeTopic>
+            <AnimeTopic>
+              <AnimeTopicHeader>Links</AnimeTopicHeader>
+              <HStack justifyContent={"flex-start"} flexWrap="wrap">
+                {anime.sources.map((source) => (
+                  <LinkBox key={source}>
+                    <LinkOverlay href={source} isExternal>
+                      <Badge color={useColorModeValue("blue.500", "blue.200")}>
+                        {getProvider(anime, source)}
+                      </Badge>
+                    </LinkOverlay>
+                  </LinkBox>
+                ))}
+              </HStack>
+            </AnimeTopic>
+          </VStack>
+        </Stack>
       )}
     </VStack>
   );
@@ -122,7 +110,11 @@ export default AnimePage;
 
 const AnimeTopic: FC<PropsWithChildren<BoxProps>> = (props) => {
   const { children, ...rest } = props;
-  return <Box {...rest}>{children}</Box>;
+  return (
+    <Box w="100%" {...rest}>
+      {children}
+    </Box>
+  );
 };
 
 const AnimeTopicHeader: FC<PropsWithChildren<HeadingProps>> = (props) => {
