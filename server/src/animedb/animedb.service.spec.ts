@@ -1,3 +1,5 @@
+import { getProviderIdOfAnime } from '@find-my-anime/shared/anime/id';
+import { getProviders } from '@find-my-anime/shared/anime/sources';
 import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -9,6 +11,7 @@ import { AnimeDbService } from './animedb.service';
 describe('AnimeDbService', () => {
   let animeDbService: AnimeDbService;
   let animeDbDownloaderService: AnimeDbDownloaderService;
+  let animeEnricherService: AnimeEnricherService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -18,6 +21,7 @@ describe('AnimeDbService', () => {
           provide: AnimeDbDownloaderService,
           useValue: {
             getAnimeDb: () => Promise.resolve(mockAnimeDb),
+            updateAnimeEntry: () => Promise.resolve(),
           },
         },
         {
@@ -25,6 +29,7 @@ describe('AnimeDbService', () => {
           useValue: {
             isEnrichable: () => false,
             enrichAnime: (anime: Anime) => Promise.resolve(anime),
+            needsEnrichment: () => false,
           },
         },
       ],
@@ -33,6 +38,8 @@ describe('AnimeDbService', () => {
     animeDbDownloaderService = module.get<AnimeDbDownloaderService>(
       AnimeDbDownloaderService,
     );
+    animeEnricherService =
+      module.get<AnimeEnricherService>(AnimeEnricherService);
   });
 
   describe('tags', () => {
@@ -182,6 +189,26 @@ describe('AnimeDbService', () => {
         101,
       );
       expect(results.length).toBe(100);
+    });
+
+    it('should enrich anime data and save it to the database', async () => {
+      const givenAnime = mockAnimeDb.data[0];
+      const providerOfAnime = getProviders(givenAnime)[0];
+      const animeId = getProviderIdOfAnime(givenAnime, providerOfAnime);
+      jest
+        .spyOn(animeEnricherService, 'enrichAnime')
+        .mockReturnValue(
+          Promise.resolve({ ...givenAnime, description: 'test' }),
+        );
+      jest.spyOn(animeEnricherService, 'isEnrichable').mockReturnValue(true);
+      jest.spyOn(animeEnricherService, 'needsEnrichment').mockReturnValue(true);
+      const results = await animeDbService.queryAnime(
+        animeId,
+        undefined,
+        providerOfAnime,
+      );
+      expect(results.length).toBe(1);
+      expect(results[0].description).toEqual('test');
     });
   });
 });

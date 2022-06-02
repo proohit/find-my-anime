@@ -62,4 +62,15 @@ describe('AnimeDbDownloaderService', () => {
       expect(mockGet).toHaveBeenCalledTimes(2);
     });
   });
+
+  describe('updateAnimeEntry', () => {
+    it('should update animedb', async () => {
+      await animeDbDownloaderService.getAnimeDb();
+      const anime = mockAnimeDb.data[2];
+      anime.description = 'updated description';
+      await animeDbDownloaderService.updateAnimeEntry(anime);
+      const results = await animeDbDownloaderService.getAnimeDb();
+      expect(results.data[2].description).toEqual('updated description');
+    });
+  });
 });

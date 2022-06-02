@@ -1,5 +1,5 @@
 import { getProviderIdOfAnime } from '@find-my-anime/shared/anime/id';
-import { getProviders } from '@find-my-anime/shared/anime/sources';
+import { getProviders, hasSource } from '@find-my-anime/shared/anime/sources';
 import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Injectable, Logger } from '@nestjs/common';
@@ -10,7 +10,11 @@ export class AnimeEnricherService {
   constructor(private readonly anilistClient: AnilistClient) {}
 
   public isEnrichable(anime: Anime, provider?: Provider): boolean {
-    if (provider && provider === Provider.Anilist) {
+    if (
+      provider &&
+      provider === Provider.Anilist &&
+      hasSource(anime, provider)
+    ) {
       return true;
     }
     const providers = getProviders(anime);
