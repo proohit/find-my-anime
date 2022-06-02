@@ -43,6 +43,7 @@ const AnimePage: FC = () => {
         .then((animes) => {
           if (animes?.length > 0) {
             setAnime(animes[0]);
+            document.title = `${animes[0].title} - Find My Anime`;
           }
         })
         .finally(() => setIsLoading(false));
