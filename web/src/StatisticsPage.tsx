@@ -31,6 +31,13 @@ export const StatisticsPage: FC = () => {
     <VStack spacing={8} mt="10">
       {statistics && (
         <>
+          <StatisticsTopic heading="Database status">
+            <StatisticsSubTopic heading="Last download date">
+              <Text>
+                {new Date(statistics.lastDownloaded).toLocaleString()}
+              </Text>
+            </StatisticsSubTopic>
+          </StatisticsTopic>
           <StatisticsTopic heading="Anime stats">
             <StatisticsSubTopic heading="Total count of anime:">
               <Text>{statistics.anime.count}</Text>
