@@ -21,6 +21,7 @@ import { useParams } from "react-router-dom";
 import Api from "./Api";
 import { TagList } from "./TagList";
 import { useQuery } from "./useQuery";
+import DOMPurify from "dompurify";
 
 const AnimePage: FC = () => {
   const params = useParams();
@@ -73,6 +74,16 @@ const AnimePage: FC = () => {
             <Heading fontSize={"2xl"} fontFamily={"body"}>
               {anime.title}
             </Heading>
+            {anime.description && (
+              <AnimeTopic>
+                <AnimeTopicHeader>Description</AnimeTopicHeader>
+                <Text
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(anime.description),
+                  }}
+                />
+              </AnimeTopic>
+            )}
             <AnimeTopic>
               <AnimeTopicHeader>Alternative titles</AnimeTopicHeader>
               <HStack justifyContent={"flex-start"} flexWrap="wrap" gap={1}>

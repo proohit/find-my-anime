@@ -2,7 +2,7 @@ import { getProviderIdOfAnime } from '@find-my-anime/shared/anime/id';
 import { getProviders } from '@find-my-anime/shared/anime/sources';
 import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AnilistClient } from '../api-clients/anilist-client.service';
 
 @Injectable()
@@ -22,14 +22,19 @@ export class AnimeEnricherService {
     providers?: Provider[],
   ): Promise<Anime> {
     const enrichedAnime = { ...anime };
-    if (providers.includes(Provider.Anilist)) {
+    const providersToUse = providers || getProviders(anime);
+    if (providersToUse.includes(Provider.Anilist)) {
       const providerId = getProviderIdOfAnime(anime, Provider.Anilist);
       const animeFromAnilist = await this.anilistClient.queryMedia(providerId);
       if (animeFromAnilist) {
         enrichedAnime.description = animeFromAnilist.description;
-        enrichedAnime.provider = Provider.Anilist;
+        Logger.log(`Enriched anime ${anime.title} with Anilist`);
       }
     }
     return enrichedAnime;
+  }
+
+  public needsEnrichment(anime: Anime): boolean {
+    return !anime.description;
   }
 }

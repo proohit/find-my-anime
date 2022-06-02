@@ -1,5 +1,6 @@
+import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
 import { ANIME_OFFLINE_DB_FILE_URL } from '@find-my-anime/shared/constants/urls';
-import { AnimeDB } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { Anime, AnimeDB } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { existsSync } from 'fs';
@@ -33,6 +34,21 @@ export class AnimeDbDownloaderService {
     }
     this.animeDbCache = animeDb;
     return animeDb;
+  }
+
+  public async updateAnimeEntry(anime: Anime) {
+    const animeDb = await this.getAnimeDb();
+    const providers = getProviders(anime);
+    const source = getSource(anime, providers[0]);
+    const animeIndex = animeDb.data.findIndex((animeFromDb) =>
+      animeFromDb.sources.includes(source),
+    );
+    if (animeIndex >= 0) {
+      animeDb.data[animeIndex] = anime;
+    }
+    Logger.log(`Updated anime ${anime.title} in local db`);
+    await this.saveAnimeDb(animeDb);
+    this.animeDbCache = animeDb;
   }
 
   private async downloadAnimeDb(): Promise<AnimeDB> {

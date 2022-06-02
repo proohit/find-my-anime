@@ -26,20 +26,26 @@ export class AnimeDbService {
   ): Promise<Anime[]> {
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
 
-    return this.getMatches(animeDb, query, id, provider, tags).slice(
-      0,
-      Math.min(isNaN(limit) ? Infinity : limit, this.UPPER_LIMIT),
-    );
-    // for (let i = 0; i < animesFromDb.length; i++) {
-    //   const providers = getProviders(animesFromDb[i]);
-    //   if (this.animeEnricherService.isEnrichable(animesFromDb[i], provider)) {
-    //     animesFromDb[i] = await this.animeEnricherService.enrichAnime(
-    //       animesFromDb[i],
-    //       providers,
-    //     );
-    //   }
-    // }
-    // return animesFromDb;
+    const foundAnime = this.getMatches(
+      animeDb,
+      query,
+      id,
+      provider,
+      tags,
+    ).slice(0, Math.min(isNaN(limit) ? Infinity : limit, this.UPPER_LIMIT));
+
+    if (
+      foundAnime.length === 1 &&
+      this.animeEnricherService.isEnrichable(foundAnime[0]) &&
+      this.animeEnricherService.needsEnrichment(foundAnime[0])
+    ) {
+      const enrichedAnime = await this.animeEnricherService.enrichAnime(
+        foundAnime[0],
+      );
+      this.animeDbDownloaderService.updateAnimeEntry(enrichedAnime);
+      return [enrichedAnime];
+    }
+    return foundAnime;
   }
 
   public async getTags(): Promise<string[]> {
