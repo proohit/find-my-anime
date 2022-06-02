@@ -25,6 +25,7 @@ export const emptyAnime: Anime = {
 };
 
 export const emptyMockStats: DbStatistics = {
+  lastDownloaded: '',
   anime: {
     count: 0,
     seasons: {},

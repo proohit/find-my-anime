@@ -47,6 +47,27 @@ describe('AnimeDbService', () => {
     });
   });
 
+  describe('lastDownloaded', () => {
+    it('should return the last downloaded time', async () => {
+      const givenLastDownloadedTime = '2020-01-01T00:00:00.000Z';
+      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
+        Promise.resolve({
+          ...mockAnimeDb,
+          lastDownloadTime: givenLastDownloadedTime,
+        }),
+      );
+      const lastDownloaded = await animeDbService.getLastDownloaded();
+      expect(lastDownloaded).toEqual(givenLastDownloadedTime);
+    });
+  });
+
+  describe('getAllAnime', () => {
+    it('should return all anime', async () => {
+      const allAnime = await animeDbService.getAllAnime();
+      expect(allAnime).toEqual(mockAnimeDb.data);
+    });
+  });
+
   describe('search', () => {
     it('should search by id', async () => {
       const results = await animeDbService.queryAnime('51478');

@@ -43,6 +43,7 @@ describe('StatsService', () => {
     },
   ];
   const givenTags: string[] = ['tag1', 'tag2', 'tag1'];
+  const givenLastDownloadedTime = '2020-01-01T00:00:00.000Z';
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -52,6 +53,7 @@ describe('StatsService', () => {
           useValue: {
             getAllAnime: () => Promise.resolve(givenData),
             getTags: () => Promise.resolve(givenTags),
+            getLastDownloaded: () => Promise.resolve(givenLastDownloadedTime),
           },
         },
       ],
@@ -123,5 +125,10 @@ describe('StatsService', () => {
   it('should return tag count correctly', async () => {
     const stats = await statsService.getStats();
     expect(stats.tags.count).toEqual(givenTags.length);
+  });
+
+  it('should return lastDownloaded correctly', async () => {
+    const stats = await statsService.getStats();
+    expect(stats.lastDownloaded).toEqual(givenLastDownloadedTime);
   });
 });
