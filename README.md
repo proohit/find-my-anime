@@ -1,6 +1,7 @@
 # Find My Anime
 
 [![codecov](https://codecov.io/gh/proohit/find-my-anime/branch/master/graph/badge.svg?token=MU0FT78BB5)](https://codecov.io/gh/proohit/find-my-anime)
+[![Better Uptime Badge](https://betteruptime.com/status-badges/v1/monitor/es3c.svg)](https://status.find-my-anime.dtimur.de)
 [![Build](https://github.com/proohit/find-my-anime/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/proohit/find-my-anime/actions/workflows/build.yml)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=proohit_find-my-anime&metric=bugs)](https://sonarcloud.io/summary/new_code?id=proohit_find-my-anime)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=proohit_find-my-anime&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=proohit_find-my-anime)
