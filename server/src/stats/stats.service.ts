@@ -13,7 +13,9 @@ export class StatsService {
     const sortedMostUsedTags = this.getMostUsedTags(allAnime);
     const seasons = this.getAnimeCountBySeasonAndYear(allAnime);
     const tags = await this.animedbService.getTags();
+    const lastDownloaded = await this.animedbService.getLastDownloaded();
     return {
+      lastDownloaded,
       anime: {
         count: allAnime.length,
         seasons,

@@ -53,6 +53,11 @@ export class AnimeDbService {
     return [...tags];
   }
 
+  public async getLastDownloaded(): Promise<string> {
+    const animeDb = await this.animeDbDownloaderService.getAnimeDb();
+    return animeDb.lastDownloadTime;
+  }
+
   public async getAllAnime(): Promise<Anime[]> {
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
     return animeDb.data;

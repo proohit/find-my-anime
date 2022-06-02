@@ -1,4 +1,5 @@
 export type DbStatistics = {
+  lastDownloaded: string;
   anime: {
     count: number;
     seasons: {
