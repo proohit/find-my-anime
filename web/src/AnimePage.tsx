@@ -50,7 +50,7 @@ const AnimePage: FC = () => {
   }, [params.id, provider]);
 
   return (
-    <VStack mt="10" spacing={8}>
+    <VStack my="10" spacing={8}>
       {isLoading && <Spinner />}
       {anime && (
         <Stack
@@ -59,7 +59,7 @@ const AnimePage: FC = () => {
           direction={{ base: "column", lg: "row" }}
           bg={useColorModeValue("white", "gray.900")}
           boxShadow={"2xl"}
-          padding={4}
+          p={4}
         >
           <Flex flex={1} justifyContent="center" alignItems="center">
             <Image
@@ -74,11 +74,15 @@ const AnimePage: FC = () => {
             </Heading>
             <AnimeTopic>
               <AnimeTopicHeader>Alternative titles</AnimeTopicHeader>
-              <HStack justifyContent={"flex-start"} flexWrap="wrap">
+              <HStack justifyContent={"flex-start"} flexWrap="wrap" gap={1}>
                 {anime.synonyms.map((synonym) => (
-                  <Text fontSize={["sm", "md", "lg", "xl"]} textAlign="left">
+                  <Badge
+                    key={synonym}
+                    bg={useColorModeValue("gray.200", "gray.700")}
+                    fontWeight={"400"}
+                  >
                     {synonym}
-                  </Text>
+                  </Badge>
                 ))}
               </HStack>
             </AnimeTopic>
