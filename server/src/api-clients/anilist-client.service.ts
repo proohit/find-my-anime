@@ -2,11 +2,12 @@ import { ANILIST_API_URL } from '@find-my-anime/shared/constants/urls';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
+import { AnimeClient } from './AnimeClient';
 @Injectable()
-export class AnilistClient {
+export class AnilistClient implements AnimeClient {
   constructor(private httpService: HttpService) {}
 
-  async queryMedia(id: string) {
+  async getAnime(id: string) {
     const query = `query ($id: Int) {
       Media(id: $id) {
         title {
@@ -28,7 +29,7 @@ export class AnilistClient {
     }
   }
 
-  async fetch(query: string, variables: any) {
+  private async fetch(query: string, variables: any) {
     const body: { query?: string; variables?: any } = {};
     if (query) {
       body.query = query;
