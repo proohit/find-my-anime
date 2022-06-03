@@ -20,7 +20,7 @@ export const emptyAnime: Anime = {
   status: Status.Finished,
   synonyms: [],
   thumbnail: '',
-  description: '',
+  description: undefined,
   provider: Provider.AniDB,
 };
 
