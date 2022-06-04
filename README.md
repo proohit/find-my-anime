@@ -12,6 +12,7 @@ An API first service for searching anime across multiple sites such as Anilist a
 
 ## Running
 
+You can either run the application via docker or directly from source. See [Configuration](#configuration) for more information.
 The easiest way is to use Docker:
 
 ```bash
@@ -51,6 +52,12 @@ You can provide a .env or .env.dev (for development) file to configure the backe
 ```env
 port=YOUR_PORT
 MYANIMELIST_API_KEY=YOUR_API_KEY
+```
+
+For Docker, you can just pass the environment variables to the container.
+
+```bash
+docker run -d -p 3000:3000 -e MYANIMELIST_API_KEY=YOUR_API_KEY proohit/find-my-anime
 ```
 
 The app uses external services such as Anilist and MyAnimeList to further enrich anime data.
