@@ -60,30 +60,27 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
     } else return `/anime/${id}`;
   };
   return (
-    <LinkBox>
+    <LinkBox w={{ md: "100%" }}>
       <LinkOverlay href={getUrlOfAnime()}>
         <Center py={6}>
           <Stack
             borderWidth="1px"
             borderRadius="lg"
-            w={{ md: "100%" }}
+            w="100%"
             h={{ lg: "md" }}
-            direction={{ base: "column", md: "row" }}
             bg={useColorModeValue("white", "gray.900")}
             boxShadow={"2xl"}
             padding={4}
+            direction={{ base: "column", md: "row" }}
+            alignItems={{ base: "center", md: "normal" }}
           >
-            <Flex flex={1} justifyContent="center" alignItems="center">
-              <Image
-                objectFit="contain"
-                boxSize={{ sm: "50%", md: "100%" }}
-                src={anime.picture}
-              />
+            <Flex alignItems="center">
+              <Image objectFit="contain" h="100%" src={anime.picture} />
             </Flex>
             <VStack
               flex={1}
-              justifyContent="center"
-              alignItems="center"
+              justifyContent="flex-start"
+              alignItems="stretch"
               p={1}
               pt={2}
             >
@@ -93,8 +90,8 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
               <Popover>
                 <PopoverTrigger>
                   <Box>
-                    <TagList tags={anime.tags} limit={10} />
-                    {anime.tags?.length >= 10 && <Text>...</Text>}
+                    <TagList tags={anime.tags} limit={15} />
+                    {anime.tags?.length >= 15 && <Text>...</Text>}
                   </Box>
                 </PopoverTrigger>
                 <PopoverContent>
