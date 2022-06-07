@@ -8,7 +8,7 @@ export interface TagListProps {
 export const TagList: FC<TagListProps> = (props) => {
   const { tags, limit } = props;
   return (
-    <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap" gap={1}>
+    <HStack justifyContent={"flex-start"} flexWrap="wrap" gap={1}>
       {tags.slice(0, limit).map((tag) => (
         <Badge
           key={tag}

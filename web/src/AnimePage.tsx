@@ -16,12 +16,20 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Anime, getProvider, Provider } from "@find-my-anime/shared";
-import { FC, PropsWithChildren, useEffect, useMemo, useState } from "react";
+import DOMPurify from "dompurify";
+import {
+  FC,
+  PropsWithChildren,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { FaLink, FaTags } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import Api from "./Api";
 import { TagList } from "./TagList";
 import { useQuery } from "./useQuery";
-import DOMPurify from "dompurify";
 
 const AnimePage: FC = () => {
   const params = useParams();
@@ -63,7 +71,7 @@ const AnimePage: FC = () => {
           boxShadow={"2xl"}
           p={4}
         >
-          <Flex flex={1} justifyContent="center" alignItems="center">
+          <Flex flex={1} justifyContent="center" alignItems="flex-start">
             <Image
               objectFit="contain"
               boxSize={["xs", "sm", "md", "lg", "xl"]}
@@ -99,11 +107,11 @@ const AnimePage: FC = () => {
               </HStack>
             </AnimeTopic>
             <AnimeTopic>
-              <AnimeTopicHeader>Tags</AnimeTopicHeader>
+              <AnimeTopicHeader icon={<FaTags />}>Tags</AnimeTopicHeader>
               <TagList tags={anime.tags} />
             </AnimeTopic>
             <AnimeTopic>
-              <AnimeTopicHeader>Links</AnimeTopicHeader>
+              <AnimeTopicHeader icon={<FaLink />}>Links</AnimeTopicHeader>
               <HStack justifyContent={"flex-start"} flexWrap="wrap">
                 {anime.sources.map((source) => (
                   <LinkBox key={source}>
@@ -124,7 +132,7 @@ const AnimePage: FC = () => {
 };
 export default AnimePage;
 
-const AnimeTopic: FC<PropsWithChildren<BoxProps>> = (props) => {
+export const AnimeTopic: FC<PropsWithChildren<BoxProps>> = (props) => {
   const { children, ...rest } = props;
   return (
     <Box w="100%" {...rest}>
@@ -133,11 +141,16 @@ const AnimeTopic: FC<PropsWithChildren<BoxProps>> = (props) => {
   );
 };
 
-const AnimeTopicHeader: FC<PropsWithChildren<HeadingProps>> = (props) => {
-  const { children, ...rest } = props;
+export const AnimeTopicHeader: FC<
+  PropsWithChildren<HeadingProps> & { icon?: ReactNode }
+> = (props) => {
+  const { children, icon, ...rest } = props;
   return (
-    <Heading variant="h6" fontSize="md" textAlign="left" {...rest}>
-      {children}
-    </Heading>
+    <Flex alignItems="center" justifyContent="flex-start" gap={2} mb={2}>
+      <Heading variant="h6" fontSize="md" textAlign="left" {...rest}>
+        {children}
+      </Heading>
+      {icon}
+    </Flex>
   );
 };

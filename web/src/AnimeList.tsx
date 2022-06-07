@@ -28,6 +28,7 @@ import {
   getProviders,
 } from "@find-my-anime/shared";
 import { FC } from "react";
+import { FaLink, FaTag } from "react-icons/fa";
 import { TagList } from "./TagList";
 
 interface Props {
@@ -62,62 +63,61 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
   return (
     <LinkBox w={{ md: "100%" }}>
       <LinkOverlay href={getUrlOfAnime()}>
-        <Center py={6}>
-          <Stack
-            borderWidth="1px"
-            borderRadius="lg"
-            w="100%"
-            h={{ lg: "md" }}
-            bg={useColorModeValue("white", "gray.900")}
-            boxShadow={"2xl"}
-            padding={4}
-            direction={{ base: "column", md: "row" }}
-            alignItems={{ base: "center", md: "normal" }}
+        <Stack
+          borderWidth="1px"
+          borderRadius="lg"
+          w="100%"
+          h={{ lg: "md" }}
+          bg={useColorModeValue("white", "gray.900")}
+          boxShadow={"2xl"}
+          padding={4}
+          direction={{ base: "column", md: "row" }}
+          alignItems={{ base: "center", md: "normal" }}
+        >
+          <Flex alignItems="center">
+            <Image objectFit="contain" h="100%" src={anime.picture} />
+          </Flex>
+          <VStack
+            flex={1}
+            justifyContent="flex-start"
+            alignItems="stretch"
+            p={1}
+            pt={2}
           >
-            <Flex alignItems="center">
-              <Image objectFit="contain" h="100%" src={anime.picture} />
-            </Flex>
-            <VStack
-              flex={1}
-              justifyContent="flex-start"
-              alignItems="stretch"
-              p={1}
-              pt={2}
-            >
-              <Heading fontSize={"2xl"} fontFamily={"body"}>
-                {anime.title}
-              </Heading>
-              <Popover>
-                <PopoverTrigger>
-                  <Box>
-                    <TagList tags={anime.tags} limit={15} />
-                    {anime.tags?.length >= 15 && <Text>...</Text>}
-                  </Box>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <PopoverArrow />
-                  <PopoverCloseButton />
-                  <PopoverHeader>All Tags</PopoverHeader>
-                  <PopoverBody>
-                    <TagList tags={anime.tags} />
-                  </PopoverBody>
-                </PopoverContent>
-              </Popover>
-
-              <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
-                {anime.sources.map((source) => (
-                  <LinkBox key={source}>
-                    <LinkOverlay href={source} isExternal>
-                      <Badge color={useColorModeValue("blue.500", "blue.200")}>
-                        {getProvider(anime, source)}
-                      </Badge>
-                    </LinkOverlay>
-                  </LinkBox>
-                ))}
-              </HStack>
-            </VStack>
-          </Stack>
-        </Center>
+            <Heading fontSize={"2xl"} fontFamily={"body"}>
+              {anime.title}
+            </Heading>
+            <Popover>
+              <PopoverTrigger>
+                <Box>
+                  <FaTag />
+                  <TagList tags={anime.tags} limit={15} />
+                  {anime.tags?.length >= 15 && <Text>...</Text>}
+                </Box>
+              </PopoverTrigger>
+              <PopoverContent>
+                <PopoverArrow />
+                <PopoverCloseButton />
+                <PopoverHeader>All Tags</PopoverHeader>
+                <PopoverBody>
+                  <TagList tags={anime.tags} />
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+            <FaLink />
+            <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
+              {anime.sources.map((source) => (
+                <LinkBox key={source}>
+                  <LinkOverlay href={source} isExternal>
+                    <Badge color={useColorModeValue("blue.500", "blue.200")}>
+                      {getProvider(anime, source)}
+                    </Badge>
+                  </LinkOverlay>
+                </LinkBox>
+              ))}
+            </HStack>
+          </VStack>
+        </Stack>
       </LinkOverlay>
     </LinkBox>
   );
