@@ -1,11 +1,11 @@
 import {
   Badge,
   Box,
-  Center,
   Flex,
   Heading,
   HStack,
   Image,
+  Link,
   LinkBox,
   LinkOverlay,
   Popover,
@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
   Stack,
   Text,
+  useBreakpointValue,
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
@@ -29,6 +30,8 @@ import {
 } from "@find-my-anime/shared";
 import { FC } from "react";
 import { FaLink, FaTag } from "react-icons/fa";
+import { AnimeTopic } from "./AnimeTopic";
+import { AnimeTopicHeader } from "./AnimeTopicHeader";
 import { TagList } from "./TagList";
 
 interface Props {
@@ -60,39 +63,45 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
       return `/anime/${id}?provider=${provider}`;
     } else return `/anime/${id}`;
   };
+  const queriedTagLimit =
+    useBreakpointValue({
+      base: 10,
+      lg: 30,
+      xl: 50,
+    }) || 10;
   return (
     <LinkBox w={{ md: "100%" }}>
-      <LinkOverlay href={getUrlOfAnime()}>
-        <Stack
-          borderWidth="1px"
-          borderRadius="lg"
-          w="100%"
-          h={{ lg: "md" }}
-          bg={useColorModeValue("white", "gray.900")}
-          boxShadow={"2xl"}
-          padding={4}
-          direction={{ base: "column", md: "row" }}
-          alignItems={{ base: "center", md: "normal" }}
+      <Stack
+        borderWidth="1px"
+        borderRadius="lg"
+        w="100%"
+        h={{ lg: "md" }}
+        bg={useColorModeValue("white", "gray.900")}
+        boxShadow={"2xl"}
+        padding={4}
+        direction={{ base: "column", md: "row" }}
+        alignItems={{ base: "center", md: "normal" }}
+      >
+        <Flex alignItems="center">
+          <Image objectFit="contain" h="100%" src={anime.picture} />
+        </Flex>
+        <VStack
+          flex={1}
+          justifyContent="flex-start"
+          alignItems="stretch"
+          p={1}
+          pt={2}
         >
-          <Flex alignItems="center">
-            <Image objectFit="contain" h="100%" src={anime.picture} />
-          </Flex>
-          <VStack
-            flex={1}
-            justifyContent="flex-start"
-            alignItems="stretch"
-            p={1}
-            pt={2}
-          >
-            <Heading fontSize={"2xl"} fontFamily={"body"}>
-              {anime.title}
-            </Heading>
+          <Heading fontSize={"2xl"} fontFamily={"body"}>
+            <Link href={getUrlOfAnime()}>{anime.title}</Link>
+          </Heading>
+          <AnimeTopic>
+            <AnimeTopicHeader icon={<FaTag />}>Tags</AnimeTopicHeader>
             <Popover>
               <PopoverTrigger>
                 <Box>
-                  <FaTag />
-                  <TagList tags={anime.tags} limit={15} />
-                  {anime.tags?.length >= 15 && <Text>...</Text>}
+                  <TagList tags={anime.tags} limit={queriedTagLimit} />
+                  {anime.tags?.length >= queriedTagLimit && <Text>...</Text>}
                 </Box>
               </PopoverTrigger>
               <PopoverContent>
@@ -104,7 +113,9 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
                 </PopoverBody>
               </PopoverContent>
             </Popover>
-            <FaLink />
+          </AnimeTopic>
+          <AnimeTopic>
+            <AnimeTopicHeader icon={<FaLink />}>Links</AnimeTopicHeader>
             <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
               {anime.sources.map((source) => (
                 <LinkBox key={source}>
@@ -116,9 +127,9 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
                 </LinkBox>
               ))}
             </HStack>
-          </VStack>
-        </Stack>
-      </LinkOverlay>
+          </AnimeTopic>
+        </VStack>
+      </Stack>
     </LinkBox>
   );
 };
