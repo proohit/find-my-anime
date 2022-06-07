@@ -29,7 +29,7 @@ import {
   getProviders,
 } from "@find-my-anime/shared";
 import { FC } from "react";
-import { FaLink, FaTag } from "react-icons/fa";
+import { FaExternalLinkAlt, FaLink, FaTag } from "react-icons/fa";
 import { AnimeTopic } from "./AnimeTopic";
 import { AnimeTopicHeader } from "./AnimeTopicHeader";
 import { TagList } from "./TagList";
@@ -70,7 +70,7 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
       xl: 50,
     }) || 10;
   return (
-    <LinkBox w={{ md: "100%" }}>
+    <Box w={{ md: "100%" }}>
       <Stack
         borderWidth="1px"
         borderRadius="lg"
@@ -92,9 +92,14 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
           p={1}
           pt={2}
         >
-          <Heading fontSize={"2xl"} fontFamily={"body"}>
-            <Link href={getUrlOfAnime()}>{anime.title}</Link>
-          </Heading>
+          <Flex justifyContent="center" alignItems="center" gap={2}>
+            <Heading fontSize={"2xl"} fontFamily={"body"}>
+              <Link href={getUrlOfAnime()}>{anime.title}</Link>
+            </Heading>
+            <Link href={getUrlOfAnime()} isExternal>
+              <FaExternalLinkAlt size={18} />
+            </Link>
+          </Flex>
           <AnimeTopic>
             <AnimeTopicHeader icon={<FaTag />}>Tags</AnimeTopicHeader>
             <Popover>
@@ -130,6 +135,6 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
           </AnimeTopic>
         </VStack>
       </Stack>
-    </LinkBox>
+    </Box>
   );
 };
