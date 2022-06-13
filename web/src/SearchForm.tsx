@@ -1,15 +1,10 @@
-import {
-  Input,
-  Select,
-  useColorModeValue,
-  VStack,
-  Wrap,
-} from "@chakra-ui/react";
+import { Select, useColorModeValue, VStack, Wrap } from "@chakra-ui/react";
 import { Provider } from "@find-my-anime/shared/constants/Provider";
 import React, { ChangeEvent, FC } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Autocomplete } from "./Autocomplete";
 import { FilterTag } from "./FilterTag";
+import ResetableInput from "./ResetableInput";
 
 type Props = {
   onFiltersChanged: (filter: Filter) => void;
@@ -71,8 +66,20 @@ export const SearchForm: FC<Props> = (props) => {
       bg={useColorModeValue("white.100", "gray.800")}
       w="100%"
     >
-      <Input name="query" placeholder="Title" onChange={handleChange} />
-      <Input name="id" onChange={handleChange} placeholder="Id" />
+      <ResetableInput
+        name="query"
+        placeholder="Title"
+        onChange={handleChange}
+        value={filters.query}
+        onReset={() => setFilters({ ...filters, query: "" })}
+      />
+      <ResetableInput
+        name="id"
+        onChange={handleChange}
+        placeholder="Id"
+        value={filters.id}
+        onReset={() => setFilters({ ...filters, id: "" })}
+      />
       <Select
         placeholder="Provider"
         value={filters.provider}
