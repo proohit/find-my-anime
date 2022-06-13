@@ -1,16 +1,17 @@
 import {
-  Popover,
-  PopoverTrigger,
-  Input,
-  PopoverContent,
-  PopoverBody,
   Box,
+  Input,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   useColorModeValue,
+  useOutsideClick,
 } from "@chakra-ui/react";
 import { FC, useEffect, useRef, useState } from "react";
-import { VirtualizedItemList } from "./VirtualizedItemList";
 import { findBestMatch } from "string-similarity";
 import { useDebouncedCallback } from "use-debounce";
+import { VirtualizedItemList } from "./VirtualizedItemList";
 
 export const Autocomplete: FC<{
   items: string[];
@@ -23,7 +24,6 @@ export const Autocomplete: FC<{
     setFilteredItems(items);
   }, [items]);
   const inputRef = useRef<HTMLInputElement>(null);
-
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     debouncedFilter(value);
@@ -43,7 +43,42 @@ export const Autocomplete: FC<{
   const debouncedFilter = useDebouncedCallback(filterItems, 200);
 
   return (
-    <Popover matchWidth initialFocusRef={inputRef}>
+    <Popover matchWidth initialFocusRef={inputRef} returnFocusOnClose={false}>
+      {({ onClose }) => (
+        <>
+          <AutocompleteBody
+            onClose={onClose}
+            inputRef={inputRef}
+            onChange={onChange}
+            items={filteredItems}
+            selectedItems={selectedItems}
+            onItemClick={onItemClick}
+          />
+        </>
+      )}
+    </Popover>
+  );
+};
+
+type AutocompleteBodyProps = {
+  onClose: () => void;
+  inputRef: React.RefObject<HTMLInputElement>;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  items: string[];
+  selectedItems?: string[];
+  onItemClick: (item: string) => void;
+};
+const AutocompleteBody: FC<AutocompleteBodyProps> = ({
+  onClose,
+  inputRef,
+  onChange,
+  items,
+  selectedItems,
+  onItemClick,
+}) => {
+  useOutsideClick({ ref: inputRef, handler: onClose });
+  return (
+    <>
       <PopoverTrigger>
         <Input placeholder="Tags" ref={inputRef} onChange={onChange} />
       </PopoverTrigger>
@@ -51,13 +86,13 @@ export const Autocomplete: FC<{
         <PopoverBody>
           <Box bg={useColorModeValue("white", "gray.700")} w="100%">
             <VirtualizedItemList
-              items={filteredItems}
+              items={items}
               selectedItems={selectedItems}
               onItemClick={onItemClick}
             />
           </Box>
         </PopoverBody>
       </PopoverContent>
-    </Popover>
+    </>
   );
 };
