@@ -24,6 +24,7 @@ export const Autocomplete: FC<{
     setFilteredItems(items);
   }, [items]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const popoverRef = useRef<HTMLInputElement>(null);
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     debouncedFilter(value);
@@ -43,25 +44,29 @@ export const Autocomplete: FC<{
   const debouncedFilter = useDebouncedCallback(filterItems, 200);
 
   return (
-    <Popover matchWidth initialFocusRef={inputRef} returnFocusOnClose={false}>
-      {({ onClose }) => (
-        <>
-          <AutocompleteBody
-            onClose={onClose}
-            inputRef={inputRef}
-            onChange={onChange}
-            items={filteredItems}
-            selectedItems={selectedItems}
-            onItemClick={onItemClick}
-          />
-        </>
-      )}
-    </Popover>
+    <Box w="100%" ref={popoverRef}>
+      <Popover matchWidth initialFocusRef={inputRef} returnFocusOnClose={false}>
+        {({ onClose }) => {
+          useOutsideClick({ ref: popoverRef, handler: onClose });
+
+          return (
+            <>
+              <AutocompleteBody
+                inputRef={inputRef}
+                onChange={onChange}
+                items={filteredItems}
+                selectedItems={selectedItems}
+                onItemClick={onItemClick}
+              />
+            </>
+          );
+        }}
+      </Popover>
+    </Box>
   );
 };
 
 type AutocompleteBodyProps = {
-  onClose: () => void;
   inputRef: React.RefObject<HTMLInputElement>;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   items: string[];
@@ -69,14 +74,12 @@ type AutocompleteBodyProps = {
   onItemClick: (item: string) => void;
 };
 const AutocompleteBody: FC<AutocompleteBodyProps> = ({
-  onClose,
   inputRef,
   onChange,
   items,
   selectedItems,
   onItemClick,
 }) => {
-  useOutsideClick({ ref: inputRef, handler: onClose });
   return (
     <>
       <PopoverTrigger>
