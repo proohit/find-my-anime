@@ -5,7 +5,7 @@ import AnimeList from "./AnimeList";
 import Api from "./Api";
 import { Filter, SearchForm } from "./SearchForm";
 
-export const SearchPage = () => {
+const SearchPage = () => {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,3 +53,4 @@ export const SearchPage = () => {
     </VStack>
   );
 };
+export default SearchPage;

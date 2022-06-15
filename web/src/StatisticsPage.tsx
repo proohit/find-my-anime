@@ -13,7 +13,7 @@ import { DbStatistics } from "@find-my-anime/shared/interfaces/DbStatistics";
 import { FC, ReactNode, useEffect, useState } from "react";
 import Api from "./Api";
 
-export const StatisticsPage: FC = () => {
+const StatisticsPage: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [statistics, setStatistics] = useState<DbStatistics | undefined>(
     undefined
@@ -121,3 +121,5 @@ const StatisticsSubTopic: FC<TopicProps> = ({ children, heading }) => {
     </Box>
   );
 };
+
+export default StatisticsPage;

@@ -1,26 +1,28 @@
-import { ColorModeScript } from "@chakra-ui/react";
-import * as React from "react";
-import { SearchPage } from "./SearchPage";
+import { ColorModeScript, Spinner } from "@chakra-ui/react";
+import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppWrapper from "./AppWrapper";
-import { StatisticsPage } from "./StatisticsPage";
-import AnimePage from "./AnimePage";
 
 const container = document.getElementById("root") as Element;
 const root = createRoot(container);
+const SearchPage = lazy(() => import("./SearchPage"));
+const StatisticsPage = lazy(() => import("./StatisticsPage"));
+const AnimePage = lazy(() => import("./AnimePage"));
 
 root.render(
-  <React.StrictMode>
+  <StrictMode>
     <BrowserRouter>
       <ColorModeScript />
       <AppWrapper>
-        <Routes>
-          <Route path="/" element={<SearchPage />} />
-          <Route path="/stats" element={<StatisticsPage />} />
-          <Route path="/anime/:id" element={<AnimePage />} />
-        </Routes>
+        <Suspense fallback={<Spinner />}>
+          <Routes>
+            <Route path="/" element={<SearchPage />} />
+            <Route path="/stats" element={<StatisticsPage />} />
+            <Route path="/anime/:id" element={<AnimePage />} />
+          </Routes>
+        </Suspense>
       </AppWrapper>
     </BrowserRouter>
-  </React.StrictMode>
+  </StrictMode>
 );
