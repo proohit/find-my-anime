@@ -1,6 +1,6 @@
 import { Select, useColorModeValue, VStack, Wrap } from "@chakra-ui/react";
 import { Provider } from "@find-my-anime/shared/constants/Provider";
-import React, { ChangeEvent, FC } from "react";
+import React, { ChangeEvent, FC, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Autocomplete } from "./Autocomplete";
 import { FilterTag } from "./FilterTag";
@@ -10,6 +10,7 @@ type Props = {
   onFiltersChanged: (filter: Filter) => void;
   onLoadingChanged: (loading: boolean) => void;
   tags: string[];
+  filters: Filter;
 };
 
 export interface Filter {
@@ -20,8 +21,12 @@ export interface Filter {
 }
 
 export const SearchForm: FC<Props> = (props) => {
-  const { onFiltersChanged, tags, onLoadingChanged } = props;
-  const [filters, setFilters] = React.useState<Filter>({});
+  const { onFiltersChanged, tags, onLoadingChanged, filters } = props;
+  const [localFilters, setLocalFilters] = React.useState<Filter>(filters);
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
+
   const debouncedEmitChange = useDebouncedCallback(onFiltersChanged, 1000, {
     trailing: true,
   });
@@ -29,34 +34,34 @@ export const SearchForm: FC<Props> = (props) => {
     event: ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
     const { name, value } = event.target;
-    const updatedFilters = { ...filters, [name]: value };
-    setFilters(updatedFilters);
+    const updatedFilters = { ...localFilters, [name]: value };
+    setLocalFilters(updatedFilters);
     onLoadingChanged(true);
     debouncedEmitChange(updatedFilters);
   };
 
   const handleTagChange = (filterTags: string[]) => {
-    const updatedFilters = { ...filters, tags: filterTags };
-    setFilters(updatedFilters);
+    const updatedFilters = { ...localFilters, tags: filterTags };
+    setLocalFilters(updatedFilters);
     onLoadingChanged(true);
     debouncedEmitChange(updatedFilters);
   };
 
   const handleTagAdd = (tag: string) => {
-    if (filters.tags?.includes(tag)) {
+    if (localFilters.tags?.includes(tag)) {
       handleTagRemove(tag);
     } else {
-      const updatedTags = [...(filters.tags || []), tag];
-      const updatedFilters = { ...filters, tags: [...updatedTags] };
-      setFilters(updatedFilters);
+      const updatedTags = [...(localFilters.tags || []), tag];
+      const updatedFilters = { ...localFilters, tags: [...updatedTags] };
+      setLocalFilters(updatedFilters);
       onLoadingChanged(true);
       debouncedEmitChange(updatedFilters);
     }
   };
 
   const handleTagRemove = (tag: string) => {
-    if (filters.tags) {
-      handleTagChange(filters.tags.filter((t) => t !== tag));
+    if (localFilters.tags) {
+      handleTagChange(localFilters.tags.filter((t) => t !== tag));
     }
   };
 
@@ -70,19 +75,19 @@ export const SearchForm: FC<Props> = (props) => {
         name="query"
         placeholder="Title"
         onChange={handleChange}
-        value={filters.query}
-        onReset={() => setFilters({ ...filters, query: "" })}
+        value={localFilters.query}
+        onReset={() => setLocalFilters({ ...localFilters, query: "" })}
       />
       <ResetableInput
         name="id"
         onChange={handleChange}
         placeholder="Id"
-        value={filters.id}
-        onReset={() => setFilters({ ...filters, id: "" })}
+        value={localFilters.id}
+        onReset={() => setLocalFilters({ ...localFilters, id: "" })}
       />
       <Select
         placeholder="Provider"
-        value={filters.provider}
+        value={localFilters.provider}
         onChange={handleChange}
         name="provider"
       >
@@ -93,10 +98,10 @@ export const SearchForm: FC<Props> = (props) => {
       <Autocomplete
         items={tags}
         onItemClick={handleTagAdd}
-        selectedItems={filters.tags}
+        selectedItems={localFilters.tags}
       />
       <Wrap spacing="3">
-        {filters.tags?.map((tag) => (
+        {localFilters.tags?.map((tag) => (
           <FilterTag tag={tag} onClick={() => handleTagRemove(tag)} />
         ))}
       </Wrap>
