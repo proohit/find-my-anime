@@ -56,7 +56,16 @@ export default () => {
           />
         </Flex>
         <Heading as="h2" size="md">
-          Find My Anime
+          <Link
+            color={useColorModeValue("gray.600", "gray.200")}
+            _hover={{
+              textDecoration: "none",
+              color: useColorModeValue("gray.800", "white"),
+            }}
+            href="/"
+          >
+            Find My Anime
+          </Link>
         </Heading>
         <Flex flex={{ base: 1 }} ml="8">
           <Flex display={{ base: "none", md: "flex" }}>
@@ -254,10 +263,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: Array<NavItem> = [
-  {
-    label: "About",
-    href: "/",
-  },
+  { label: "Search", href: "/search" },
   {
     label: "API",
     children: [
@@ -272,5 +278,9 @@ const NAV_ITEMS: Array<NavItem> = [
   {
     label: "Stats",
     href: "/stats",
+  },
+  {
+    label: "About",
+    href: "/",
   },
 ];

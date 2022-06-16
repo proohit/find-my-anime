@@ -38,7 +38,7 @@ const SearchPage = () => {
     } else {
       queryParams.delete("provider");
     }
-    navigate(`/?${queryParams.toString()}`);
+    navigate(`/search?${queryParams.toString()}`);
   };
 
   const updateFiltersFromQuery = () => {
