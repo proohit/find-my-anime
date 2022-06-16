@@ -2,11 +2,11 @@ import { Spinner, VStack } from "@chakra-ui/react";
 import { Provider } from "@find-my-anime/shared";
 import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import AnimeList from "../components/AnimeList";
 import Api from "../Api";
-import { useQuery } from "../useQuery";
+import AnimeList from "../components/AnimeList";
 import { Filter, SearchForm } from "../components/SearchForm";
+import { navigateToSearchWithFilters } from "../utils/navigateToSearchWithFilters";
+import { useQuery } from "../utils/useQuery";
 
 const SearchPage = () => {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
@@ -14,32 +14,6 @@ const SearchPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentFilters, setCurrentFilters] = useState<Filter>({});
   const query = useQuery();
-  const navigate = useNavigate();
-
-  const updateFiltersInQuery = (newFilters: Filter) => {
-    const queryParams = new URLSearchParams();
-    if (newFilters.tags) {
-      queryParams.set("tags", newFilters.tags?.join(","));
-    } else {
-      queryParams.delete("tags");
-    }
-    if (newFilters.query) {
-      queryParams.set("title", newFilters.query);
-    } else {
-      queryParams.delete("title");
-    }
-    if (newFilters.id) {
-      queryParams.set("id", newFilters.id.toString());
-    } else {
-      queryParams.delete("id");
-    }
-    if (newFilters.provider) {
-      queryParams.set("provider", newFilters.provider.toString());
-    } else {
-      queryParams.delete("provider");
-    }
-    navigate(`/search?${queryParams.toString()}`);
-  };
 
   const updateFiltersFromQuery = () => {
     const title = query.get("title") || undefined;
@@ -101,7 +75,7 @@ const SearchPage = () => {
     <VStack spacing={8} mt="10">
       <SearchForm
         onLoadingChanged={setIsLoading}
-        onFiltersChanged={updateFiltersInQuery}
+        onFiltersChanged={navigateToSearchWithFilters}
         tags={availableTags}
         filters={currentFilters}
       />
