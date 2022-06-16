@@ -40,6 +40,13 @@ export const SearchForm: FC<Props> = (props) => {
     debouncedEmitChange(updatedFilters);
   };
 
+  const resetFilterField = (name: string) => {
+    const updatedFilters = { ...localFilters, [name]: "" };
+    setLocalFilters(updatedFilters);
+    onLoadingChanged(true);
+    debouncedEmitChange(updatedFilters);
+  };
+
   const handleTagChange = (filterTags: string[]) => {
     const updatedFilters = { ...localFilters, tags: filterTags };
     setLocalFilters(updatedFilters);
@@ -76,14 +83,14 @@ export const SearchForm: FC<Props> = (props) => {
         placeholder="Title"
         onChange={handleChange}
         value={localFilters.query}
-        onReset={() => setLocalFilters({ ...localFilters, query: "" })}
+        onReset={() => resetFilterField("query")}
       />
       <ResetableInput
         name="id"
         onChange={handleChange}
         placeholder="Id"
         value={localFilters.id}
-        onReset={() => setLocalFilters({ ...localFilters, id: "" })}
+        onReset={() => resetFilterField("id")}
       />
       <Select
         placeholder="Provider"
