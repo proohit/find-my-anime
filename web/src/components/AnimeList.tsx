@@ -126,7 +126,7 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
           </AnimeTopic>
           <AnimeTopic>
             <AnimeTopicHeader icon={<FaLink />}>Links</AnimeTopicHeader>
-            <HStack p={2} justifyContent={"flex-start"} flexWrap="wrap">
+            <HStack justifyContent={"flex-start"} flexWrap="wrap">
               {anime.sources.map((source) => (
                 <LinkBox key={source}>
                   <LinkOverlay href={source} isExternal>
