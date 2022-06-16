@@ -30,6 +30,7 @@ import {
 } from "@find-my-anime/shared";
 import { FC } from "react";
 import { FaExternalLinkAlt, FaLink, FaTag } from "react-icons/fa";
+import useFilters from "../hooks/useFilters";
 import { AnimeTopic } from "./AnimeTopic";
 import { AnimeTopicHeader } from "./AnimeTopicHeader";
 import { TagList } from "./TagList";
@@ -63,12 +64,14 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
       return `/anime/${id}?provider=${provider}`;
     } else return `/anime/${id}`;
   };
+  const filterHook = useFilters();
   const queriedTagLimit =
     useBreakpointValue({
       base: 10,
       lg: 30,
       xl: 50,
     }) || 10;
+
   return (
     <Box w={{ md: "100%" }}>
       <Stack
@@ -102,22 +105,24 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
           </Flex>
           <AnimeTopic>
             <AnimeTopicHeader icon={<FaTag />}>Tags</AnimeTopicHeader>
-            <Popover>
-              <PopoverTrigger>
-                <Box>
-                  <TagList tags={anime.tags} limit={queriedTagLimit} />
-                  {anime.tags?.length >= queriedTagLimit && <Text>...</Text>}
-                </Box>
-              </PopoverTrigger>
-              <PopoverContent>
-                <PopoverArrow />
-                <PopoverCloseButton />
-                <PopoverHeader>All Tags</PopoverHeader>
-                <PopoverBody>
-                  <TagList tags={anime.tags} />
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
+            <TagList
+              onTagClick={(tag) => filterHook.filterByTag(tag)}
+              tags={anime.tags}
+              limit={queriedTagLimit}
+            />
+            {anime.tags?.length >= queriedTagLimit && (
+              <Popover>
+                <PopoverTrigger>{<Text>...</Text>}</PopoverTrigger>
+                <PopoverContent>
+                  <PopoverArrow />
+                  <PopoverCloseButton />
+                  <PopoverHeader>All Tags</PopoverHeader>
+                  <PopoverBody>
+                    <TagList tags={anime.tags} />
+                  </PopoverBody>
+                </PopoverContent>
+              </Popover>
+            )}
           </AnimeTopic>
           <AnimeTopic>
             <AnimeTopicHeader icon={<FaLink />}>Links</AnimeTopicHeader>

@@ -21,6 +21,7 @@ import Api from "../Api";
 import { AnimeTopic } from "../components/AnimeTopic";
 import { AnimeTopicHeader } from "../components/AnimeTopicHeader";
 import { TagList } from "../components/TagList";
+import useFilters from "../hooks/useFilters";
 import { useQuery } from "../hooks/useQuery";
 
 const AnimePage: FC = () => {
@@ -36,6 +37,8 @@ const AnimePage: FC = () => {
     }
     return undefined;
   }, [query.has("provider")]);
+
+  const filterHook = useFilters();
 
   useEffect(() => {
     if (params.id) {
@@ -100,7 +103,10 @@ const AnimePage: FC = () => {
             </AnimeTopic>
             <AnimeTopic>
               <AnimeTopicHeader icon={<FaTags />}>Tags</AnimeTopicHeader>
-              <TagList tags={anime.tags} />
+              <TagList
+                onTagClick={(tag) => filterHook.filterByTag(tag)}
+                tags={anime.tags}
+              />
             </AnimeTopic>
             <AnimeTopic>
               <AnimeTopicHeader icon={<FaLink />}>Links</AnimeTopicHeader>
