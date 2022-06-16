@@ -17,7 +17,7 @@ root.render(
       <AppWrapper>
         <Suspense fallback={<Spinner />}>
           <Routes>
-            <Route path="/" />
+            <Route path="/" element={<SearchPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/stats" element={<StatisticsPage />} />
             <Route path="/anime/:id" element={<AnimePage />} />
