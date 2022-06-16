@@ -24,8 +24,8 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
-import { SERVER_BASE, SERVER_PATH } from "./urls";
-import packageJson from "../package.json";
+import packageJson from "../../package.json";
+import { SERVER_BASE, SERVER_PATH } from "../constants/urls";
 
 export default () => {
   const { isOpen, onToggle } = useDisclosure();

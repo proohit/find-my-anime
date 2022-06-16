@@ -17,11 +17,11 @@ import DOMPurify from "dompurify";
 import { FC, useEffect, useMemo, useState } from "react";
 import { FaLink, FaTags } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import { AnimeTopic } from "./AnimeTopic";
-import { AnimeTopicHeader } from "./AnimeTopicHeader";
-import Api from "./Api";
-import { TagList } from "./TagList";
-import { useQuery } from "./useQuery";
+import Api from "../Api";
+import { AnimeTopic } from "../components/AnimeTopic";
+import { AnimeTopicHeader } from "../components/AnimeTopicHeader";
+import { TagList } from "../components/TagList";
+import { useQuery } from "../useQuery";
 
 const AnimePage: FC = () => {
   const params = useParams();

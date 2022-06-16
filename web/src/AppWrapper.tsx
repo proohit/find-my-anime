@@ -1,6 +1,6 @@
 import { Box, ChakraProvider, theme } from "@chakra-ui/react";
 import { FC, ReactNode } from "react";
-import WithSubnavigation from "./Navbar";
+import WithSubnavigation from "./components/Navbar";
 
 const AppWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   return (

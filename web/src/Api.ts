@@ -1,7 +1,7 @@
 import { Provider } from "@find-my-anime/shared/constants/Provider";
 import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
 import { DbStatistics } from "@find-my-anime/shared/interfaces/DbStatistics";
-import { SERVER_BASE, SERVER_PATH } from "./urls";
+import { SERVER_BASE, SERVER_PATH } from "./constants/urls";
 
 class AnimeApi {
   public queryAnime = async (

@@ -3,10 +3,10 @@ import { Provider } from "@find-my-anime/shared";
 import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AnimeList from "./AnimeList";
-import Api from "./Api";
-import { Filter, SearchForm } from "./SearchForm";
-import { useQuery } from "./useQuery";
+import AnimeList from "../components/AnimeList";
+import Api from "../Api";
+import { useQuery } from "../useQuery";
+import { Filter, SearchForm } from "../components/SearchForm";
 
 const SearchPage = () => {
   const [availableTags, setAvailableTags] = useState<string[]>([]);

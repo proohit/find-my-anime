@@ -6,9 +6,9 @@ import AppWrapper from "./AppWrapper";
 
 const container = document.getElementById("root") as Element;
 const root = createRoot(container);
-const SearchPage = lazy(() => import("./SearchPage"));
-const StatisticsPage = lazy(() => import("./StatisticsPage"));
-const AnimePage = lazy(() => import("./AnimePage"));
+const SearchPage = lazy(() => import("./pages/SearchPage"));
+const StatisticsPage = lazy(() => import("./pages/StatisticsPage"));
+const AnimePage = lazy(() => import("./pages/AnimePage"));
 
 root.render(
   <StrictMode>

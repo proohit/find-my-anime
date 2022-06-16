@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { DbStatistics } from "@find-my-anime/shared/interfaces/DbStatistics";
 import { FC, ReactNode, useEffect, useState } from "react";
-import Api from "./Api";
+import Api from "../Api";
 
 const StatisticsPage: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
