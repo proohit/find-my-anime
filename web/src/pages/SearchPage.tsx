@@ -1,19 +1,21 @@
 import { Spinner, VStack } from "@chakra-ui/react";
 import { Provider } from "@find-my-anime/shared";
 import { Anime } from "@find-my-anime/shared/interfaces/AnimeDb";
-import { useEffect, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import Api from "../Api";
 import AnimeList from "../components/AnimeList";
 import { Filter, SearchForm } from "../components/SearchForm";
-import { navigateToSearchWithFilters } from "../utils/navigateToSearchWithFilters";
-import { useQuery } from "../utils/useQuery";
+import { StateContext } from "../components/StateProvider";
+import useFilters from "../hooks/useFilters";
+import { useQuery } from "../hooks/useQuery";
 
-const SearchPage = () => {
+const SearchPage: FC = () => {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentFilters, setCurrentFilters] = useState<Filter>({});
+  const { filters, setFilters } = useContext(StateContext);
   const query = useQuery();
+  const filterFns = useFilters();
 
   const updateFiltersFromQuery = () => {
     const title = query.get("title") || undefined;
@@ -28,7 +30,7 @@ const SearchPage = () => {
       provider,
       id,
     };
-    setCurrentFilters(filtersFromQuery);
+    setFilters(filtersFromQuery);
     return filtersFromQuery;
   };
 
@@ -75,9 +77,11 @@ const SearchPage = () => {
     <VStack spacing={8} mt="10">
       <SearchForm
         onLoadingChanged={setIsLoading}
-        onFiltersChanged={navigateToSearchWithFilters}
+        onFiltersChanged={(changedFilters) =>
+          filterFns.navigateToSearchWithFilters(changedFilters)
+        }
         tags={availableTags}
-        filters={currentFilters}
+        filters={filters}
       />
       {isLoading && <Spinner />}
       {animes.length > 0 && <AnimeList animes={animes} />}

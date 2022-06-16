@@ -21,7 +21,7 @@ import Api from "../Api";
 import { AnimeTopic } from "../components/AnimeTopic";
 import { AnimeTopicHeader } from "../components/AnimeTopicHeader";
 import { TagList } from "../components/TagList";
-import { useQuery } from "../utils/useQuery";
+import { useQuery } from "../hooks/useQuery";
 
 const AnimePage: FC = () => {
   const params = useParams();
