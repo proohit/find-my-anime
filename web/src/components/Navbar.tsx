@@ -1,11 +1,13 @@
 import {
   Box,
+  Center,
   Collapse,
   Flex,
   Heading,
   Hide,
   Icon,
   IconButton,
+  Image,
   Link,
   Popover,
   PopoverContent,
@@ -64,7 +66,10 @@ export default () => {
             }}
             href="/"
           >
-            Find My Anime
+            <Center>
+              <Image mx="2" h="8" src="/android-chrome-512x512.png" />
+              Find My Anime
+            </Center>
           </Link>
         </Heading>
         <Flex flex={{ base: 1 }} ml="8">

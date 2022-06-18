@@ -1,4 +1,10 @@
-# Find My Anime
+<p align="center">
+  <img height="200px" src="./web/public/android-chrome-512x512.png" />
+</p>
+<h2 style="text-align: center">Find My Anime</h2>
+<div style="text-align:center">
+
+[Status](https://status.find-my-anime.dtimur.de) | [API Docs](https://find-my-anime.dtimur.de/api/docs) | [WebApp](https://find-my-anime.dtimur.de)
 
 [![codecov](https://codecov.io/gh/proohit/find-my-anime/branch/master/graph/badge.svg?token=MU0FT78BB5)](https://codecov.io/gh/proohit/find-my-anime)
 [![Better Uptime Badge](https://betteruptime.com/status-badges/v1/monitor/es3c.svg)](https://status.find-my-anime.dtimur.de)
@@ -8,7 +14,7 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=proohit_find-my-anime&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=proohit_find-my-anime)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=proohit_find-my-anime&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=proohit_find-my-anime)
 
-[Status](https://status.find-my-anime.dtimur.de) | [API Docs](https://find-my-anime.dtimur.de/api/docs) | [WebApp](https://find-my-anime.dtimur.de)
+</div>
 
 An API first service for searching anime across multiple sites such as Anilist and MyAnimeList. Completely written in Typescript. Provides a backend server in [./server](./server) driven by [anime-offline-database](https://github.com/manami-project/anime-offline-database) and [NestJS](https://nestjs.com/). A proof-of-concept web application is in [./web](./web) and powered by [Vite](https://vitejs.dev/) + [React](https://reactjs.org/) and [Chakra UI](https://chakra-ui.com/).
 
