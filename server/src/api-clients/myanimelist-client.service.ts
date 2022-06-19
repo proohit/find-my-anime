@@ -13,19 +13,15 @@ export class MyAnimeListClient implements AnimeClient {
   ) {}
 
   public async getAnime(id: string, fields?: string[]) {
-    try {
-      const query = new URLSearchParams({
-        fields: fields?.join(','),
-      }).toString();
-      const url = `${MYANIMELIST_API_URL}/anime/${id}?${query}`;
-      const data = await this.get(url);
-      if (!data || data.error) {
-        throw new Error(JSON.stringify(data));
-      }
-      return { description: data.synopsis };
-    } catch (error) {
-      Logger.error(error);
+    const query = new URLSearchParams({
+      fields: fields?.join(','),
+    }).toString();
+    const url = `${MYANIMELIST_API_URL}/anime/${id}?${query}`;
+    const data = await this.get(url);
+    if (data.error) {
+      throw new Error(JSON.stringify(data));
     }
+    return { description: data.synopsis };
   }
 
   private async get(url: string) {
@@ -38,10 +34,6 @@ export class MyAnimeListClient implements AnimeClient {
     };
 
     const res = await lastValueFrom(this.httpService.get(url, newOptions));
-    const json = res.data;
-    if (json?.error) {
-      throw new Error(JSON.stringify(json.data));
-    }
-    return json;
+    return res.data;
   }
 }

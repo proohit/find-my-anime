@@ -53,7 +53,9 @@ describe('AniDBClient', () => {
           data: `<error>${givenErrorMessage}</error>`,
         }),
       );
-      expect(() => aniDbClient.getAnime('1234')).not.toThrow();
+      await expect(aniDbClient.getAnime('1234')).rejects.toThrow(
+        givenErrorMessage,
+      );
     });
   });
 });

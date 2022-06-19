@@ -41,5 +41,20 @@ describe('MyAnimeListClient', () => {
       expect(results.description).toBeDefined();
       expect(results.description).toEqual(givenDescription);
     });
+
+    it('should handle error if AniDB API returned an error', async () => {
+      const givenError = {
+        message: '',
+        error: 'not_found',
+      };
+      (rxjs.lastValueFrom as jest.Mock).mockReturnValue(
+        Promise.resolve({
+          data: givenError,
+        }),
+      );
+      await expect(myanimelistClient.getAnime('1234')).rejects.toThrow(
+        JSON.stringify(givenError),
+      );
+    });
   });
 });

@@ -15,25 +15,21 @@ export class AniDbClient implements AnimeClient {
   ) {}
 
   public async getAnime(id: string) {
-    try {
-      const query = new URLSearchParams({
-        client: this.configService.get('ANIDB_CLIENT_ID'),
-        clientver: this.configService.get('ANIDB_CLIENT_VERSION'),
-        request: 'anime',
-        protover: '1',
-        aid: id,
-      }).toString();
+    const query = new URLSearchParams({
+      client: this.configService.get('ANIDB_CLIENT_ID'),
+      clientver: this.configService.get('ANIDB_CLIENT_VERSION'),
+      request: 'anime',
+      protover: '1',
+      aid: id,
+    }).toString();
 
-      const url = `${ANIDB_API_URL}?${query}`;
-      const data = await this.get(url);
-      if (data.error && data.error._text) {
-        throw new Error(JSON.stringify(data.error._text));
-      }
-      const description = data.anime.description._text;
-      return { description };
-    } catch (error) {
-      Logger.error(error);
+    const url = `${ANIDB_API_URL}?${query}`;
+    const data = await this.get(url);
+    if (data.error && data.error._text) {
+      throw new Error(JSON.stringify(data.error._text));
     }
+    const description = data.anime.description._text;
+    return { description };
   }
 
   private async get(url: string) {
