@@ -1,9 +1,10 @@
 import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
-import { Controller, Get, HttpException, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AnimeDbService } from './animedb/animedb.service';
 import { arrayQueryTransformer } from './validators/Array';
+import { booleanQueryTransformer } from './validators/Boolean';
 import { validateEnumQueryTransformer as enumQueryTransformer } from './validators/Enum';
 import { stringQueryTransformer } from './validators/String';
 
@@ -44,6 +45,13 @@ export class AppController {
     required: false,
     example: 'fantasy',
   })
+  @ApiQuery({
+    name: 'includeAdult',
+    type: Boolean,
+    description: 'Include adult anime. Default is false',
+    required: false,
+    example: 'true',
+  })
   async queryAnime(
     @Query('id') id?: string,
     @Query('query', stringQueryTransformer())
@@ -52,8 +60,16 @@ export class AppController {
     provider?: Provider,
     @Query('tags', arrayQueryTransformer({ separator: ',', trim: true }))
     tags?: string[],
+    @Query('includeAdult', booleanQueryTransformer())
+    includeAdult?: boolean,
   ): Promise<Anime[]> {
-    return this.animedbService.queryAnime(id, query, provider, tags);
+    return this.animedbService.queryAnime(
+      id,
+      query,
+      provider,
+      tags,
+      includeAdult,
+    );
   }
   @ApiOperation({
     description: 'Get all available tags',
