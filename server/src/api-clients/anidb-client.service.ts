@@ -1,14 +1,11 @@
-import {
-  ANIDB_API_URL,
-  MYANIMELIST_API_URL,
-} from '@find-my-anime/shared/constants/urls';
+import { ANIDB_API_URL } from '@find-my-anime/shared/constants/urls';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
-import { AnimeClient } from './AnimeClient';
 import xmljs from 'xml-js';
 import { AnimedbResult } from './AnidbResult';
+import { AnimeClient } from './AnimeClient';
 
 @Injectable()
 export class AniDbClient implements AnimeClient {
@@ -30,9 +27,10 @@ export class AniDbClient implements AnimeClient {
       const url = `${ANIDB_API_URL}?${query}`;
       const data = await this.get(url);
       if (!data || data.error) {
-        throw new Error(JSON.stringify(data));
+        throw new Error(JSON.stringify(data.error));
       }
-      return { description: data.anime?.description };
+      const description = data.anime.description._text;
+      return { description };
     } catch (error) {
       Logger.error(error);
     }
@@ -40,9 +38,8 @@ export class AniDbClient implements AnimeClient {
 
   private async get(url: string) {
     const res = await lastValueFrom(this.httpService.get(url));
-    const json = xmljs.xml2js(res.data, {
+    return xmljs.xml2js(res.data, {
       compact: true,
     }) as AnimedbResult;
-    return json;
   }
 }

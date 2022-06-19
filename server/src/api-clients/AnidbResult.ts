@@ -3,155 +3,123 @@ export interface AnimedbResult {
   error?: string;
 }
 
-export interface AnidbAnime {
-  type: string;
-  episodecount: string;
+export interface TextElement<R = unknown> extends Element<R> {
+  _text: string;
+}
+
+export interface Element<R> {
+  _attributes: R;
+}
+
+export interface AnidbAnime
+  extends Element<{ id: string; restricted: string }> {
+  type: TextElement;
+  episodecount: TextElement;
   startdate: Date;
   enddate: Date;
   titles: Titles;
   recommendations: Recommendations;
-  url: string;
+  url: TextElement;
   creators: Creators;
-  description: string;
-  ratings: Ratings;
-  picture: string;
+  description: TextElement;
+  ratings?: Ratings;
+  picture: TextElement;
   resources: Resources;
   tags: Tags;
   characters: Characters;
   episodes: Episodes;
-  _id: string;
-  _restricted: string;
-}
-
-export interface Description {
-  _text: string;
 }
 
 export interface Characters {
   character: Character[];
 }
 
-export interface Character {
-  rating?: Rating;
-  name: string;
-  gender: string;
+export interface Character
+  extends Element<{ id: string; type: string; update: Date }> {
+  rating?: CharacterRating;
+  name: TextElement;
+  gender: TextElement;
   charactertype: Charactertype;
-  picture: string;
+  picture: TextElement;
   seiyuu: Seiyuu;
-  _id: string;
-  _type: string;
-  _update: Date;
 }
 
-export interface Charactertype {
-  _id: string;
-  __text: string;
-}
+export type Seiyuu = TextElement<{ id: string; picture: string }>;
 
-export interface Rating {
-  _votes: string;
-  __text: string;
-}
+export type Charactertype = TextElement<{ id: string }>;
 
-export interface Seiyuu {
-  _id: string;
-  _picture: string;
-  __text: string;
-}
+export type CharacterRating = TextElement<{ votes: string }>;
 
 export interface Creators {
   name: Name[];
 }
 
-export interface Name {
-  _id: string;
-  _type: string;
-  __text: string;
-}
+export type Name = TextElement<{ id: string; type: string }>;
 
 export interface Episodes {
   episode: Episode;
 }
 
-export interface Episode {
+export interface Episode extends Element<{ id: string; update: Date }> {
   epno: Epno;
   length: string;
-  airdate: Date;
-  rating: Rating;
+  airdate: TextElement;
+  rating: CharacterRating;
   title: EpisodeTitle;
-  _id: string;
-  _update: Date;
 }
 
-export interface Epno {
-  _type: string;
-  __text: string;
-}
+export type Epno = TextElement<{ type: string }>;
 
-export interface EpisodeTitle {
-  '_xml:lang': string;
-  __text: string;
-}
+export type EpisodeTitle = TextElement<{ 'xml:lang': string }>;
 
 export interface Ratings {
-  permanent: Permanent;
-  temporary: Permanent;
+  permanent: Rating;
+  temporary: Rating;
 }
 
-export interface Permanent {
-  _count: string;
-  __text: string;
-}
+export type Rating = TextElement<{ count: string }>;
 
-export interface Recommendations {
+export interface Recommendations extends Element<{ total: string }> {
   recommendation: Recommendation;
-  _total: string;
 }
 
-export interface Recommendation {
-  _type: string;
-  _uid: string;
-  __text: string;
-}
+export type Recommendation = TextElement<{ type: string; uid: string }>;
 
 export interface Resources {
   resource: Resource[];
 }
 
-export interface Resource {
+export interface Resource extends Element<{ type: string }> {
   externalentity: Externalentity;
-  _type: string;
 }
 
 export interface Externalentity {
-  identifier?: string[] | string;
-  url?: string;
+  identifier?: TextElement | TextElement[];
+  url?: TextElement;
 }
 
 export interface Tags {
   tag: Tag[];
 }
 
-export interface Tag {
-  name: string;
-  description?: string;
-  _id: string;
-  _weight: string;
-  _localspoiler: string;
-  _globalspoiler: string;
-  _verified: string;
-  _update: Date;
-  picurl?: string;
-  _parentid?: string;
-  _infobox?: string;
+export interface Tag
+  extends Element<{
+    id: string;
+    weight: string;
+    localspoiler: string;
+    globalspoiler: string;
+    verified: string;
+    update: Date;
+    parentid?: string;
+    infobox?: string;
+  }> {
+  name: TextElement;
+  description?: TextElement;
+  picurl?: TextElement;
 }
 
 export interface Titles {
   title: TitleElement[];
 }
 
-export interface TitleElement {
-  '_xml:lang': string;
-  _type: string;
-  __text: string;
-}
+export type TitleElement = TextElement<{ 'xml:lang': string; type: string }>;
