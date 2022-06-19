@@ -5,7 +5,7 @@ import { StateContext } from "../components/StateProvider";
 
 const useFilters = () => {
   const navigate = useNavigate();
-  const { filters } = useContext(StateContext);
+  const { filters, setAnimeLoading } = useContext(StateContext);
 
   const navigateToSearchWithFilters = (newFilters: Filter) => {
     const queryParams = new URLSearchParams();
@@ -34,7 +34,18 @@ const useFilters = () => {
     } else {
       queryParams.delete("includeAdult");
     }
-    navigate(`/search?${queryParams.toString()}`);
+    const hasAnyChanges =
+      newFilters.tags !== filters.tags ||
+      newFilters.query !== filters.query ||
+      newFilters.id !== filters.id ||
+      newFilters.provider !== filters.provider ||
+      newFilters.includeAdult !== filters.includeAdult;
+
+    if (hasAnyChanges) {
+      navigate(`/search?${queryParams.toString()}`);
+    } else {
+      setAnimeLoading(false);
+    }
   };
 
   const filterByTag = (tag: string) => {

@@ -12,8 +12,8 @@ import { useQuery } from "../hooks/useQuery";
 const SearchPage: FC = () => {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [animes, setAnimes] = useState<Anime[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const { filters, setFilters } = useContext(StateContext);
+  const { filters, setFilters, animeLoading, setAnimeLoading } =
+    useContext(StateContext);
   const query = useQuery();
   const filterFns = useFilters();
 
@@ -45,10 +45,10 @@ const SearchPage: FC = () => {
     });
     if (!hasAnyFilters) {
       setAnimes([]);
-      setIsLoading(false);
+      setAnimeLoading(false);
       return;
     }
-    setIsLoading(true);
+    setAnimeLoading(true);
     const filteredAnimes = await Api.queryAnime(
       newFilters.id,
       newFilters.query,
@@ -59,7 +59,7 @@ const SearchPage: FC = () => {
     if (filteredAnimes) {
       setAnimes(filteredAnimes);
     }
-    setIsLoading(false);
+    setAnimeLoading(false);
   };
 
   const loadAvailableTags = async () => {
@@ -79,14 +79,14 @@ const SearchPage: FC = () => {
   return (
     <VStack spacing={8} mt="10">
       <SearchForm
-        onLoadingChanged={setIsLoading}
+        onLoadingChanged={setAnimeLoading}
         onFiltersChanged={(changedFilters) =>
           filterFns.navigateToSearchWithFilters(changedFilters)
         }
         tags={availableTags}
         filters={filters}
       />
-      {isLoading && <Spinner />}
+      {animeLoading && <Spinner />}
       {animes.length > 0 && <AnimeList animes={animes} />}
     </VStack>
   );
