@@ -8,7 +8,8 @@ class AnimeApi {
     id?: string,
     query?: string,
     provider?: Provider,
-    tags?: string[]
+    tags?: string[],
+    includeAdult?: boolean
   ): Promise<Anime[]> => {
     const url = `${SERVER_BASE}${SERVER_PATH}`;
     const params = new URLSearchParams();
@@ -23,6 +24,9 @@ class AnimeApi {
     }
     if (tags) {
       params.append("tags", tags.join(","));
+    }
+    if (includeAdult) {
+      params.append("includeAdult", includeAdult.toString());
     }
     const response = await fetch(`${url}?${params.toString()}`);
     return response.json();

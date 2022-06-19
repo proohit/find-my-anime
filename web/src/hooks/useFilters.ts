@@ -9,7 +9,7 @@ const useFilters = () => {
 
   const navigateToSearchWithFilters = (newFilters: Filter) => {
     const queryParams = new URLSearchParams();
-    if (newFilters.tags) {
+    if (newFilters.tags && newFilters.tags.length > 0) {
       queryParams.set("tags", newFilters.tags?.join(","));
     } else {
       queryParams.delete("tags");
@@ -28,6 +28,11 @@ const useFilters = () => {
       queryParams.set("provider", newFilters.provider.toString());
     } else {
       queryParams.delete("provider");
+    }
+    if (newFilters.includeAdult) {
+      queryParams.set("includeAdult", newFilters.includeAdult.toString());
+    } else {
+      queryParams.delete("includeAdult");
     }
     navigate(`/search?${queryParams.toString()}`);
   };
