@@ -4,6 +4,7 @@ import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AniDbClient } from '../api-clients/anidb-client.service';
 import { AnilistClient } from '../api-clients/anilist-client.service';
 import { MyAnimeListClient } from '../api-clients/myanimelist-client.service';
 
@@ -12,11 +13,13 @@ export class AnimeEnricherService {
   constructor(
     private readonly anilistClient: AnilistClient,
     private readonly myAnimeListClient: MyAnimeListClient,
+    private readonly aniDbClient: AniDbClient,
     private readonly configService: ConfigService,
   ) {}
   private readonly ENRICHABLE_PROVIDERS = [
     Provider.Anilist,
     Provider.MyAnimeList,
+    Provider.AniDB,
   ];
   public isEnrichable(anime: Anime, provider?: Provider): boolean {
     if (
@@ -36,7 +39,25 @@ export class AnimeEnricherService {
   ): Promise<Anime> {
     const enrichedAnime = { ...anime };
     const providersToUse = providers || getProviders(anime);
-    if (providersToUse.includes(Provider.Anilist)) {
+    if (providersToUse.includes(Provider.AniDB)) {
+      if (
+        !this.configService.get('ANIDB_CLIENT_ID') ||
+        !this.configService.get('ANIDB_CLIENT_VERSION')
+      ) {
+        Logger.warn(
+          'ANIDB_CLIENT_ID or ANIDB_CLIENT_VERSION not set, skipping AniDB enrichment',
+        );
+        return enrichedAnime;
+      }
+      const aniDbId = getProviderIdOfAnime(anime, Provider.AniDB);
+      if (aniDbId) {
+        const aniDbData = await this.aniDbClient.getAnime(aniDbId);
+        if (aniDbData) {
+          enrichedAnime.description = aniDbData.description;
+          Logger.log(`Enriched anime ${anime.title} with AniDb`);
+        }
+      }
+    } else if (providersToUse.includes(Provider.Anilist)) {
       const providerId = getProviderIdOfAnime(anime, Provider.Anilist);
       const animeFromAnilist = await this.anilistClient.getAnime(providerId);
       if (animeFromAnilist) {
