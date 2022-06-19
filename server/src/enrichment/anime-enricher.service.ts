@@ -40,13 +40,18 @@ export class AnimeEnricherService {
   ): Promise<Anime> {
     let enrichedAnime = { ...anime };
     const providersToUse = providers || getProviders(anime);
-    if (providersToUse.includes(Provider.AniDB)) {
-      enrichedAnime = await this.getAnidbEnrichedAnime(anime);
-    } else if (providersToUse.includes(Provider.Anilist)) {
-      enrichedAnime = await this.getAnilistEnrichedAnime(anime);
-    } else if (providersToUse.includes(Provider.MyAnimeList)) {
-      enrichedAnime = await this.getMyAnimeListEnrichedAnime(anime);
+    if (providersToUse.includes(Provider.Anilist)) {
+      enrichedAnime = await this.getAnilistEnrichedAnime(enrichedAnime);
     }
+
+    if (providersToUse.includes(Provider.MyAnimeList)) {
+      enrichedAnime = await this.getMyAnimeListEnrichedAnime(enrichedAnime);
+    }
+
+    if (providersToUse.includes(Provider.AniDB)) {
+      enrichedAnime = await this.getAnidbEnrichedAnime(enrichedAnime);
+    }
+
     return enrichedAnime;
   }
 
@@ -98,6 +103,9 @@ export class AnimeEnricherService {
     provider: Provider,
     externalFields?: string[],
   ): Promise<Anime> {
+    if (!this.needsEnrichment(anime)) {
+      return anime;
+    }
     const providerId = getProviderIdOfAnime(anime, provider);
     const animeFromClient = await client.getAnime(providerId, externalFields);
     if (animeFromClient) {

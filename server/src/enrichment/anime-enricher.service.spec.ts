@@ -14,6 +14,9 @@ import { AnimeEnricherService } from './anime-enricher.service';
 describe('AnimeEnricherbService', () => {
   let configService: ConfigService;
   let animeEnricherService: AnimeEnricherService;
+  let anilistClient: AnilistClient;
+  let myAnimeListClient: MyAnimeListClient;
+  let aniDbClient: AniDbClient;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -48,6 +51,9 @@ describe('AnimeEnricherbService', () => {
     configService = module.get<ConfigService>(ConfigService);
     animeEnricherService =
       module.get<AnimeEnricherService>(AnimeEnricherService);
+    anilistClient = module.get<AnilistClient>(AnilistClient);
+    myAnimeListClient = module.get<MyAnimeListClient>(MyAnimeListClient);
+    aniDbClient = module.get<AniDbClient>(AniDbClient);
   });
 
   describe('enrichAnime', () => {
@@ -117,6 +123,55 @@ describe('AnimeEnricherbService', () => {
       ]);
       expect(enrichedAnime).toEqual(anime);
       expect(enrichedAnime.description).toBeUndefined();
+    });
+
+    it('should only enrich with anilist when anilist already enriched', async () => {
+      const anime: Anime = {
+        ...emptyAnime,
+        sources: [
+          `${ProviderDomain.Anilist}/1234`,
+          `${ProviderDomain.AniDB}/1234`,
+          `${ProviderDomain.MyAnimeList}/1234`,
+        ],
+      };
+      const anilistSpy = jest.spyOn(anilistClient, 'getAnime');
+      const myAnimeListSpy = jest.spyOn(myAnimeListClient, 'getAnime');
+      const aniDbSpy = jest.spyOn(aniDbClient, 'getAnime');
+      await animeEnricherService.enrichAnime(anime);
+      expect(anilistSpy).toHaveBeenCalled();
+      expect(myAnimeListSpy).not.toHaveBeenCalled();
+      expect(aniDbSpy).not.toHaveBeenCalled();
+    });
+
+    it('should only enrich with myanimelist when anilist did not enrich', async () => {
+      const anime: Anime = {
+        ...emptyAnime,
+        sources: [
+          `${ProviderDomain.AniDB}/1234`,
+          `${ProviderDomain.MyAnimeList}/1234`,
+        ],
+      };
+      const anilistSpy = jest.spyOn(anilistClient, 'getAnime');
+      const myAnimeListSpy = jest.spyOn(myAnimeListClient, 'getAnime');
+      const aniDbSpy = jest.spyOn(aniDbClient, 'getAnime');
+      await animeEnricherService.enrichAnime(anime);
+      expect(anilistSpy).not.toHaveBeenCalled();
+      expect(myAnimeListSpy).toHaveBeenCalled();
+      expect(aniDbSpy).not.toHaveBeenCalled();
+    });
+
+    it('should only enrich with anidb when myanimelist did not enrich', async () => {
+      const anime: Anime = {
+        ...emptyAnime,
+        sources: [`${ProviderDomain.AniDB}/1234`],
+      };
+      const anilistSpy = jest.spyOn(anilistClient, 'getAnime');
+      const myAnimeListSpy = jest.spyOn(myAnimeListClient, 'getAnime');
+      const aniDbSpy = jest.spyOn(aniDbClient, 'getAnime');
+      await animeEnricherService.enrichAnime(anime);
+      expect(anilistSpy).not.toHaveBeenCalled();
+      expect(myAnimeListSpy).not.toHaveBeenCalled();
+      expect(aniDbSpy).toHaveBeenCalled();
     });
   });
 
