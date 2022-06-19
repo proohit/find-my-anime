@@ -6,6 +6,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AniDbClient } from '../api-clients/anidb-client.service';
 import { AnilistClient } from '../api-clients/anilist-client.service';
+import { AnimeClient } from '../api-clients/AnimeClient';
 import { MyAnimeListClient } from '../api-clients/myanimelist-client.service';
 
 @Injectable()
@@ -37,52 +38,71 @@ export class AnimeEnricherService {
     anime: Anime,
     providers?: Provider[],
   ): Promise<Anime> {
-    const enrichedAnime = { ...anime };
+    let enrichedAnime = { ...anime };
     const providersToUse = providers || getProviders(anime);
     if (providersToUse.includes(Provider.AniDB)) {
-      if (
-        !this.configService.get('ANIDB_CLIENT_ID') ||
-        !this.configService.get('ANIDB_CLIENT_VERSION')
-      ) {
-        Logger.warn(
-          'ANIDB_CLIENT_ID or ANIDB_CLIENT_VERSION not set, skipping AniDB enrichment',
-        );
-        return enrichedAnime;
-      }
-      const aniDbId = getProviderIdOfAnime(anime, Provider.AniDB);
-      if (aniDbId) {
-        const aniDbData = await this.aniDbClient.getAnime(aniDbId);
-        if (aniDbData) {
-          enrichedAnime.description = aniDbData.description;
-          Logger.log(`Enriched anime ${anime.title} with AniDb`);
-        }
-      }
+      enrichedAnime = await this.getAnidbEnrichedAnime(anime);
     } else if (providersToUse.includes(Provider.Anilist)) {
-      const providerId = getProviderIdOfAnime(anime, Provider.Anilist);
-      const animeFromAnilist = await this.anilistClient.getAnime(providerId);
-      if (animeFromAnilist) {
-        enrichedAnime.description = animeFromAnilist.description;
-        Logger.log(`Enriched anime ${anime.title} with Anilist`);
-      }
+      enrichedAnime = await this.getAnilistEnrichedAnime(anime);
     } else if (providersToUse.includes(Provider.MyAnimeList)) {
-      if (!this.configService.get('MYANIMELIST_API_KEY')) {
-        Logger.warn('MyAnimeList API key not set, skipping enrichment');
-        return enrichedAnime;
-      }
-      const providerId = getProviderIdOfAnime(anime, Provider.MyAnimeList);
-      const animeFromMyAnimeList = await this.myAnimeListClient.getAnime(
-        providerId,
-        ['synopsis'],
-      );
-      if (animeFromMyAnimeList) {
-        enrichedAnime.description = animeFromMyAnimeList.description;
-        Logger.log(`Enriched anime ${anime.title} with MyAnimeList`);
-      }
+      enrichedAnime = await this.getMyAnimeListEnrichedAnime(anime);
     }
     return enrichedAnime;
   }
 
   public needsEnrichment(anime: Anime): boolean {
     return !anime.description;
+  }
+
+  private async getAnidbEnrichedAnime(anime: Anime): Promise<Anime> {
+    if (
+      !this.configService.get('ANIDB_CLIENT_ID') ||
+      !this.configService.get('ANIDB_CLIENT_VERSION')
+    ) {
+      Logger.warn(
+        'ANIDB_CLIENT_ID or ANIDB_CLIENT_VERSION not set, skipping AniDB enrichment',
+      );
+      return anime;
+    }
+    return this.getEnrichedAnimeByClient(
+      anime,
+      this.aniDbClient,
+      Provider.AniDB,
+    );
+  }
+
+  private async getAnilistEnrichedAnime(anime: Anime): Promise<Anime> {
+    return this.getEnrichedAnimeByClient(
+      anime,
+      this.anilistClient,
+      Provider.Anilist,
+    );
+  }
+
+  private async getMyAnimeListEnrichedAnime(anime: Anime): Promise<Anime> {
+    if (!this.configService.get('MYANIMELIST_API_KEY')) {
+      Logger.warn('MyAnimeList API key not set, skipping enrichment');
+      return anime;
+    }
+    return this.getEnrichedAnimeByClient(
+      anime,
+      this.myAnimeListClient,
+      Provider.MyAnimeList,
+      ['synopsis'],
+    );
+  }
+
+  private async getEnrichedAnimeByClient(
+    anime: Anime,
+    client: AnimeClient,
+    provider: Provider,
+    externalFields?: string[],
+  ): Promise<Anime> {
+    const providerId = getProviderIdOfAnime(anime, provider);
+    const animeFromClient = await client.getAnime(providerId, externalFields);
+    if (animeFromClient) {
+      Logger.log(`Enriched anime ${anime.title} with ${provider}`);
+      return { ...anime, description: animeFromClient.description };
+    }
   }
 }

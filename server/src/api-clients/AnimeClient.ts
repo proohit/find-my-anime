@@ -1,7 +1,10 @@
 export interface AnimeClient {
-  getAnime(id: string): Promise<EnrichedAnimeAttributes>;
+  getAnime(
+    id: string,
+    externalFields?: string[],
+  ): Promise<EnrichedAnimeAttributes>;
 }
 
-interface EnrichedAnimeAttributes {
+export interface EnrichedAnimeAttributes {
   description: string;
 }
