@@ -37,22 +37,6 @@ npm start
 
 Then you can access the app at http://localhost:3000 or whatever port you configured.
 
-## Developing
-
-Start backend server and frontend in development mode:
-
-```bash
-npm run start:dev:server
-...
-```
-
-And in another terminal:
-
-```bash
-npm run start:dev:web
-...
-```
-
 ## Configuration
 
 You can provide a .env or .env.dev (for development) file to configure the backend. Currently supported:
@@ -84,3 +68,32 @@ To get a client id, register a new app at https://myanimelist.net/apiconfig. Aft
 ### AniDB
 
 You need to create a project and a client for that project at https://anidb.net/software/add. The ANIDB_CLIENT_ID refers to the **name** of the created **client** (not project!) and the ANIDB_CLIENT_VERSION refers to the version of that client.
+
+## Developing
+
+Start backend server and frontend in development mode:
+
+```bash
+npm run start:dev:server
+...
+```
+
+And in another terminal:
+
+```bash
+npm run start:dev:web
+...
+```
+
+## Contributing
+
+All contributions are welcomed! Beware of the following guidelines:
+
+- All tests in the backend should pass.
+
+  ```bash
+  cd server
+  npm run test
+  ```
+
+- Changes in the backend should be tested. Decreasing coverage is only allowed with a proper reason.
