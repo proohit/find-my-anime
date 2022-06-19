@@ -1,5 +1,6 @@
 import { getProviderIdOfAnime } from '@find-my-anime/shared/anime/id';
 import { getProviders } from '@find-my-anime/shared/anime/sources';
+import { ADULT_TAGS } from '@find-my-anime/shared/anime/tags';
 import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -161,6 +162,7 @@ describe('AnimeDbService', () => {
         'a',
         undefined,
         undefined,
+        undefined,
         1,
       );
       expect(results.length).toBe(1);
@@ -186,6 +188,7 @@ describe('AnimeDbService', () => {
         'a',
         undefined,
         undefined,
+        undefined,
         101,
       );
       expect(results.length).toBe(100);
@@ -209,6 +212,40 @@ describe('AnimeDbService', () => {
       );
       expect(results.length).toBe(1);
       expect(results[0].description).toEqual('test');
+    });
+
+    it('should filter out adult anime', async () => {
+      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
+        Promise.resolve({
+          ...mockAnimeDb,
+          data: [{ ...mockAnimeDb.data[0], tags: [ADULT_TAGS[0]] }],
+        }),
+      );
+      const results = await animeDbService.queryAnime(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        false,
+      );
+      expect(results.length).toBe(0);
+    });
+
+    it('should include adult anime', async () => {
+      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
+        Promise.resolve({
+          ...mockAnimeDb,
+          data: [{ ...mockAnimeDb.data[0], tags: [ADULT_TAGS[0]] }],
+        }),
+      );
+      const results = await animeDbService.queryAnime(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        true,
+      );
+      expect(results.length).toBe(1);
     });
   });
 });
