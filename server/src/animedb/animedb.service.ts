@@ -1,4 +1,5 @@
 import { hasSource } from '@find-my-anime/shared/anime/sources';
+import { isAdult } from '@find-my-anime/shared/anime/tags';
 import {
   Provider,
   ProviderDomain,
@@ -22,6 +23,7 @@ export class AnimeDbService {
     query?: string,
     provider?: Provider,
     tags?: string[],
+    includeAdult?: boolean,
     limit = 20,
   ): Promise<Anime[]> {
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
@@ -32,6 +34,7 @@ export class AnimeDbService {
       id,
       provider,
       tags,
+      includeAdult,
     ).slice(0, Math.min(isNaN(limit) ? Infinity : limit, this.UPPER_LIMIT));
 
     if (
@@ -75,6 +78,7 @@ export class AnimeDbService {
     id: string,
     provider: Provider,
     tags: string[],
+    includeAdult?: boolean,
   ) {
     let matchedAnimes: Anime[];
     const shouldMatchTitle = !!query;
@@ -93,7 +97,7 @@ export class AnimeDbService {
         .map((result) => result.item);
     }
     matchedAnimes = (shouldMatchTitle ? matchedAnimes : animeDb.data).filter(
-      (anime) => this.strictMatches(anime, id, provider, tags),
+      (anime) => this.strictMatches(anime, id, provider, tags, includeAdult),
     );
     return matchedAnimes;
   }
@@ -103,6 +107,7 @@ export class AnimeDbService {
     id?: string,
     provider?: Provider,
     tags?: string[],
+    includeAdult?: boolean,
   ): boolean {
     let matches = true;
     if (id && !this.idMatches(anime, id, provider)) {
@@ -113,6 +118,9 @@ export class AnimeDbService {
     }
     if (tags) {
       matches = this.tagsMatch(anime, tags) && matches;
+    }
+    if (!includeAdult) {
+      matches = !isAdult(anime) && matches;
     }
     return matches;
   }

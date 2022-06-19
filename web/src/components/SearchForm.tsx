@@ -1,4 +1,12 @@
-import { Select, useColorModeValue, VStack, Wrap } from "@chakra-ui/react";
+import {
+  FormControl,
+  FormLabel,
+  Select,
+  Switch,
+  useColorModeValue,
+  VStack,
+  Wrap,
+} from "@chakra-ui/react";
 import { Provider } from "@find-my-anime/shared/constants/Provider";
 import React, { ChangeEvent, FC, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
@@ -18,6 +26,7 @@ export interface Filter {
   id?: string;
   provider?: Provider;
   tags?: string[];
+  includeAdult?: boolean;
 }
 
 export const SearchForm: FC<Props> = (props) => {
@@ -34,7 +43,12 @@ export const SearchForm: FC<Props> = (props) => {
     event: ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
     const { name, value } = event.target;
-    const updatedFilters = { ...localFilters, [name]: value };
+    const isBoolean = value === "true" || value === "false";
+    const updatedFilters = {
+      ...localFilters,
+      [name]: isBoolean ? value === "true" : value,
+    };
+    console.log(updatedFilters);
     setLocalFilters(updatedFilters);
     onLoadingChanged(true);
     debouncedEmitChange(updatedFilters);
@@ -78,6 +92,25 @@ export const SearchForm: FC<Props> = (props) => {
       bg={useColorModeValue("white.100", "gray.800")}
       w="100%"
     >
+      <FormControl display="flex" alignItems="center">
+        <FormLabel htmlFor="include-adult" mb="0">
+          Include adult anime
+        </FormLabel>
+        <Switch
+          id="include-adult"
+          onChange={(e) =>
+            handleChange({
+              ...e,
+              target: {
+                ...e.target,
+                name: "includeAdult",
+                value: e.target.checked.toString(),
+              },
+            })
+          }
+          isChecked={localFilters.includeAdult}
+        />
+      </FormControl>
       <ResetableInput
         name="query"
         placeholder="Title"

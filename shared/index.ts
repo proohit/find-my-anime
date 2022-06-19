@@ -5,6 +5,7 @@ export * from './constants/Status';
 export * from './constants/Type';
 export * from './anime/sources';
 export * from './anime/id';
+export * from './anime/tags';
 
 export type {
   Anime,
