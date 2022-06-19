@@ -60,16 +60,27 @@ You can provide a .env or .env.dev (for development) file to configure the backe
 ```env
 port=YOUR_PORT
 MYANIMELIST_API_KEY=YOUR_API_KEY
+ANIDB_CLIENT_ID=YOUR_CLIENT_ID
+ANIDB_CLIENT_VERSION=YOUR_CLIENT_VERSION
 ```
 
 For Docker, you can just pass the environment variables to the container.
 
 ```bash
-docker run -d -p 3000:3000 -e MYANIMELIST_API_KEY=YOUR_API_KEY proohit/find-my-anime
+docker run -d \
+-p 3000:3000 \
+-e MYANIMELIST_API_KEY=YOUR_API_KEY \
+-e ANIDB_CLIENT_ID=YOUR_CLIENT_ID \
+-e ANIDB_CLIENT_VERSION=YOUR_CLIENT_VERSION \
+proohit/find-my-anime
 ```
 
-The app uses external services such as Anilist and MyAnimeList to further enrich anime data.
+The app uses external services such as Anilist and MyAnimeList to further enrich anime data. All the external services are _optional_ and won't be used if no credentials are provided.
 
 ### MyAnimeList
 
-To get a client id, register a new app at https://myanimelist.net/apiconfig. After registering, you will find your client id in the edit page of your registered app. Put that client id into the env file.
+To get a client id, register a new app at https://myanimelist.net/apiconfig. After registering, you will find your client id in the edit page of your registered app.
+
+### AniDB
+
+You need to create a project and a client for that project at https://anidb.net/software/add. The ANIDB_CLIENT_ID refers to the **name** of the created **client** (not project!) and the ANIDB_CLIENT_VERSION refers to the version of that client.
