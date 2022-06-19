@@ -1,6 +1,6 @@
 export interface AnimedbResult {
   anime?: AnidbAnime;
-  error?: string;
+  error?: TextElement;
 }
 
 export interface TextElement<R = unknown> extends Element<R> {

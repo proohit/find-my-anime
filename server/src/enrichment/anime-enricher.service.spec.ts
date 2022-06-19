@@ -6,12 +6,12 @@ import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { emptyAnime } from '../../test/mockData';
+import { AniDbClient } from '../api-clients/anidb-client.service';
 import { AnilistClient } from '../api-clients/anilist-client.service';
 import { MyAnimeListClient } from '../api-clients/myanimelist-client.service';
 import { AnimeEnricherService } from './anime-enricher.service';
 
 describe('AnimeEnricherbService', () => {
-  let anilistClient: AnilistClient;
   let configService: ConfigService;
   let animeEnricherService: AnimeEnricherService;
 
@@ -32,6 +32,12 @@ describe('AnimeEnricherbService', () => {
           },
         },
         {
+          provide: AniDbClient,
+          useValue: {
+            getAnime: () => Promise.resolve({ description: 'test' }),
+          },
+        },
+        {
           provide: ConfigService,
           useValue: {
             get: () => 'test',
@@ -39,7 +45,6 @@ describe('AnimeEnricherbService', () => {
         },
       ],
     }).compile();
-    anilistClient = module.get<AnilistClient>(AnilistClient);
     configService = module.get<ConfigService>(ConfigService);
     animeEnricherService =
       module.get<AnimeEnricherService>(AnimeEnricherService);
@@ -89,6 +94,30 @@ describe('AnimeEnricherbService', () => {
       expect(enrichedAnime).toEqual(anime);
       expect(enrichedAnime.description).toBeUndefined();
     });
+
+    it('should enrich anime with anidb', async () => {
+      const anime: Anime = {
+        ...emptyAnime,
+        sources: [`${ProviderDomain.AniDB}/1234`],
+      };
+      const enrichedAnime = await animeEnricherService.enrichAnime(anime, [
+        Provider.AniDB,
+      ]);
+      expect(enrichedAnime.description).toEqual('test');
+    });
+
+    it('should not enrich anime with anidb if client and client version are missing', async () => {
+      const anime: Anime = {
+        ...emptyAnime,
+        sources: [`${ProviderDomain.AniDB}/1234`],
+      };
+      jest.spyOn(configService, 'get').mockReturnValue(undefined);
+      const enrichedAnime = await animeEnricherService.enrichAnime(anime, [
+        Provider.AniDB,
+      ]);
+      expect(enrichedAnime).toEqual(anime);
+      expect(enrichedAnime.description).toBeUndefined();
+    });
   });
 
   describe('isEnrichable', () => {
@@ -100,10 +129,18 @@ describe('AnimeEnricherbService', () => {
       expect(animeEnricherService.isEnrichable(anime)).toBeTruthy();
     });
 
-    it('should return true if the anime has anilist', () => {
+    it('should return true if the anime has myanimelist', () => {
       const anime: Anime = {
         ...emptyAnime,
         sources: [`${ProviderDomain.MyAnimeList}/1234`],
+      };
+      expect(animeEnricherService.isEnrichable(anime)).toBeTruthy();
+    });
+
+    it('should return true if the anime has anidb', () => {
+      const anime: Anime = {
+        ...emptyAnime,
+        sources: [`${ProviderDomain.AniDB}/1234`],
       };
       expect(animeEnricherService.isEnrichable(anime)).toBeTruthy();
     });
@@ -125,6 +162,16 @@ describe('AnimeEnricherbService', () => {
       };
       expect(
         animeEnricherService.isEnrichable(anime, Provider.MyAnimeList),
+      ).toBeTruthy();
+    });
+
+    it('should return true if the provider is anidb', () => {
+      const anime: Anime = {
+        ...emptyAnime,
+        sources: [`${ProviderDomain.AniDB}/1234`],
+      };
+      expect(
+        animeEnricherService.isEnrichable(anime, Provider.AniDB),
       ).toBeTruthy();
     });
   });

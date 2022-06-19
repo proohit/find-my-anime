@@ -2,22 +2,26 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as rxjs from 'rxjs';
-import { MyAnimeListClient } from './myanimelist-client.service';
+import { AniDbClient } from './anidb-client.service';
 jest.mock('rxjs', () => ({
   lastValueFrom: jest.fn(),
 }));
-describe('MyAnimeListClient', () => {
+describe('AniDBClient', () => {
   const givenDescription = 'test';
-  let myanimelistClient: MyAnimeListClient;
+  let aniDbClient: AniDbClient;
   beforeEach(async () => {
     (rxjs.lastValueFrom as jest.Mock).mockReturnValue(
       Promise.resolve({
-        data: { synopsis: givenDescription },
+        data: `
+        <?xml version="1.0" encoding="UTF-8"?>
+        <anime id="1234" restricted="false">
+            <description>${givenDescription}</description>
+        </anime>`,
       }),
     );
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        MyAnimeListClient,
+        AniDbClient,
         {
           provide: HttpService,
           useValue: {
@@ -32,14 +36,24 @@ describe('MyAnimeListClient', () => {
         },
       ],
     }).compile();
-    myanimelistClient = module.get<MyAnimeListClient>(MyAnimeListClient);
+    aniDbClient = module.get<AniDbClient>(AniDbClient);
   });
 
   describe('getAnime', () => {
     it('should return anime', async () => {
-      const results = await myanimelistClient.getAnime('1234');
+      const results = await aniDbClient.getAnime('1234');
       expect(results.description).toBeDefined();
       expect(results.description).toEqual(givenDescription);
+    });
+
+    it('should handle error if AniDB API returned an error', async () => {
+      const givenErrorMessage = 'AniDB API returned an error';
+      (rxjs.lastValueFrom as jest.Mock).mockReturnValue(
+        Promise.resolve({
+          data: `<error>${givenErrorMessage}</error>`,
+        }),
+      );
+      expect(() => aniDbClient.getAnime('1234')).not.toThrow();
     });
   });
 });

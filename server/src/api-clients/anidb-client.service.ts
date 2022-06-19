@@ -26,8 +26,8 @@ export class AniDbClient implements AnimeClient {
 
       const url = `${ANIDB_API_URL}?${query}`;
       const data = await this.get(url);
-      if (!data || data.error) {
-        throw new Error(JSON.stringify(data.error));
+      if (data.error && data.error._text) {
+        throw new Error(JSON.stringify(data.error._text));
       }
       const description = data.anime.description._text;
       return { description };
