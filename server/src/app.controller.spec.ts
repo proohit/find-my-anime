@@ -38,6 +38,7 @@ describe('AppController', () => {
       Provider.AniDB,
       ['tag1'],
       undefined,
+      undefined,
     );
     expect(anime).toEqual(mockAnimeDb.data);
   });

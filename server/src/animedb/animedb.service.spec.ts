@@ -163,6 +163,7 @@ describe('AnimeDbService', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
         1,
       );
       expect(results.length).toBe(1);
@@ -186,6 +187,7 @@ describe('AnimeDbService', () => {
       const results = await animeDbService.queryAnime(
         undefined,
         'a',
+        undefined,
         undefined,
         undefined,
         undefined,
@@ -226,6 +228,7 @@ describe('AnimeDbService', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
         false,
       );
       expect(results.length).toBe(0);
@@ -243,9 +246,35 @@ describe('AnimeDbService', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
         true,
       );
       expect(results.length).toBe(1);
+    });
+
+    it('should search with excluded tags', async () => {
+      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
+        Promise.resolve({
+          ...mockAnimeDb,
+          data: [
+            {
+              ...mockAnimeDb.data[0],
+              tags: ['action', 'comedy'],
+            },
+            { ...mockAnimeDb.data[0], tags: ['comedy'] },
+          ],
+        }),
+      );
+      const results = await animeDbService.queryAnime(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        ['action'],
+        true,
+      );
+      expect(results.length).toBe(1);
+      expect(results[0].tags).not.toContainValue('action');
     });
   });
 });
