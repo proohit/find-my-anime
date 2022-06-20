@@ -26,12 +26,22 @@ export interface Filter {
   id?: string;
   provider?: Provider;
   tags?: string[];
+  excludedTags?: string[];
   includeAdult?: boolean;
 }
 
 export const SearchForm: FC<Props> = (props) => {
   const { onFiltersChanged, tags, onLoadingChanged, filters } = props;
   const [localFilters, setLocalFilters] = React.useState<Filter>(filters);
+  const allTags = React.useMemo(
+    () => [
+      ...new Set([
+        ...(localFilters.tags || []),
+        ...(localFilters.excludedTags || []),
+      ]),
+    ],
+    [localFilters.tags, localFilters.excludedTags]
+  );
   useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
@@ -48,7 +58,6 @@ export const SearchForm: FC<Props> = (props) => {
       ...localFilters,
       [name]: isBoolean ? value === "true" : value,
     };
-    console.log(updatedFilters);
     setLocalFilters(updatedFilters);
     onLoadingChanged(true);
     debouncedEmitChange(updatedFilters);
@@ -61,8 +70,8 @@ export const SearchForm: FC<Props> = (props) => {
     debouncedEmitChange(updatedFilters);
   };
 
-  const handleTagChange = (filterTags: string[]) => {
-    const updatedFilters = { ...localFilters, tags: filterTags };
+  const handleTagChange = (tagType: string, filterTags: string[]) => {
+    const updatedFilters = { ...localFilters, [tagType]: filterTags };
     setLocalFilters(updatedFilters);
     onLoadingChanged(true);
     debouncedEmitChange(updatedFilters);
@@ -81,9 +90,43 @@ export const SearchForm: FC<Props> = (props) => {
   };
 
   const handleTagRemove = (tag: string) => {
-    if (localFilters.tags) {
-      handleTagChange(localFilters.tags.filter((t) => t !== tag));
+    const shouldRemoveFromTags =
+      localFilters.tags && localFilters.tags.includes(tag);
+    const shouldRemoveFromExludedTags =
+      localFilters.excludedTags && localFilters.excludedTags.includes(tag);
+
+    if (shouldRemoveFromTags) {
+      handleTagChange(
+        "tags",
+        localFilters.tags?.filter((t) => t !== tag) ?? []
+      );
+    } else if (shouldRemoveFromExludedTags) {
+      handleTagChange(
+        "excludedTags",
+        localFilters.excludedTags?.filter((t) => t !== tag) ?? []
+      );
     }
+  };
+
+  const handleTagExclude = (tag: string) => {
+    let updatedExcludedTags = [...(localFilters.excludedTags || [])];
+    let updatedTags = [...(localFilters.tags || [])];
+    if (localFilters.excludedTags?.includes(tag)) {
+      updatedExcludedTags = updatedExcludedTags.filter((t) => t !== tag);
+    } else {
+      updatedExcludedTags = [tag, ...updatedExcludedTags];
+      if (localFilters.tags?.includes(tag)) {
+        updatedTags = updatedTags.filter((t) => t !== tag);
+      }
+    }
+    const updatedFilters = {
+      ...localFilters,
+      excludedTags: updatedExcludedTags,
+      tags: updatedTags,
+    };
+    setLocalFilters(updatedFilters);
+    onLoadingChanged(true);
+    debouncedEmitChange(updatedFilters);
   };
 
   return (
@@ -141,8 +184,13 @@ export const SearchForm: FC<Props> = (props) => {
         selectedItems={localFilters.tags}
       />
       <Wrap spacing="3">
-        {localFilters.tags?.map((tag) => (
-          <FilterTag tag={tag} onClick={() => handleTagRemove(tag)} />
+        {allTags?.map((tag) => (
+          <FilterTag
+            tag={tag}
+            onRemove={() => handleTagRemove(tag)}
+            onExclude={() => handleTagExclude(tag)}
+            excluded={localFilters.excludedTags?.includes(tag)}
+          />
         ))}
       </Wrap>
     </VStack>

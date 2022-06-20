@@ -14,6 +14,11 @@ const useFilters = () => {
     } else {
       queryParams.delete("tags");
     }
+    if (newFilters.excludedTags && newFilters.excludedTags.length > 0) {
+      queryParams.set("excludedTags", newFilters.excludedTags?.join(","));
+    } else {
+      queryParams.delete("excludedTags");
+    }
     if (newFilters.query) {
       queryParams.set("title", newFilters.query);
     } else {
@@ -36,11 +41,12 @@ const useFilters = () => {
     }
     const hasAnyChanges =
       newFilters.tags !== filters.tags ||
+      newFilters.excludedTags !== filters.excludedTags ||
       newFilters.query !== filters.query ||
       newFilters.id !== filters.id ||
       newFilters.provider !== filters.provider ||
       newFilters.includeAdult !== filters.includeAdult;
-
+    console.log("hasAnyChanges", hasAnyChanges, newFilters, filters);
     if (hasAnyChanges) {
       navigate(`/search?${queryParams.toString()}`);
     } else {

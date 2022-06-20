@@ -2,25 +2,37 @@ import {
   Tag,
   TagCloseButton,
   TagLabel,
+  TagRightIcon,
   useColorModeValue,
 } from "@chakra-ui/react";
-import React, { FC } from "react";
+import { FC } from "react";
+import { MdBlock } from "react-icons/md";
 
-export const FilterTag: FC<{ tag: string; onClick: () => void }> = (props) => {
-  const { tag, onClick } = props;
+export const FilterTag: FC<{
+  tag: string;
+  onRemove: () => void;
+  excluded?: boolean;
+  onExclude: () => void;
+}> = (props) => {
+  const { tag, onRemove, onExclude, excluded } = props;
   return (
     <Tag
       size={"md"}
       key={`tag-${tag}`}
-      _hover={{
-        bg: useColorModeValue("gray.100", "whiteAlpha.50"),
-        cursor: "pointer",
-      }}
       variant="outline"
-      onClick={onClick}
+      bg={excluded ? useColorModeValue("orange.200", "orange.800") : undefined}
     >
       <TagLabel>{tag}</TagLabel>
-      <TagCloseButton onClick={onClick} />
+      <TagRightIcon
+        as={MdBlock}
+        onClick={onExclude}
+        color={useColorModeValue("gray.400", "gray.500")}
+        _hover={{
+          cursor: "pointer",
+          color: useColorModeValue("gray.500", "gray.400"),
+        }}
+      />
+      <TagCloseButton onClick={onRemove} />
     </Tag>
   );
 };
