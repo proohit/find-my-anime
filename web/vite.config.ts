@@ -9,6 +9,9 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "robots.txt", "apple-touch-icon.png"],
+      workbox: {
+        navigateFallbackDenylist: [/^\/api\/*/],
+      },
       devOptions: {
         enabled: false,
       },
