@@ -20,6 +20,7 @@ const SearchPage: FC = () => {
   const updateFiltersFromQuery = () => {
     const title = query.get("title") || undefined;
     const tags = query.get("tags") || undefined;
+    const excludedTags = query.get("excludedTags") || undefined;
     const provider =
       Object.values(Provider).find((prov) => prov === query.get("provider")) ||
       undefined;
@@ -28,6 +29,7 @@ const SearchPage: FC = () => {
     const filtersFromQuery: Filter = {
       query: title,
       tags: tags?.split(","),
+      excludedTags: excludedTags?.split(","),
       provider,
       id,
       includeAdult: includeAdult === "true",
@@ -54,6 +56,7 @@ const SearchPage: FC = () => {
       newFilters.query,
       newFilters.provider,
       newFilters.tags,
+      newFilters.excludedTags,
       newFilters.includeAdult
     );
     if (filteredAnimes) {

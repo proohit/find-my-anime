@@ -9,6 +9,7 @@ class AnimeApi {
     query?: string,
     provider?: Provider,
     tags?: string[],
+    excludedTags?: string[],
     includeAdult?: boolean
   ): Promise<Anime[]> => {
     const url = `${SERVER_BASE}${SERVER_PATH}`;
@@ -24,6 +25,9 @@ class AnimeApi {
     }
     if (tags) {
       params.append("tags", tags.join(","));
+    }
+    if (excludedTags) {
+      params.append("excludedTags", excludedTags.join(","));
     }
     if (includeAdult) {
       params.append("includeAdult", includeAdult.toString());

@@ -46,6 +46,13 @@ export class AppController {
     example: 'fantasy',
   })
   @ApiQuery({
+    name: 'excludedTags',
+    type: String,
+    description: 'Comma separated list of tags to be excluded from search',
+    required: false,
+    example: 'fantasy',
+  })
+  @ApiQuery({
     name: 'includeAdult',
     type: Boolean,
     description: 'Include adult anime. Default is false',
@@ -60,6 +67,11 @@ export class AppController {
     provider?: Provider,
     @Query('tags', arrayQueryTransformer({ separator: ',', trim: true }))
     tags?: string[],
+    @Query(
+      'excludedTags',
+      arrayQueryTransformer({ separator: ',', trim: true }),
+    )
+    excludedTags?: string[],
     @Query('includeAdult', booleanQueryTransformer())
     includeAdult?: boolean,
   ): Promise<Anime[]> {
@@ -68,6 +80,7 @@ export class AppController {
       query,
       provider,
       tags,
+      excludedTags,
       includeAdult,
     );
   }

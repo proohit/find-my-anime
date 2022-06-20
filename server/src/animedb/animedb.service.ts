@@ -23,6 +23,7 @@ export class AnimeDbService {
     query?: string,
     provider?: Provider,
     tags?: string[],
+    excludedTags?: string[],
     includeAdult?: boolean,
     limit = 20,
   ): Promise<Anime[]> {
@@ -34,6 +35,7 @@ export class AnimeDbService {
       id,
       provider,
       tags,
+      excludedTags,
       includeAdult,
     ).slice(0, Math.min(isNaN(limit) ? Infinity : limit, this.UPPER_LIMIT));
 
@@ -78,6 +80,7 @@ export class AnimeDbService {
     id: string,
     provider: Provider,
     tags: string[],
+    excludedTags: string[],
     includeAdult?: boolean,
   ) {
     let matchedAnimes: Anime[];
@@ -97,7 +100,15 @@ export class AnimeDbService {
         .map((result) => result.item);
     }
     matchedAnimes = (shouldMatchTitle ? matchedAnimes : animeDb.data).filter(
-      (anime) => this.strictMatches(anime, id, provider, tags, includeAdult),
+      (anime) =>
+        this.strictMatches(
+          anime,
+          id,
+          provider,
+          tags,
+          excludedTags,
+          includeAdult,
+        ),
     );
     return matchedAnimes;
   }
@@ -107,6 +118,7 @@ export class AnimeDbService {
     id?: string,
     provider?: Provider,
     tags?: string[],
+    excludedTags?: string[],
     includeAdult?: boolean,
   ): boolean {
     let matches = true;
@@ -118,6 +130,9 @@ export class AnimeDbService {
     }
     if (tags) {
       matches = this.tagsMatch(anime, tags) && matches;
+    }
+    if (excludedTags) {
+      matches = !this.anyTagIsIncluded(anime, excludedTags) && matches;
     }
     if (!includeAdult) {
       matches = !isAdult(anime) && matches;
@@ -131,6 +146,10 @@ export class AnimeDbService {
 
   private tagsMatch(anime: Anime, tags: string[]) {
     return tags?.every((tag) => anime?.tags.includes(tag));
+  }
+
+  private anyTagIsIncluded(anime: Anime, tags: string[]) {
+    return anime.tags.some((tag) => tags.includes(tag));
   }
 
   private idMatches(anime: Anime, id: string, provider?: Provider): boolean {
