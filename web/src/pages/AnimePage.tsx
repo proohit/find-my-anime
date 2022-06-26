@@ -43,7 +43,7 @@ const AnimePage: FC = () => {
   useEffect(() => {
     if (params.id) {
       setIsLoading(true);
-      Api.queryAnime(params.id, undefined, provider)
+      Api.queryAnime(params.id, undefined, provider, undefined, undefined, true)
         .then((animes) => {
           if (animes?.length > 0) {
             setAnime(animes[0]);
