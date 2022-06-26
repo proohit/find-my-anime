@@ -1,7 +1,7 @@
 {
   "name": "@find-my-anime/web",
   "private": true,
-  "version": "1.8.2",
+  "version": "1.8.3",
   "scripts": {
     "start:dev": "vite",
     "build": "tsc && vite build",
