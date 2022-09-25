@@ -18,7 +18,7 @@ export class StatsService {
     const seasons = this.getAnimeCountBySeasonAndYear(allAnime);
     const tags = await this.animedbService.getTags();
     const lastDownloaded = await this.animedbService.getLastDownloaded();
-    const telemetry = await this.telemetryService.getTelemetry();
+    const animeDb = await this.telemetryService.getAnimeDbWithTelemetry();
     return {
       lastDownloaded,
       anime: {
@@ -29,7 +29,7 @@ export class StatsService {
         count: tags.length,
         mostUsedTags: sortedMostUsedTags,
       },
-      telemetry,
+      telemetry: animeDb.telemetry,
     };
   }
 

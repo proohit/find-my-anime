@@ -1,7 +1,7 @@
 import { Season } from '@find-my-anime/shared/constants/Season';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Test, TestingModule } from '@nestjs/testing';
-import { emptyAnime } from '../../test/mockData';
+import { emptyAnime, mockAnimeDb } from '../../test/mockData';
 import { AnimeDbService } from '../animedb/animedb.service';
 import { StatsService } from './stats.service';
 import { TelemetryService } from './telemetry.service';
@@ -60,7 +60,7 @@ describe('StatsService', () => {
         {
           provide: TelemetryService,
           useValue: {
-            getTelemetry: () => Promise.resolve([]),
+            getAnimeDbWithTelemetry: () => Promise.resolve(mockAnimeDb),
           },
         },
       ],

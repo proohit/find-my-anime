@@ -9,31 +9,31 @@ export class TelemetryService {
   ) {}
 
   async saveTelemetryEntry(newEntry: TelemetryEntry) {
+    await this.getAnimeDbWithTelemetry();
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
-    const telemetry = await this.getTelemetry();
     const existingQueryEntry = await this.getTelemetryEntry({
       data: newEntry.data,
     });
     if (existingQueryEntry && existingQueryEntry.count) {
       existingQueryEntry.count = existingQueryEntry.count + 1;
     } else {
-      telemetry.push({ ...newEntry, count: 1 });
+      animeDb.telemetry.push({ ...newEntry, count: 1 });
     }
     await this.animeDbDownloaderService.saveAnimeDb(animeDb);
   }
 
-  public async getTelemetry() {
+  public async getAnimeDbWithTelemetry() {
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
     if (!animeDb.telemetry) {
       animeDb.telemetry = [];
     }
     await this.animeDbDownloaderService.saveAnimeDb(animeDb);
-    return animeDb.telemetry;
+    return animeDb;
   }
 
   private async getTelemetryEntry(searchEntry: Partial<TelemetryEntry>) {
-    const telemetry = await this.getTelemetry();
-    const existingQueryEntry = telemetry.find(
+    const animeDb = await this.getAnimeDbWithTelemetry();
+    const existingQueryEntry = animeDb.telemetry.find(
       (someEntry) =>
         someEntry.data === searchEntry.data &&
         someEntry.source === searchEntry.source,
