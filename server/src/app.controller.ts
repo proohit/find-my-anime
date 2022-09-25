@@ -1,8 +1,9 @@
 import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AnimeDbService } from './animedb/animedb.service';
+import { RequestCollectorInterceptor } from './stats/collector.interceptor';
 import { arrayQueryTransformer } from './validators/Array';
 import { booleanQueryTransformer } from './validators/Boolean';
 import { validateEnumQueryTransformer as enumQueryTransformer } from './validators/Enum';
@@ -13,6 +14,7 @@ export class AppController {
   constructor(private readonly animedbService: AnimeDbService) {}
 
   @Get()
+  @UseInterceptors(RequestCollectorInterceptor)
   @ApiOperation({
     description:
       'Search anime by filter parameters. Default limits result to 20',

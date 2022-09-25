@@ -3,11 +3,25 @@ import { Season } from '../constants/Season';
 import { Status } from '../constants/Status';
 import { Type } from '../constants/Type';
 
+export enum TelemetrySource {
+  App = 'app',
+  External = 'external',
+  Anonymous = 'anonymous',
+}
+
+export type TelemetryEntry = {
+  data: string;
+  count?: number;
+  source?: TelemetrySource;
+};
+
+export type Telemetry = TelemetryEntry[];
 export interface AnimeDB {
   license: License;
   repository: string;
   data: Anime[];
   lastDownloadTime: string;
+  telemetry: Telemetry;
 }
 
 export interface Anime {

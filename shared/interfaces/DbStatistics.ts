@@ -1,3 +1,5 @@
+import { Telemetry } from './AnimeDb';
+
 export type DbStatistics = {
   lastDownloaded: string;
   anime: {
@@ -10,4 +12,5 @@ export type DbStatistics = {
     count: number;
     mostUsedTags: { [tag: string]: number };
   };
+  telemetry: Telemetry;
 };

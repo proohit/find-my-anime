@@ -48,12 +48,19 @@ export class AnimeDbDownloaderService {
     }
     Logger.log(`Updated anime ${anime.title} in local db`);
     await this.saveAnimeDb(animeDb);
+  }
+
+  public async saveAnimeDb(animeDb: any): Promise<void> {
     this.animeDbCache = animeDb;
+    await writeFile(this.ANIME_OFFLINE_DB_FILE_PATH, JSON.stringify(animeDb));
   }
 
   private async downloadAnimeDb(): Promise<AnimeDB> {
     const animeDb = await this.fetchAnimeDb();
     animeDb['lastDownloadTime'] = new Date().toISOString();
+    if (this.animeDbCache) {
+      animeDb.telemetry = this.animeDbCache.telemetry;
+    }
     await this.saveAnimeDb(animeDb);
     return animeDb;
   }
@@ -68,10 +75,6 @@ export class AnimeDbDownloaderService {
       this.httpService.get(ANIME_OFFLINE_DB_FILE_URL),
     );
     return res.data;
-  }
-
-  private async saveAnimeDb(animeDb: any): Promise<void> {
-    await writeFile(this.ANIME_OFFLINE_DB_FILE_PATH, JSON.stringify(animeDb));
   }
 
   private shouldUpdateAnimeDb(animeDb: AnimeDB) {
