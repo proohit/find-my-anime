@@ -34,10 +34,12 @@ export const emptyMockStats: DbStatistics = {
     count: 0,
     mostUsedTags: {},
   },
+  telemetry: [],
 };
 
 export const mockAnimeDb: AnimeDB = {
   lastDownloadTime: '',
+  telemetry: [],
   license: {
     name: '',
     url: '',

@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { emptyAnime } from '../../test/mockData';
 import { AnimeDbService } from '../animedb/animedb.service';
 import { StatsService } from './stats.service';
+import { TelemetryService } from './telemetry.service';
 
 describe('StatsService', () => {
   let statsService: StatsService;
@@ -54,6 +55,12 @@ describe('StatsService', () => {
             getAllAnime: () => Promise.resolve(givenData),
             getTags: () => Promise.resolve(givenTags),
             getLastDownloaded: () => Promise.resolve(givenLastDownloadedTime),
+          },
+        },
+        {
+          provide: TelemetryService,
+          useValue: {
+            getTelemetry: () => Promise.resolve([]),
           },
         },
       ],
