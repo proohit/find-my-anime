@@ -10,7 +10,8 @@ class AnimeApi {
     provider?: Provider,
     tags?: string[],
     excludedTags?: string[],
-    includeAdult?: boolean
+    includeAdult?: boolean,
+    collectionConsent?: boolean
   ): Promise<Anime[]> => {
     const url = `${SERVER_BASE}${SERVER_PATH}`;
     const params = new URLSearchParams();
@@ -31,6 +32,9 @@ class AnimeApi {
     }
     if (includeAdult) {
       params.append("includeAdult", includeAdult.toString());
+    }
+    if (collectionConsent !== undefined) {
+      params.append("collectionConsent", collectionConsent.toString());
     }
     const response = await fetch(`${url}?${params.toString()}`);
     return response.json();

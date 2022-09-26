@@ -39,14 +39,23 @@ const useFilters = () => {
     } else {
       queryParams.delete("includeAdult");
     }
+    if (newFilters.collectionConsent !== undefined) {
+      queryParams.set(
+        "collectionConsent",
+        newFilters.collectionConsent.toString()
+      );
+    } else {
+      queryParams.delete("collectionConsent");
+    }
     const hasAnyChanges =
       newFilters.tags !== filters.tags ||
       newFilters.excludedTags !== filters.excludedTags ||
       newFilters.query !== filters.query ||
       newFilters.id !== filters.id ||
       newFilters.provider !== filters.provider ||
-      newFilters.includeAdult !== filters.includeAdult;
-    console.log("hasAnyChanges", hasAnyChanges, newFilters, filters);
+      newFilters.includeAdult !== filters.includeAdult ||
+      newFilters.collectionConsent !== filters.collectionConsent;
+
     if (hasAnyChanges) {
       navigate(`/search?${queryParams.toString()}`);
     } else {

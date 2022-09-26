@@ -28,6 +28,7 @@ export interface Filter {
   tags?: string[];
   excludedTags?: string[];
   includeAdult?: boolean;
+  collectionConsent?: boolean;
 }
 
 export const SearchForm: FC<Props> = (props) => {

@@ -6,16 +6,31 @@ import Api from "../Api";
 import AnimeList from "../components/AnimeList";
 import { Filter, SearchForm } from "../components/SearchForm";
 import { StateContext } from "../components/StateProvider";
+import { useConsentToast } from "../hooks/useConsentToast";
 import useFilters from "../hooks/useFilters";
 import { useQuery } from "../hooks/useQuery";
 
 const SearchPage: FC = () => {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [hasRespondedConsent, setHasRespondedConsent] = useState(false);
   const [animes, setAnimes] = useState<Anime[]>([]);
   const { filters, setFilters, animeLoading, setAnimeLoading } =
     useContext(StateContext);
   const query = useQuery();
   const filterFns = useFilters();
+
+  const handleCollectionOptOut = () => {
+    filterFns.navigateToSearchWithFilters({
+      ...filters,
+      collectionConsent: false,
+    });
+    closeConsentToast();
+  };
+
+  const { showConsentToast, closeConsentToast } = useConsentToast({
+    onOptOut: handleCollectionOptOut,
+    onClose: () => setHasRespondedConsent(true),
+  });
 
   const updateFiltersFromQuery = () => {
     const title = query.get("title") || undefined;
@@ -26,6 +41,7 @@ const SearchPage: FC = () => {
       undefined;
     const id = query.get("id") || undefined;
     const includeAdult = query.get("includeAdult") || undefined;
+    const collectionConsent = query.get("collectionConsent") || "true";
     const filtersFromQuery: Filter = {
       query: title,
       tags: tags?.split(","),
@@ -33,17 +49,24 @@ const SearchPage: FC = () => {
       provider,
       id,
       includeAdult: includeAdult === "true",
+      collectionConsent: collectionConsent === "true",
     };
     setFilters(filtersFromQuery);
     return filtersFromQuery;
   };
 
   const loadAnimeWithFilters = async (newFilters: Filter) => {
-    const hasAnyFilters = Object.values(newFilters).some((value) => {
-      if (Array.isArray(value)) {
-        return value.length > 0;
+    const hasAnyFilters = Object.entries(newFilters).some((filterEntry) => {
+      const filterKey = filterEntry[0] as keyof Filter;
+      const filterValue = filterEntry[1];
+
+      if (Array.isArray(filterValue)) {
+        return filterValue.length > 0;
       }
-      return !!value;
+      if (filterKey === "collectionConsent") {
+        return false;
+      }
+      return !!filterValue;
     });
     if (!hasAnyFilters) {
       setAnimes([]);
@@ -57,7 +80,8 @@ const SearchPage: FC = () => {
       newFilters.provider,
       newFilters.tags,
       newFilters.excludedTags,
-      newFilters.includeAdult
+      newFilters.includeAdult,
+      newFilters.collectionConsent
     );
     if (filteredAnimes) {
       setAnimes(filteredAnimes);
@@ -78,6 +102,12 @@ const SearchPage: FC = () => {
     const filtersFromQuery = updateFiltersFromQuery();
     loadAnimeWithFilters(filtersFromQuery);
   }, [query]);
+
+  useEffect(() => {
+    if (filters.collectionConsent === true && !hasRespondedConsent) {
+      showConsentToast();
+    }
+  }, [filters]);
 
   return (
     <VStack spacing={8} mt="10">
