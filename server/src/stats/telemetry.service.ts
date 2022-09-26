@@ -11,9 +11,7 @@ export class TelemetryService {
   async saveTelemetryEntry(newEntry: TelemetryEntry) {
     await this.getAnimeDbWithTelemetry();
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
-    const existingQueryEntry = await this.getTelemetryEntry({
-      data: newEntry.data,
-    });
+    const existingQueryEntry = await this.getTelemetryEntry(newEntry);
     if (existingQueryEntry && existingQueryEntry.count) {
       existingQueryEntry.count = existingQueryEntry.count + 1;
     } else {

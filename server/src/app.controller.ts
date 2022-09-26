@@ -64,7 +64,7 @@ export class AppController {
   @ApiQuery({
     name: 'collectionConsent',
     type: Boolean,
-    description: 'Permit collection of (anonymous) data. Default is false',
+    description: 'Permit collection of (anonymous) data. Default is true',
     required: false,
     example: 'true',
   })

@@ -23,10 +23,11 @@ export class RequestCollectorInterceptor implements NestInterceptor {
     next: CallHandler,
   ): Observable<any> {
     const request = _context.switchToHttp().getRequest();
-    if (
-      !request.query.collectionConsent ||
-      request.query.collectionConsent !== 'true'
-    ) {
+    const collectionConsent =
+      (request.query.collectionConsent &&
+        request.query.collectionConsent === 'true') ||
+      true;
+    if (!collectionConsent) {
       return next.handle();
     }
     const appHost = this.configService.get('app_host');
