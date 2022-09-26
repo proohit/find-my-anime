@@ -23,6 +23,12 @@ export class RequestCollectorInterceptor implements NestInterceptor {
     next: CallHandler,
   ): Observable<any> {
     const request = _context.switchToHttp().getRequest();
+    if (
+      !request.query.collectionConsent ||
+      request.query.collectionConsent !== 'true'
+    ) {
+      return next.handle();
+    }
     const appHost = this.configService.get('app_host');
     const telemetryEntry: TelemetryEntry = {
       data: request.query.query,

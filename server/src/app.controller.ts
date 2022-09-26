@@ -61,6 +61,13 @@ export class AppController {
     required: false,
     example: 'true',
   })
+  @ApiQuery({
+    name: 'collectionConsent',
+    type: Boolean,
+    description: 'Permit collection of (anonymous) data. Default is false',
+    required: false,
+    example: 'true',
+  })
   async queryAnime(
     @Query('id') id?: string,
     @Query('query', stringQueryTransformer())

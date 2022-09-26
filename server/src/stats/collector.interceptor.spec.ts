@@ -45,12 +45,13 @@ describe('RequestCollectorInterceptor', () => {
       },
       query: {
         query: 'sword art online',
+        collectionConsent: 'true',
       },
     };
     saveEntrySpy = jest.spyOn(telemetryService, 'saveTelemetryEntry');
   });
 
-  it('should save telemetry entry with app on matching origin', async () => {
+  it('should save telemetry entry with app on matching origin and collectionConsent', async () => {
     jest.spyOn(configService, 'get').mockReturnValue('some host');
     interceptor.intercept(
       {
@@ -66,7 +67,7 @@ describe('RequestCollectorInterceptor', () => {
     });
   });
 
-  it('should save telemetry entry with external on non matching origin', async () => {
+  it('should save telemetry entry with external on non matching origin and collectionConsent', async () => {
     req.headers.origin = 'some other host';
     jest.spyOn(configService, 'get').mockReturnValue('some host');
     interceptor.intercept(
@@ -83,7 +84,7 @@ describe('RequestCollectorInterceptor', () => {
     });
   });
 
-  it('should save telemetry entry with anonymous on no configuration', async () => {
+  it('should save telemetry entry with anonymous on no configuration and collectionConsent', async () => {
     jest.spyOn(configService, 'get').mockReturnValue(undefined);
     interceptor.intercept(
       {
@@ -97,5 +98,19 @@ describe('RequestCollectorInterceptor', () => {
       data: req.query.query,
       source: TelemetrySource.Anonymous,
     });
+  });
+
+  it('should not save telemetry entry without collectionConsent', async () => {
+    req.query.collectionConsent = undefined;
+    jest.spyOn(configService, 'get').mockReturnValue(undefined);
+    interceptor.intercept(
+      {
+        switchToHttp: () => ({
+          getRequest: () => req,
+        }),
+      } as ExecutionContext,
+      nextFnMock,
+    );
+    expect(saveEntrySpy).not.toHaveBeenCalled();
   });
 });
