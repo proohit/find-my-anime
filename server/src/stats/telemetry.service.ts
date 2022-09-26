@@ -33,11 +33,15 @@ export class TelemetryService {
 
   private async getTelemetryEntry(searchEntry: Partial<TelemetryEntry>) {
     const animeDb = await this.getAnimeDbWithTelemetry();
-    const existingQueryEntry = animeDb.telemetry.find(
-      (someEntry) =>
-        someEntry.data === searchEntry.data &&
-        someEntry.source === searchEntry.source,
-    );
+    const existingQueryEntry = animeDb.telemetry.find((someEntry) => {
+      if (someEntry.source) {
+        return (
+          someEntry.source === searchEntry.source &&
+          someEntry.data === searchEntry.data
+        );
+      }
+      return someEntry.data === searchEntry.data;
+    });
     return existingQueryEntry;
   }
 }

@@ -64,6 +64,34 @@ describe('TelemetryService', () => {
       });
     });
 
+    it('should increase count on existing entry with matching sources only', async () => {
+      const givenAnotherTestEntry: TelemetryEntry = {
+        ...testEntry,
+        source: TelemetrySource.Anonymous,
+      };
+      const changedTestEntry: TelemetryEntry = {
+        ...testEntry,
+        source: TelemetrySource.App,
+      };
+      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
+        Promise.resolve({
+          ...mockAnimeDb,
+          telemetry: [{ ...givenAnotherTestEntry, count: 1 }],
+        }),
+      );
+      await telemetryService.saveTelemetryEntry(changedTestEntry);
+      expect(saveSpy).toHaveBeenLastCalledWith({
+        ...mockAnimeDb,
+        telemetry: [
+          {
+            ...givenAnotherTestEntry,
+            count: 1,
+          },
+          { ...changedTestEntry, count: 1 },
+        ],
+      });
+    });
+
     it('should create separate entries with differing sources', async () => {
       const givenAnonymousEntry: TelemetryEntry = {
         data: testEntry.data,
