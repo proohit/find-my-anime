@@ -24,8 +24,8 @@ export class TelemetryService {
     const animeDb = await this.animeDbDownloaderService.getAnimeDb();
     if (!animeDb.telemetry) {
       animeDb.telemetry = [];
+      await this.animeDbDownloaderService.saveAnimeDb(animeDb);
     }
-    await this.animeDbDownloaderService.saveAnimeDb(animeDb);
     return animeDb;
   }
 
