@@ -39,10 +39,11 @@ Then you can access the app at http://localhost:3000 or whatever port you config
 
 ## Configuration
 
-You can provide a .env or .env.dev (for development) file to configure the backend. Currently supported:
+You can provide a .env or .env.dev (for development) file or pass environment variables directly to configure the backend. Currently supported:
 
 ```env
 port=YOUR_PORT
+app_host=YOUR_HOST
 MYANIMELIST_API_KEY=YOUR_API_KEY
 ANIDB_CLIENT_ID=YOUR_CLIENT_ID
 ANIDB_CLIENT_VERSION=YOUR_CLIENT_VERSION
@@ -53,6 +54,7 @@ For Docker, you can just pass the environment variables to the container.
 ```bash
 docker run -d \
 -p 3000:3000 \
+-e app_host=YOUR_HOST \
 -e MYANIMELIST_API_KEY=YOUR_API_KEY \
 -e ANIDB_CLIENT_ID=YOUR_CLIENT_ID \
 -e ANIDB_CLIENT_VERSION=YOUR_CLIENT_VERSION \
