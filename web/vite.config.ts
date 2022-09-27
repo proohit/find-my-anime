@@ -8,6 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+      injectRegister: "auto",
       includeAssets: ["favicon.ico", "robots.txt", "apple-touch-icon.png"],
       workbox: {
         navigateFallbackDenylist: [/^\/api\/*/],

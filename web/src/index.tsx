@@ -10,10 +10,6 @@ const SearchPage = lazy(() => import("./pages/SearchPage"));
 const StatisticsPage = lazy(() => import("./pages/StatisticsPage"));
 const AnimePage = lazy(() => import("./pages/AnimePage"));
 
-import { registerSW } from "virtual:pwa-register";
-
-registerSW({ immediate: true });
-
 root.render(
   <StrictMode>
     <BrowserRouter>
