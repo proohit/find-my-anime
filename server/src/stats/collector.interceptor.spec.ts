@@ -101,7 +101,7 @@ describe('RequestCollectorInterceptor', () => {
   });
 
   it('should not save telemetry entry without collectionConsent', async () => {
-    req.query.collectionConsent = undefined;
+    req.query.collectionConsent = false;
     jest.spyOn(configService, 'get').mockReturnValue(undefined);
     interceptor.intercept(
       {
