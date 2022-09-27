@@ -35,7 +35,7 @@ export class RequestCollectorInterceptor implements NestInterceptor {
     }
     const appHost = this.configService.get('app_host');
     const telemetryEntry: TelemetryEntry = {
-      data: request.query.query,
+      data: request.query.query || request.query.id,
     };
     if (appHost) {
       if (appHost === request.headers.origin) {

@@ -100,6 +100,23 @@ describe('RequestCollectorInterceptor', () => {
     });
   });
 
+  it('should save telemetry entry id with collectionConsent', async () => {
+    delete req.query.query;
+    req.query.id = '123';
+    interceptor.intercept(
+      {
+        switchToHttp: () => ({
+          getRequest: () => req,
+        }),
+      } as ExecutionContext,
+      nextFnMock,
+    );
+    expect(saveEntrySpy).toHaveBeenCalledWith({
+      data: req.query.id,
+      source: TelemetrySource.Anonymous,
+    });
+  });
+
   it('should not save telemetry entry without collectionConsent', async () => {
     req.query.collectionConsent = false;
     jest.spyOn(configService, 'get').mockReturnValue(undefined);
