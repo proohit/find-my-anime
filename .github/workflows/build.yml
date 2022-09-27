@@ -25,6 +25,10 @@ jobs:
         working-directory: ./server
         run: |
           npm run test:cov
+      - name: "Check if linting passes"
+        working-directory: ./server
+        run: |
+          npm run lint
       - uses: codecov/codecov-action@v2
         with:
           directory: ./server/coverage
