@@ -1,6 +1,6 @@
 import { ANIDB_API_URL } from '@find-my-anime/shared/constants/urls';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
 import xmljs from 'xml-js';
