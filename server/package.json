@@ -28,6 +28,7 @@
     "@nestjs/platform-express": "^8.4.7",
     "@nestjs/serve-static": "^2.2.2",
     "@nestjs/swagger": "^5.2.1",
+    "async-mutex": "^0.4.0",
     "axios": "^0.27.2",
     "fuse.js": "^6.6.2",
     "reflect-metadata": "^0.1.13",

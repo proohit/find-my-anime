@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { mockAnimeDb } from '../../test/mockData';
 import { AnimeDbDownloaderService } from './animedb-downloader.service';
 import * as rxjs from 'rxjs';
+import * as fsPromises from 'fs/promises';
 jest.mock('fs');
 jest.mock('fs/promises');
 jest.mock('rxjs', () => ({
@@ -60,6 +61,34 @@ describe('AnimeDbDownloaderService', () => {
       });
       await animeDbDownloaderService.getAnimeDb();
       expect(mockGet).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('saveAnimeDb', () => {
+    it('should save with locking', async () => {
+      jest.spyOn(fsPromises, 'writeFile').mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => {
+              resolve();
+            }, 10);
+          }),
+      );
+      const givenNumberOfConcurrentCalls = 10;
+      const executionTimes = [];
+      const executionPromises = [];
+
+      for (let i = 0; i < givenNumberOfConcurrentCalls; i++) {
+        executionPromises[i] = animeDbDownloaderService
+          .saveAnimeDb(mockAnimeDb)
+          .then(() => {
+            executionTimes[i] = new Date().getTime();
+          });
+      }
+      await Promise.all(executionPromises);
+      for (let i = 1; i < givenNumberOfConcurrentCalls; i++) {
+        expect(executionTimes[i]).toBeGreaterThan(executionTimes[i - 1]);
+      }
     });
   });
 

@@ -3,6 +3,7 @@ import { ANIME_OFFLINE_DB_FILE_URL } from '@find-my-anime/shared/constants/urls'
 import { Anime, AnimeDB } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
+import { Mutex } from 'async-mutex';
 import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import { lastValueFrom } from 'rxjs';
@@ -12,6 +13,7 @@ export class AnimeDbDownloaderService {
   private readonly ANIME_OFFLINE_DB_FILE_PATH = './anime-offline-database.json';
   private animeDbCache: AnimeDB;
 
+  private dbSaveMutex = new Mutex();
   constructor(private httpService: HttpService) {}
 
   public async getAnimeDb(): Promise<AnimeDB> {
@@ -51,8 +53,11 @@ export class AnimeDbDownloaderService {
   }
 
   public async saveAnimeDb(animeDb: any): Promise<void> {
-    this.animeDbCache = animeDb;
-    await writeFile(this.ANIME_OFFLINE_DB_FILE_PATH, JSON.stringify(animeDb));
+    await this.dbSaveMutex.runExclusive(async () => {
+      this.animeDbCache = animeDb;
+      Logger.debug('Saving anime db...');
+      await writeFile(this.ANIME_OFFLINE_DB_FILE_PATH, JSON.stringify(animeDb));
+    });
   }
 
   private async downloadAnimeDb(): Promise<AnimeDB> {
