@@ -9,12 +9,13 @@ import { FC } from "react";
 
 type Props = InputProps & {
   onReset: () => void;
+  inputRef?: React.RefObject<HTMLInputElement>;
 };
 
-const ResetableInput: FC<Props> = ({ onReset, ...props }) => {
+const ResetableInput: FC<Props> = ({ onReset, inputRef, ...props }) => {
   return (
     <InputGroup>
-      <Input {...props} />
+      <Input {...props} ref={inputRef} />
       {props.value && (
         <InputRightElement>
           <CloseButton onClick={onReset} />

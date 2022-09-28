@@ -25,6 +25,7 @@ export const Autocomplete: FC<{
   useEffect(() => {
     setFilteredItems(items);
   }, [items]);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const popoverRef = useRef<HTMLInputElement>(null);
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,22 +45,38 @@ export const Autocomplete: FC<{
     }
   };
 
+  const handleItemClick = (item: string) => {
+    onItemClick(item);
+    inputRef.current?.focus();
+  };
+
+  const handleReset = () => {
+    setInputValue("");
+    inputRef.current?.focus();
+  };
+
   const debouncedFilter = useDebouncedCallback(filterItems, 200);
 
   return (
     <Box w="100%" ref={popoverRef}>
-      <Popover matchWidth initialFocusRef={inputRef} returnFocusOnClose={false}>
+      <Popover
+        matchWidth
+        placement="bottom"
+        initialFocusRef={inputRef}
+        returnFocusOnClose={false}
+      >
         {({ onClose }) => {
-          useOutsideClick({ ref: popoverRef, handler: onClose });
           return (
             <>
               <AutocompleteBody
                 inputRef={inputRef}
+                popoverRef={popoverRef}
+                onClose={onClose}
                 onChange={onChange}
                 items={filteredItems}
                 selectedItems={selectedItems}
-                onItemClick={onItemClick}
-                onReset={() => setInputValue("")}
+                onItemClick={handleItemClick}
+                onReset={handleReset}
                 value={inputValue}
               />
             </>
@@ -72,6 +89,8 @@ export const Autocomplete: FC<{
 
 type AutocompleteBodyProps = {
   inputRef: React.RefObject<HTMLInputElement>;
+  popoverRef: React.RefObject<HTMLInputElement>;
+  onClose: () => void;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   items: string[];
   selectedItems?: string[];
@@ -81,6 +100,8 @@ type AutocompleteBodyProps = {
 };
 const AutocompleteBody: FC<AutocompleteBodyProps> = ({
   inputRef,
+  popoverRef,
+  onClose,
   onChange,
   items,
   selectedItems,
@@ -88,11 +109,15 @@ const AutocompleteBody: FC<AutocompleteBodyProps> = ({
   onReset,
   value,
 }) => {
+  const bg = useColorModeValue("white", "gray.700");
+  useOutsideClick({ ref: popoverRef, handler: onClose });
+
   return (
     <>
       <PopoverTrigger>
-        <InputGroup ref={inputRef}>
+        <InputGroup>
           <ResetableInput
+            inputRef={inputRef}
             placeholder="Tags"
             onChange={onChange}
             value={value}
@@ -102,7 +127,7 @@ const AutocompleteBody: FC<AutocompleteBodyProps> = ({
       </PopoverTrigger>
       <PopoverContent w="100%">
         <PopoverBody>
-          <Box bg={useColorModeValue("white", "gray.700")} w="100%">
+          <Box bg={bg} w="100%">
             <VirtualizedItemList
               items={items}
               selectedItems={selectedItems}
