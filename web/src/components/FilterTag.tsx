@@ -15,12 +15,13 @@ export const FilterTag: FC<{
   onExclude: () => void;
 }> = (props) => {
   const { tag, onRemove, onExclude, excluded } = props;
+  const tagBg = useColorModeValue("orange.200", "orange.800");
   return (
     <Tag
       size={"md"}
       key={`tag-${tag}`}
       variant="outline"
-      bg={excluded ? useColorModeValue("orange.200", "orange.800") : undefined}
+      bg={excluded ? tagBg : undefined}
     >
       <TagLabel>{tag}</TagLabel>
       <TagRightIcon

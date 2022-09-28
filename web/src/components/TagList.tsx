@@ -9,6 +9,8 @@ export interface TagListProps {
 export const TagList: FC<TagListProps> = (props) => {
   const { tags, limit, onTagClick } = props;
 
+  const hoverColor = useColorModeValue("gray.400", "gray.500");
+  const bg = useColorModeValue("gray.200", "gray.700");
   return (
     <HStack justifyContent={"flex-start"} flexWrap="wrap" gap={1}>
       {tags.slice(0, limit).map((tag) => (
@@ -18,15 +20,16 @@ export const TagList: FC<TagListProps> = (props) => {
             key={tag}
             px={2}
             py={1}
+            whiteSpace="normal"
             _hover={
               onTagClick
                 ? {
                     cursor: "pointer",
-                    bg: useColorModeValue("gray.400", "gray.500"),
+                    bg: hoverColor,
                   }
                 : undefined
             }
-            bg={useColorModeValue("gray.200", "gray.700")}
+            bg={bg}
             fontWeight={"400"}
           >
             {tag}

@@ -72,6 +72,7 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
       xl: 50,
     }) || 10;
 
+  const linkColor = useColorModeValue("blue.500", "blue.200");
   return (
     <Box w={{ md: "100%" }}>
       <Stack
@@ -130,7 +131,7 @@ const AnimeSearchEntry: FC<{ anime: Anime }> = (props) => {
               {anime.sources.map((source) => (
                 <LinkBox key={source}>
                   <LinkOverlay href={source} isExternal>
-                    <Badge color={useColorModeValue("blue.500", "blue.200")}>
+                    <Badge color={linkColor}>
                       {getProvider(anime, source)}
                     </Badge>
                   </LinkOverlay>
