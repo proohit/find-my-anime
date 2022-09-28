@@ -41,7 +41,7 @@ describe('RequestCollectorInterceptor', () => {
     telemetryService = module.get<TelemetryService>(TelemetryService);
     req = {
       headers: {
-        origin: 'some host',
+        host: 'some host',
       },
       query: {
         query: 'sword art online',
@@ -51,7 +51,7 @@ describe('RequestCollectorInterceptor', () => {
     saveEntrySpy = jest.spyOn(telemetryService, 'saveTelemetryEntry');
   });
 
-  it('should save telemetry entry with app on matching origin and collectionConsent', async () => {
+  it('should save telemetry entry with app on matching host and collectionConsent', async () => {
     jest.spyOn(configService, 'get').mockReturnValue('some host');
     interceptor.intercept(
       {
@@ -67,8 +67,8 @@ describe('RequestCollectorInterceptor', () => {
     });
   });
 
-  it('should save telemetry entry with external on non matching origin and collectionConsent', async () => {
-    req.headers.origin = 'some other host';
+  it('should save telemetry entry with external on non matching host and collectionConsent', async () => {
+    req.headers.host = 'some other host';
     jest.spyOn(configService, 'get').mockReturnValue('some host');
     interceptor.intercept(
       {

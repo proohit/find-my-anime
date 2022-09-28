@@ -38,7 +38,7 @@ export class RequestCollectorInterceptor implements NestInterceptor {
       data: request.query.query || request.query.id,
     };
     if (appHost) {
-      if (appHost === request.headers.origin) {
+      if (appHost === request.headers.host) {
         this.telemetryService.saveTelemetryEntry({
           ...telemetryEntry,
           source: TelemetrySource.App,
