@@ -37,7 +37,7 @@ const AnimePage: FC = () => {
     }
     return undefined;
   }, [query.has("provider")]);
-
+  useColorModeValue("white", "gray.900");
   const filterHook = useFilters();
 
   useEffect(() => {
@@ -54,6 +54,9 @@ const AnimePage: FC = () => {
     }
   }, [params.id, provider]);
 
+  const backgroundColor = useColorModeValue("white", "gray.900");
+  const synonymBadgeColor = useColorModeValue("gray.200", "gray.700");
+  const sourceBadgeColor = useColorModeValue("blue.500", "blue.200");
   return (
     <VStack my="10" spacing={8}>
       {isLoading && <Spinner />}
@@ -61,8 +64,9 @@ const AnimePage: FC = () => {
         <Stack
           borderWidth="1px"
           borderRadius="lg"
+          w={"100%"}
           direction={{ base: "column", lg: "row" }}
-          bg={useColorModeValue("white", "gray.900")}
+          bg={backgroundColor}
           boxShadow={"2xl"}
           p={4}
         >
@@ -93,8 +97,9 @@ const AnimePage: FC = () => {
                 {anime.synonyms.map((synonym) => (
                   <Badge
                     key={synonym}
-                    bg={useColorModeValue("gray.200", "gray.700")}
+                    bg={synonymBadgeColor}
                     fontWeight={"400"}
+                    whiteSpace="normal"
                   >
                     {synonym}
                   </Badge>
@@ -114,7 +119,7 @@ const AnimePage: FC = () => {
                 {anime.sources.map((source) => (
                   <LinkBox key={source}>
                     <LinkOverlay href={source} isExternal>
-                      <Badge color={useColorModeValue("blue.500", "blue.200")}>
+                      <Badge color={sourceBadgeColor} whiteSpace="normal">
                         {getProvider(anime, source)}
                       </Badge>
                     </LinkOverlay>
