@@ -1,5 +1,5 @@
 # Build image
-FROM node:16-alpine AS BUILD_IMAGE
+FROM node:18-alpine AS BUILD_IMAGE
 
 ## install curl to fetch node-prune
 RUN apk update && apk add curl bash && rm -rf /var/cache/apk/*
@@ -20,7 +20,7 @@ RUN /usr/local/bin/node-prune ./server/node_modules
 RUN /usr/local/bin/node-prune ./node_modules
 
 # Runtime image
-FROM node:16-alpine
+FROM node:18-alpine
 
 WORKDIR /usr/app
 
