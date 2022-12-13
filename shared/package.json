@@ -2,5 +2,5 @@
     "name": "@find-my-anime/shared",
     "main": "./index.ts",
     "types": "./index.ts",
-    "version": "1.9.4"
+    "version": "1.10.0"
 }
