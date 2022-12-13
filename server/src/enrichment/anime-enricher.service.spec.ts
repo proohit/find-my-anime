@@ -60,10 +60,33 @@ describe('AnimeEnricherbService', () => {
     it('should enrich anime', async () => {
       const anime: Anime = {
         ...emptyAnime,
-        sources: [`${ProviderDomain.Anilist}/1234`],
+        sources: [
+          `${ProviderDomain.Anilist}/1234`,
+          `${ProviderDomain.MyAnimeList}/12345`,
+        ],
       };
       const enrichedAnime = await animeEnricherService.enrichAnime(anime);
       expect(enrichedAnime.description).toEqual('test');
+      expect(enrichedAnime.providerMapping).toEqual({
+        [Provider.Anilist]: '1234',
+        [Provider.MyAnimeList]: '12345',
+      });
+    });
+
+    it('should not enrich anime with existing providerMapping', async () => {
+      const anime: Anime = {
+        ...emptyAnime,
+        sources: [`${ProviderDomain.Anilist}/1234`],
+        providerMapping: {
+          [Provider.Anilist]: '1234',
+          [Provider.AniDB]: '12345',
+        },
+      };
+      const enrichedAnime = await animeEnricherService.enrichAnime(anime);
+      expect(enrichedAnime.providerMapping).toEqual({
+        [Provider.Anilist]: '1234',
+        [Provider.AniDB]: '12345',
+      });
     });
 
     it('should enrich anime with anilist', async () => {
@@ -97,7 +120,12 @@ describe('AnimeEnricherbService', () => {
       const enrichedAnime = await animeEnricherService.enrichAnime(anime, [
         Provider.MyAnimeList,
       ]);
-      expect(enrichedAnime).toEqual(anime);
+      expect(enrichedAnime).toEqual({
+        ...anime,
+        providerMapping: {
+          [Provider.MyAnimeList]: '1234',
+        },
+      });
       expect(enrichedAnime.description).toBeUndefined();
     });
 
@@ -121,7 +149,12 @@ describe('AnimeEnricherbService', () => {
       const enrichedAnime = await animeEnricherService.enrichAnime(anime, [
         Provider.AniDB,
       ]);
-      expect(enrichedAnime).toEqual(anime);
+      expect(enrichedAnime).toEqual({
+        ...anime,
+        providerMapping: {
+          [Provider.AniDB]: '1234',
+        },
+      });
       expect(enrichedAnime.description).toBeUndefined();
     });
 
@@ -233,6 +266,14 @@ describe('AnimeEnricherbService', () => {
 
   describe('needsEnrichment', () => {
     it('should return true if the anime has no description', () => {
+      const anime: Anime = {
+        ...emptyAnime,
+        sources: [`${ProviderDomain.Anilist}/1234`],
+      };
+      expect(animeEnricherService.needsEnrichment(anime)).toBeTruthy();
+    });
+
+    it('should return true if the anime has no providerMapping', () => {
       const anime: Anime = {
         ...emptyAnime,
         sources: [`${ProviderDomain.Anilist}/1234`],

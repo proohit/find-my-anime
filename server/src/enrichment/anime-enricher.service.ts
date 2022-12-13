@@ -40,6 +40,9 @@ export class AnimeEnricherService {
   ): Promise<Anime> {
     let enrichedAnime = { ...anime };
     const providersToUse = providers || getProviders(anime);
+
+    enrichedAnime = this.getProviderMappingEnrichedAnime(enrichedAnime);
+
     if (providersToUse.includes(Provider.Anilist)) {
       enrichedAnime = await this.getAnilistEnrichedAnime(enrichedAnime);
     }
@@ -56,7 +59,24 @@ export class AnimeEnricherService {
   }
 
   public needsEnrichment(anime: Anime): boolean {
-    return !anime.description;
+    return !anime.description || !anime.providerMapping;
+  }
+
+  private getProviderMappingEnrichedAnime(anime: Anime): Anime {
+    if (anime.providerMapping) {
+      return anime;
+    }
+
+    const providers = getProviders(anime);
+
+    anime.providerMapping = providers.reduce((acc, provider) => {
+      const providerId = getProviderIdOfAnime(anime, provider);
+      return {
+        ...acc,
+        [provider]: providerId,
+      };
+    }, {});
+    return anime;
   }
 
   private async getAnidbEnrichedAnime(anime: Anime): Promise<Anime> {

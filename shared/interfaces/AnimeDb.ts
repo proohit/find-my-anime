@@ -38,6 +38,9 @@ export interface Anime {
   tags: string[];
   description?: string;
   provider?: Provider;
+  providerMapping?: {
+    [key in Provider]?: string;
+  };
 }
 
 export interface AnimeSeason {
