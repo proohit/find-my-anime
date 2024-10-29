@@ -16,7 +16,7 @@ export const ProviderDomain: {
   [Provider.AnimePlanet]: 'https://anime-planet.com',
   [Provider.AniSearch]: 'https://anisearch.com',
   [Provider.LiveChart]: 'https://livechart.me',
-  [Provider.Kitsu]: 'https://kitsu.io',
+  [Provider.Kitsu]: 'https://kitsu.app',
   [Provider.MyAnimeList]: 'https://myanimelist.net',
   [Provider.NotifyMoe]: 'https://notify.moe',
 };
