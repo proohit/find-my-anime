@@ -7,6 +7,8 @@ export enum Provider {
   Kitsu = 'Kitsu',
   MyAnimeList = 'MyAnimeList',
   NotifyMoe = 'NotifyMoe',
+  Simkl = 'Simkl',
+  Animecountdown = 'Animecountdown',
 }
 export const ProviderDomain: {
   [key in Provider]: string;
@@ -19,4 +21,6 @@ export const ProviderDomain: {
   [Provider.Kitsu]: 'https://kitsu.app',
   [Provider.MyAnimeList]: 'https://myanimelist.net',
   [Provider.NotifyMoe]: 'https://notify.moe',
+  [Provider.Simkl]: 'https://simkl.com',
+  [Provider.Animecountdown]: 'https://animecountdown.com',
 };
