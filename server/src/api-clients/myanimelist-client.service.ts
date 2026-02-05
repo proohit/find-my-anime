@@ -18,7 +18,10 @@ export class MyAnimeListClient implements AnimeClient {
     }).toString();
     const url = `${MYANIMELIST_API_URL}/anime/${id}?${query}`;
     const data = await this.get(url);
-    if (data.error) {
+    if (!data) {
+      throw new Error(`Could not fetch MAL Anime data for id ${id}`);
+    }
+    if ('error' in data) {
       throw new Error(JSON.stringify(data));
     }
     return { description: data.synopsis };
@@ -33,7 +36,12 @@ export class MyAnimeListClient implements AnimeClient {
       },
     };
 
-    const res = await lastValueFrom(this.httpService.get(url, newOptions));
+    const res = await lastValueFrom(
+      this.httpService.get<{ synopsis: string } | { error: string }>(
+        url,
+        newOptions,
+      ),
+    );
     return res.data;
   }
 }

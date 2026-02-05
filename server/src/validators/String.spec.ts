@@ -19,11 +19,11 @@ describe('stringQueryTransformer', () => {
         type: 'query',
         data: 'testQuery',
       }),
-    ).toThrowError(MissingQuery);
+    ).toThrow(MissingQuery);
   });
   it('should accept empty values if required option is not set', () => {
     const transformer = stringQueryTransformer();
-    const givenQuery = null;
+    const givenQuery: string | null = null;
     expect(() =>
       transformer.transform(givenQuery, {
         type: 'query',
@@ -39,7 +39,7 @@ describe('stringQueryTransformer', () => {
         type: 'query',
         data: 'testQuery',
       }),
-    ).toThrowError(InvalidQuery);
+    ).toThrow(InvalidQuery);
   });
 
   it('should throw an error if the query is longer than maxLength', () => {
@@ -49,7 +49,7 @@ describe('stringQueryTransformer', () => {
         type: 'query',
         data: 'testQuery',
       }),
-    ).toThrowError(InvalidQuery);
+    ).toThrow(InvalidQuery);
   });
 
   it('should throw an error if the query contains spaces but is configured not to', () => {
@@ -59,6 +59,6 @@ describe('stringQueryTransformer', () => {
         type: 'query',
         data: 'testQuery',
       }),
-    ).toThrowError(InvalidQuery);
+    ).toThrow(InvalidQuery);
   });
 });

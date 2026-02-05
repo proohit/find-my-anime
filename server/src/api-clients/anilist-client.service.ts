@@ -3,6 +3,19 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 import { AnimeClient } from './AnimeClient';
+
+type AnilistResponse =
+  | {
+      data: {
+        Media: {
+          description: string;
+        };
+      };
+    }
+  | {
+      errors: string[];
+    };
+
 @Injectable()
 export class AnilistClient implements AnimeClient {
   constructor(private httpService: HttpService) {}
@@ -20,17 +33,17 @@ export class AnilistClient implements AnimeClient {
     const variables = { id };
     try {
       const data = await this.fetch(query, variables);
-      if (!data.Media || data.errors) {
+      if (!data.Media) {
         throw new Error(JSON.stringify(data));
       }
       return data.Media;
-    } catch (error) {
+    } catch {
       throw new Error(`Couldn't query media for id ${id}`);
     }
   }
 
-  private async fetch(query: string, variables: any) {
-    const body: { query?: string; variables?: any } = {};
+  private async fetch(query: string, variables: unknown) {
+    const body: { query?: string; variables?: unknown } = {};
     if (query) {
       body.query = query;
     }
@@ -45,10 +58,16 @@ export class AnilistClient implements AnimeClient {
     };
 
     const res = await lastValueFrom(
-      this.httpService.post(ANILIST_API_URL, JSON.stringify(body), options),
+      this.httpService.post<AnilistResponse>(
+        ANILIST_API_URL,
+        JSON.stringify(body),
+        options,
+      ),
     );
     const json = res.data;
-    if (!json.data || json?.errors?.length > 0) {
+    const hasData = 'data' in json;
+    const hasErrors = 'errors' in json && json.errors.length > 0;
+    if (!hasData || hasErrors) {
       throw new Error(JSON.stringify(json.errors));
     }
     return json.data;

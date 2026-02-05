@@ -27,7 +27,7 @@ describe('arrayQueryTransformer', () => {
         type: 'query',
         data: 'testQuery',
       }),
-    ).toThrowError(MissingQuery);
+    ).toThrow(MissingQuery);
   });
   it('should return an array from a string with custom separator', () => {
     const transformer = arrayQueryTransformer({ separator: '|' });

@@ -30,7 +30,7 @@ describe('booleanQueryTransformer', () => {
         type: 'query',
         data: 'testQuery',
       }),
-    ).toThrowError(MissingQuery);
+    ).toThrow(MissingQuery);
   });
 
   it('should throw an error if the query is invalid', () => {
@@ -40,7 +40,7 @@ describe('booleanQueryTransformer', () => {
         type: 'query',
         data: 'testField',
       }),
-    ).toThrowError(InvalidQuery);
+    ).toThrow(InvalidQuery);
   });
 
   it('should accept empty values if required option is not set', () => {

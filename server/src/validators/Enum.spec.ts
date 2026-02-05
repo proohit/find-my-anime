@@ -8,7 +8,7 @@ describe('enumQueryTransformer', () => {
     const transformer = validateEnumQueryTransformer({
       enumType: Provider,
     });
-    const givenQuery = 'Anilist';
+    const givenQuery: Provider = Provider.Anilist;
     const result = transformer.transform(givenQuery, {
       type: 'query',
       data: 'testQuery',
@@ -25,7 +25,7 @@ describe('enumQueryTransformer', () => {
         type: 'query',
         data: 'testQuery',
       }),
-    ).toThrowError(MissingQuery);
+    ).toThrow(MissingQuery);
   });
 
   it('should throw an error if the query is invalid', () => {
@@ -37,7 +37,7 @@ describe('enumQueryTransformer', () => {
         type: 'query',
         data: 'testQuery',
       }),
-    ).toThrowError(InvalidEnum);
+    ).toThrow(InvalidEnum);
   });
 
   it('should accept empty values if required option is not set', () => {

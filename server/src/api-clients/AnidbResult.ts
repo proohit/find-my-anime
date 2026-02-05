@@ -11,8 +11,10 @@ export interface Element<R> {
   _attributes: R;
 }
 
-export interface AnidbAnime
-  extends Element<{ id: string; restricted: string }> {
+export interface AnidbAnime extends Element<{
+  id: string;
+  restricted: string;
+}> {
   type: TextElement;
   episodecount: TextElement;
   startdate: Date;
@@ -34,8 +36,11 @@ export interface Characters {
   character: Character[];
 }
 
-export interface Character
-  extends Element<{ id: string; type: string; update: Date }> {
+export interface Character extends Element<{
+  id: string;
+  type: string;
+  update: Date;
+}> {
   rating?: CharacterRating;
   name: TextElement;
   gender: TextElement;
@@ -102,17 +107,16 @@ export interface Tags {
   tag: Tag[];
 }
 
-export interface Tag
-  extends Element<{
-    id: string;
-    weight: string;
-    localspoiler: string;
-    globalspoiler: string;
-    verified: string;
-    update: Date;
-    parentid?: string;
-    infobox?: string;
-  }> {
+export interface Tag extends Element<{
+  id: string;
+  weight: string;
+  localspoiler: string;
+  globalspoiler: string;
+  verified: string;
+  update: Date;
+  parentid?: string;
+  infobox?: string;
+}> {
   name: TextElement;
   description?: TextElement;
   picurl?: TextElement;

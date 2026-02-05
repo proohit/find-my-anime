@@ -52,7 +52,7 @@ export class AnimeDbDownloaderService {
     await this.saveAnimeDb(animeDb);
   }
 
-  public async saveAnimeDb(animeDb: any): Promise<void> {
+  public async saveAnimeDb(animeDb: AnimeDB): Promise<void> {
     await this.dbSaveMutex.runExclusive(async () => {
       this.animeDbCache = animeDb;
       Logger.debug('Saving anime db...');
@@ -70,14 +70,14 @@ export class AnimeDbDownloaderService {
     return animeDb;
   }
 
-  private async loadLocalDb() {
+  private async loadLocalDb(): Promise<AnimeDB> {
     const animeDb = await readFile(this.ANIME_OFFLINE_DB_FILE_PATH, 'utf8');
-    return JSON.parse(animeDb);
+    return JSON.parse(animeDb) as AnimeDB;
   }
 
   private async fetchAnimeDb(): Promise<AnimeDB> {
     const res = await lastValueFrom(
-      this.httpService.get(ANIME_OFFLINE_DB_FILE_URL),
+      this.httpService.get<AnimeDB>(ANIME_OFFLINE_DB_FILE_URL),
     );
     return res.data;
   }

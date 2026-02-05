@@ -11,6 +11,17 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 import { TelemetryService } from './telemetry.service';
+import { Request } from 'express';
+export type AnimeRequestType = Request<
+  unknown,
+  unknown,
+  unknown,
+  {
+    query?: string;
+    id?: string;
+    collectionConsent?: string;
+  }
+>;
 
 @Injectable()
 export class RequestCollectorInterceptor implements NestInterceptor {
@@ -22,7 +33,7 @@ export class RequestCollectorInterceptor implements NestInterceptor {
     _context: ExecutionContext,
     next: CallHandler,
   ): Observable<any> {
-    const request = _context.switchToHttp().getRequest();
+    const request: AnimeRequestType = _context.switchToHttp().getRequest();
     const hasCollectionConsentDefined =
       request.query.collectionConsent !== undefined;
 
@@ -33,24 +44,24 @@ export class RequestCollectorInterceptor implements NestInterceptor {
     if (!collectionConsent) {
       return next.handle();
     }
-    const appHost = this.configService.get('app_host');
+    const appHost: string = this.configService.get('app_host');
     const telemetryEntry: TelemetryEntry = {
       data: request.query.query || request.query.id,
     };
     if (appHost) {
       if (appHost === request.headers.host) {
-        this.telemetryService.saveTelemetryEntry({
+        void this.telemetryService.saveTelemetryEntry({
           ...telemetryEntry,
           source: TelemetrySource.App,
         });
       } else {
-        this.telemetryService.saveTelemetryEntry({
+        void this.telemetryService.saveTelemetryEntry({
           ...telemetryEntry,
           source: TelemetrySource.External,
         });
       }
     } else {
-      this.telemetryService.saveTelemetryEntry({
+      void this.telemetryService.saveTelemetryEntry({
         ...telemetryEntry,
         source: TelemetrySource.Anonymous,
       });

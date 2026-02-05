@@ -34,7 +34,7 @@ export class StatsService {
   }
 
   private getAnimeCountBySeasonAndYear(allAnime: Anime[]) {
-    const seasons = {};
+    const seasons: Record<`${string}-${string}`, number> = {};
     allAnime.forEach((anime) => {
       const season = anime.animeSeason.season;
       const year = anime.animeSeason.year;
@@ -45,10 +45,10 @@ export class StatsService {
       if (!seasons[entry]) {
         seasons[entry] = 1;
       } else {
-        seasons[entry] = seasons[entry] + 1;
+        seasons[entry] ??= seasons[entry] + 1;
       }
     });
-    const sortedSeasons = {};
+    const sortedSeasons: Record<`${string}-${string}`, number> = {};
     Object.entries(seasons)
       .sort((a, b) => {
         const aSeason = a[0].split('-')[0];

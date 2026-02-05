@@ -48,7 +48,10 @@ describe('AnimeDbService', () => {
       const tags = await animeDbService.getTags();
       const expectedTags = [
         ...new Set(
-          mockAnimeDb.data.reduce((acc, curr) => acc.concat(curr.tags), []),
+          mockAnimeDb.data.reduce(
+            (acc, curr) => acc.concat(curr.tags),
+            [] as string[],
+          ),
         ),
       ];
       expect(tags).toEqual(expectedTags);

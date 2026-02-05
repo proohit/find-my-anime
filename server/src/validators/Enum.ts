@@ -6,13 +6,13 @@ export type TransformerOptions = {
   required?: boolean;
 };
 
-type EnumTransformerOptions = TransformerOptions & {
-  enumType: unknown;
+type EnumTransformerOptions<R> = TransformerOptions & {
+  enumType: R;
 };
 
-export const validateEnumQueryTransformer = (
-  options: EnumTransformerOptions,
-): PipeTransform<unknown> => ({
+export const validateEnumQueryTransformer = <R = unknown>(
+  options: EnumTransformerOptions<R>,
+): PipeTransform<unknown, R> => ({
   transform: (value, metadata) => {
     const { enumType, required } = options;
     if (!value && required) {
@@ -21,6 +21,6 @@ export const validateEnumQueryTransformer = (
     if (value && !Object.values(enumType).includes(value)) {
       throw new InvalidEnum(enumType);
     }
-    return value;
+    return value as R;
   },
 });
