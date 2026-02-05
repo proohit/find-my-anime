@@ -45,7 +45,6 @@ export class AppController {
     type: String,
     description: 'Comma separated list of tags to search for',
     required: false,
-    example: 'fantasy',
   })
   @ApiQuery({
     name: 'excludedTags',
