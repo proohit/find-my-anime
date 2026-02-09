@@ -4,9 +4,15 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as rxjs from 'rxjs';
 import { MyAnimeListClient } from './myanimelist-client.service';
-jest.mock('rxjs', () => ({
-  lastValueFrom: jest.fn(),
-}));
+jest.mock(
+  'rxjs',
+  () =>
+    ({
+      ...jest.requireActual('rxjs'),
+      lastValueFrom: jest.fn(),
+    }) as typeof import('rxjs'),
+);
+
 describe('MyAnimeListClient', () => {
   const givenDescription = 'test';
   let myanimelistClient: MyAnimeListClient;

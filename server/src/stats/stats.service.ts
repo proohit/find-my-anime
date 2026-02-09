@@ -5,6 +5,8 @@ import { Injectable } from '@nestjs/common';
 import { AnimeDbService } from '../animedb/animedb.service';
 import { TelemetryService } from './telemetry.service';
 
+type SeasonYear = `${string}-${string}`;
+
 @Injectable()
 export class StatsService {
   constructor(
@@ -34,18 +36,18 @@ export class StatsService {
   }
 
   private getAnimeCountBySeasonAndYear(allAnime: Anime[]) {
-    const seasons: Record<`${string}-${string}`, number> = {};
+    const seasons: Record<SeasonYear, number> = {};
     allAnime.forEach((anime) => {
       const season = anime.animeSeason.season;
       const year = anime.animeSeason.year;
       if (season === Season.Undefined || isNaN(year)) {
         return;
       }
-      const entry = `${season}-${year}`;
+      const entry: SeasonYear = `${season}-${year}`;
       if (!seasons[entry]) {
         seasons[entry] = 1;
       } else {
-        seasons[entry] ??= seasons[entry] + 1;
+        seasons[entry] = seasons[entry] + 1;
       }
     });
     const sortedSeasons: Record<`${string}-${string}`, number> = {};

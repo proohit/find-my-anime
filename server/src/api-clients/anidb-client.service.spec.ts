@@ -3,14 +3,19 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as rxjs from 'rxjs';
 import { AniDbClient } from './anidb-client.service';
-jest.mock('rxjs', () => ({
-  lastValueFrom: jest.fn(),
-}));
+
+jest.mock('rxjs', () => {
+  return {
+    ...jest.requireActual('rxjs'),
+    lastValueFrom: jest.fn() as unknown as typeof import('rxjs').lastValueFrom,
+  } as typeof import('rxjs');
+});
+
 describe('AniDBClient', () => {
   const givenDescription = 'test';
   let aniDbClient: AniDbClient;
   beforeEach(async () => {
-    (rxjs.lastValueFrom as jest.Mock).mockReturnValue(
+    (rxjs.lastValueFrom as jest.Mock).mockResolvedValue(
       Promise.resolve({
         data: `
         <?xml version="1.0" encoding="UTF-8"?>

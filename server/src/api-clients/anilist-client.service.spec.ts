@@ -2,9 +2,14 @@ import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as rxjs from 'rxjs';
 import { AnilistClient } from './anilist-client.service';
-jest.mock('rxjs', () => ({
-  lastValueFrom: jest.fn(),
-}));
+jest.mock(
+  'rxjs',
+  () =>
+    ({
+      ...jest.requireActual('rxjs'),
+      lastValueFrom: jest.fn(),
+    }) as typeof import('rxjs'),
+);
 describe('AnilistClient', () => {
   const givenDescription = 'test';
   let anilistClient: AnilistClient;

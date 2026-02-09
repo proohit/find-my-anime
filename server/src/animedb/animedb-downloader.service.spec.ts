@@ -6,9 +6,14 @@ import * as rxjs from 'rxjs';
 import * as fsPromises from 'fs/promises';
 jest.mock('fs');
 jest.mock('fs/promises');
-jest.mock('rxjs', () => ({
-  lastValueFrom: jest.fn(),
-}));
+jest.mock(
+  'rxjs',
+  () =>
+    ({
+      ...jest.requireActual('rxjs'),
+      lastValueFrom: jest.fn(),
+    }) as typeof import('rxjs'),
+);
 
 describe('AnimeDbDownloaderService', () => {
   let animeDbDownloaderService: AnimeDbDownloaderService;

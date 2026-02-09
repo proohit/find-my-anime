@@ -113,7 +113,7 @@ describe('AnimeDbService', () => {
         givenTags,
       );
       expect(results.length).not.toBe(0);
-      expect(results[0].tags).toContainValues(givenTags);
+      expect(results[0].tags).toEqual(expect.arrayContaining(givenTags));
     });
 
     it('should search by multiple tags and title', async () => {
@@ -126,7 +126,7 @@ describe('AnimeDbService', () => {
         givenTags,
       );
       expect(results.length).not.toBe(0);
-      expect(results[0].tags).toContainValues(givenTags);
+      expect(results[0].tags).toEqual(expect.arrayContaining(givenTags));
       expect(results[0].title.toLowerCase()).toContain(givenTitle);
     });
 
@@ -156,7 +156,7 @@ describe('AnimeDbService', () => {
       const givenSynonym = 'SAO';
       const results = await animeDbService.queryAnime(undefined, givenSynonym);
       expect(results.length).not.toBe(0);
-      expect(results[0].synonyms).toInclude(givenSynonym);
+      expect(results[0].synonyms).toContain(givenSynonym);
     });
 
     it('should accept limit', async () => {

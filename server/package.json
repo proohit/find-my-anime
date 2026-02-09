@@ -75,6 +75,10 @@
     "moduleNameMapper": {
       "@find-my-anime/shared/(.*)": "<rootDir>/../../shared/$1"
     },
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "../test/setupTestsAfterEnv.ts"
+    ],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -82,10 +86,6 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "../test/setupTestsAfterEnv.ts"
-    ]
+    "coverageDirectory": "../coverage"
   }
 }
