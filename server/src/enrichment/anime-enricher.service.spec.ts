@@ -48,12 +48,11 @@ describe('AnimeEnricherbService', () => {
         },
       ],
     }).compile();
-    configService = module.get<ConfigService>(ConfigService);
-    animeEnricherService =
-      module.get<AnimeEnricherService>(AnimeEnricherService);
-    anilistClient = module.get<AnilistClient>(AnilistClient);
-    myAnimeListClient = module.get<MyAnimeListClient>(MyAnimeListClient);
-    aniDbClient = module.get<AniDbClient>(AniDbClient);
+    configService = module.get(ConfigService);
+    animeEnricherService = module.get(AnimeEnricherService);
+    anilistClient = module.get(AnilistClient);
+    myAnimeListClient = module.get(MyAnimeListClient);
+    aniDbClient = module.get(AniDbClient);
   });
 
   describe('enrichAnime', () => {

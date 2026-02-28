@@ -10,9 +10,10 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Observable } from 'rxjs';
-import { TelemetryService } from './telemetry.service';
 import { Request } from 'express';
+import { Observable } from 'rxjs';
+import { TelemetryDataService } from './telemetry-data.service';
+
 export type AnimeRequestType = Request<
   unknown,
   unknown,
@@ -28,7 +29,7 @@ export type AnimeRequestType = Request<
 export class RequestCollectorInterceptor implements NestInterceptor {
   constructor(
     private configService: ConfigService,
-    private telemetryService: TelemetryService,
+    private telemetryDataService: TelemetryDataService,
   ) {}
   public intercept(
     _context: ExecutionContext,
@@ -55,7 +56,7 @@ export class RequestCollectorInterceptor implements NestInterceptor {
     const queryOrId = request.query.query || request.query.id;
     if (!queryOrId) {
       Logger.warn(
-        'No query or id parameter found in the request. Telemetry entry will have empty data field',
+        'No query or id parameter found in the request. Telemetry entry will be skipped',
       );
 
       return next.handle();
@@ -64,18 +65,18 @@ export class RequestCollectorInterceptor implements NestInterceptor {
     const telemetryEntry: TelemetryEntry = { data: queryOrId };
     if (appHost) {
       if (appHost === request.headers.origin) {
-        void this.telemetryService.saveTelemetryEntry({
+        void this.telemetryDataService.incrementTelemetryEntry({
           ...telemetryEntry,
           source: TelemetrySource.App,
         });
       } else {
-        void this.telemetryService.saveTelemetryEntry({
+        void this.telemetryDataService.incrementTelemetryEntry({
           ...telemetryEntry,
           source: TelemetrySource.External,
         });
       }
     } else {
-      void this.telemetryService.saveTelemetryEntry({
+      void this.telemetryDataService.incrementTelemetryEntry({
         ...telemetryEntry,
         source: TelemetrySource.Anonymous,
       });

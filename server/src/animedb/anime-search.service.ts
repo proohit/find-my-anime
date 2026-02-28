@@ -5,7 +5,7 @@ import {
   ProviderDomain,
 } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { AnimeDocument, AnimeModel } from './schemas/anime.schema';
@@ -22,13 +22,13 @@ export class AnimeSearchService {
   }
 
   public async findAnime(
-    limit: number,
     query?: string,
     id?: string,
     provider?: Provider,
     tags?: string[],
     excludedTags?: string[],
     includeAdult?: boolean,
+    limit: number = 100,
   ): Promise<Anime[]> {
     const conditions: FilterQuery<AnimeModel>[] = [];
 
@@ -105,21 +105,5 @@ export class AnimeSearchService {
 
   private escapeRegExp(value: string) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  private async updateAnimeEntry(anime: Anime) {
-    const providers = getProviders(anime);
-    const source = providers.length ? getSource(anime, providers[0]) : '';
-    if (source) {
-      await this.animeModel.updateOne(
-        { sources: source },
-        { $set: anime },
-        { upsert: true },
-      );
-      Logger.log(`Updated anime ${anime.title} in Mongo`);
-      return;
-    }
-    await this.animeModel.create(anime);
-    Logger.log(`Inserted anime ${anime.title} in Mongo`);
   }
 }

@@ -41,7 +41,7 @@ export class AnimeModel {
   synonyms: string[];
 
   @Prop({ type: [String] })
-  relations: string[];
+  relatedAnime: string[];
 
   @Prop({ type: [String], index: true })
   tags: string[];

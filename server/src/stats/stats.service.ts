@@ -3,7 +3,7 @@ import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { DbStatistics } from '@find-my-anime/shared/interfaces/DbStatistics';
 import { Injectable } from '@nestjs/common';
 import { AnimeDbService } from '../animedb/animedb.service';
-import { TelemetryService } from './telemetry.service';
+import { TelemetryDataService } from './telemetry-data.service';
 
 type SeasonYear = `${string}-${string}`;
 
@@ -11,7 +11,7 @@ type SeasonYear = `${string}-${string}`;
 export class StatsService {
   constructor(
     private readonly animedbService: AnimeDbService,
-    private readonly telemetryService: TelemetryService,
+    private readonly telemetryDataService: TelemetryDataService,
   ) {}
 
   async getStats(): Promise<DbStatistics> {
@@ -20,7 +20,7 @@ export class StatsService {
     const seasons = this.getAnimeCountBySeasonAndYear(allAnime);
     const tags = await this.animedbService.getTags();
     const lastDownloaded = await this.animedbService.getLastDownloaded();
-    const telemetryData = await this.telemetryService.getAnimeDbWithTelemetry();
+    const telemetry = await this.telemetryDataService.getTelemetryData();
     return {
       lastDownloaded,
       anime: {
@@ -31,7 +31,7 @@ export class StatsService {
         count: tags.length,
         mostUsedTags: sortedMostUsedTags,
       },
-      telemetry: telemetryData,
+      telemetry,
     };
   }
 

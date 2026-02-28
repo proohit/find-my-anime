@@ -30,7 +30,7 @@ describe('AnilistClient', () => {
         },
       ],
     }).compile();
-    anilistClient = module.get<AnilistClient>(AnilistClient);
+    anilistClient = module.get(AnilistClient);
   });
 
   describe('getAnime', () => {

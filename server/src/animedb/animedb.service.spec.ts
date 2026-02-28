@@ -1,30 +1,29 @@
-import { getProviderIdOfAnime } from '@find-my-anime/shared/anime/id';
-import { getProviders } from '@find-my-anime/shared/anime/sources';
-import { ADULT_TAGS } from '@find-my-anime/shared/anime/tags';
-import { Provider } from '@find-my-anime/shared/constants/Provider';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/unbound-method */
+import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockAnimeDb } from '../../test/mockData';
+import { Model } from 'mongoose';
+import { mockAnimeData, mockAnimeDb } from '../../test/mockData';
 import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
-import { AnimeDbDownloaderService } from './animedb-downloader.service';
+import { AnimeSearchService } from './anime-search.service';
 import { AnimeDbService } from './animedb.service';
+import { MetadataService } from './metadata.service';
+import { AnimeModel } from './schemas/anime.schema';
 
 describe('AnimeDbService', () => {
   let animeDbService: AnimeDbService;
-  let animeDbDownloaderService: AnimeDbDownloaderService;
   let animeEnricherService: AnimeEnricherService;
+  let animeModel: Model<AnimeModel>;
+  let metadataService: MetadataService;
+  let animeSearchService: jest.Mocked<AnimeSearchService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AnimeDbService,
-        {
-          provide: AnimeDbDownloaderService,
-          useValue: {
-            getAnimeDb: () => Promise.resolve(mockAnimeDb),
-            updateAnimeEntry: () => Promise.resolve(),
-          },
-        },
+
         {
           provide: AnimeEnricherService,
           useValue: {
@@ -33,40 +32,58 @@ describe('AnimeDbService', () => {
             needsEnrichment: () => false,
           },
         },
+        {
+          provide: getModelToken(AnimeModel.name),
+          useValue: {
+            find: () => ({
+              lean: () => ({
+                exec: () => Promise.resolve(mockAnimeData),
+              }),
+            }),
+            updateOne: jest.fn(),
+          },
+        },
+        {
+          provide: MetadataService,
+          useValue: {
+            getMetadata: jest.fn().mockResolvedValue({
+              lastDownloadTime: '2020-01-01T00:00:00.000Z',
+            }),
+          },
+        },
+        {
+          provide: AnimeSearchService,
+          useValue: {
+            findAnime: jest.fn().mockResolvedValue(mockAnimeDb.data),
+          },
+        },
       ],
     }).compile();
-    animeDbService = module.get<AnimeDbService>(AnimeDbService);
-    animeDbDownloaderService = module.get<AnimeDbDownloaderService>(
-      AnimeDbDownloaderService,
-    );
-    animeEnricherService =
-      module.get<AnimeEnricherService>(AnimeEnricherService);
+    animeDbService = module.get(AnimeDbService);
+    animeEnricherService = module.get(AnimeEnricherService);
+    animeModel = module.get(getModelToken(AnimeModel.name));
+    metadataService = module.get(MetadataService);
+    animeSearchService = module.get(AnimeSearchService);
   });
 
   describe('tags', () => {
     it('should return all tags', async () => {
+      const givenTags = ['action', 'drama', 'comedy'];
+      animeModel.distinct = jest
+        .fn()
+        .mockReturnValue({ exec: () => givenTags });
+
       const tags = await animeDbService.getTags();
-      const expectedTags = [
-        ...new Set(
-          mockAnimeDb.data.reduce(
-            (acc, curr) => acc.concat(curr.tags),
-            [] as string[],
-          ),
-        ),
-      ];
-      expect(tags).toEqual(expectedTags);
+      expect(tags).toEqual(givenTags);
     });
   });
 
   describe('lastDownloaded', () => {
     it('should return the last downloaded time', async () => {
       const givenLastDownloadedTime = '2020-01-01T00:00:00.000Z';
-      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
-        Promise.resolve({
-          ...mockAnimeDb,
-          lastDownloadTime: givenLastDownloadedTime,
-        }),
-      );
+      jest.spyOn(metadataService, 'getMetadata').mockResolvedValue({
+        lastDownload: givenLastDownloadedTime,
+      });
       const lastDownloaded = await animeDbService.getLastDownloaded();
       expect(lastDownloaded).toEqual(givenLastDownloadedTime);
     });
@@ -75,209 +92,78 @@ describe('AnimeDbService', () => {
   describe('getAllAnime', () => {
     it('should return all anime', async () => {
       const allAnime = await animeDbService.getAllAnime();
-      expect(allAnime).toEqual(mockAnimeDb.data);
+      expect(allAnime).toEqual(mockAnimeData);
     });
   });
 
-  describe('search', () => {
-    it('should search by id', async () => {
-      const results = await animeDbService.queryAnime('51478');
-      expect(results).toEqual([mockAnimeDb.data[0]]);
+  describe('queryAnime', () => {
+    it('should search with SearchService', async () => {
+      await animeDbService.queryAnime();
+      expect(animeSearchService.findAnime).toHaveBeenCalled();
     });
 
-    it('should search by title', async () => {
+    it('should search with title', async () => {
       const givenTitle = 'sword art online';
-      const results = await animeDbService.queryAnime(undefined, givenTitle);
-      expect(results.length).not.toBe(0);
-      expect(results[0].title.toLowerCase()).toContain(givenTitle);
-    });
-
-    it('should search by tag', async () => {
-      const givenTag = 'action';
-      const results = await animeDbService.queryAnime(
-        undefined,
-        undefined,
-        undefined,
-        [givenTag],
-      );
-      expect(results.length).not.toBe(0);
-      expect(results[0].tags).toContain(givenTag);
-    });
-
-    it('should search by multiple tags', async () => {
-      const givenTags = ['action', 'drama'];
-      const results = await animeDbService.queryAnime(
-        undefined,
-        undefined,
-        undefined,
-        givenTags,
-      );
-      expect(results.length).not.toBe(0);
-      expect(results[0].tags).toEqual(expect.arrayContaining(givenTags));
-    });
-
-    it('should search by multiple tags and title', async () => {
-      const givenTags = ['action', 'drama'];
-      const givenTitle = 'sword art online';
-      const results = await animeDbService.queryAnime(
-        undefined,
+      await animeDbService.queryAnime(undefined, givenTitle);
+      expect(animeSearchService.findAnime).toHaveBeenCalledWith(
         givenTitle,
         undefined,
-        givenTags,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        expect.anything(),
       );
-      expect(results.length).not.toBe(0);
-      expect(results[0].tags).toEqual(expect.arrayContaining(givenTags));
-      expect(results[0].title.toLowerCase()).toContain(givenTitle);
     });
 
-    it('should search by provider and id', async () => {
-      const givenId = '142051';
-      const results = await animeDbService.queryAnime(
-        givenId,
-        undefined,
-        Provider.Anilist,
-      );
-      expect(results).toHaveLength(1);
-      expect(results).toEqual([mockAnimeDb.data[0]]);
-    });
-
-    it('should search by provider and title', async () => {
-      const givenTitle = 'sword art online';
-      const results = await animeDbService.queryAnime(
-        undefined,
-        givenTitle,
-        Provider.Anilist,
-      );
-      expect(results.length).not.toBe(0);
-      expect(results[0].title.toLowerCase()).toContain(givenTitle);
-    });
-
-    it('should search by synonym', async () => {
-      const givenSynonym = 'SAO';
-      const results = await animeDbService.queryAnime(undefined, givenSynonym);
-      expect(results.length).not.toBe(0);
-      expect(results[0].synonyms).toContain(givenSynonym);
-    });
-
-    it('should accept limit', async () => {
-      const results = await animeDbService.queryAnime(
-        undefined,
-        'a',
+    it('should set upperlimit', async () => {
+      await animeDbService.queryAnime(
         undefined,
         undefined,
-        undefined,
-        undefined,
-        1,
-      );
-      expect(results.length).toBe(1);
-    });
-
-    it('should have upper limit of 100', async () => {
-      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
-        Promise.resolve({
-          ...mockAnimeDb,
-          data: [
-            ...mockAnimeDb.data,
-            ...mockAnimeDb.data,
-            ...mockAnimeDb.data,
-            ...mockAnimeDb.data,
-            ...mockAnimeDb.data,
-            ...mockAnimeDb.data,
-            ...mockAnimeDb.data,
-          ],
-        }),
-      );
-      const results = await animeDbService.queryAnime(
-        undefined,
-        'a',
         undefined,
         undefined,
         undefined,
         undefined,
         101,
       );
-      expect(results.length).toBe(100);
+      expect(animeSearchService.findAnime).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        100,
+      );
     });
 
     it('should enrich anime data and save it to the database', async () => {
-      const givenAnime = mockAnimeDb.data[0];
-      const providerOfAnime = getProviders(givenAnime)[0];
-      const animeId = getProviderIdOfAnime(givenAnime, providerOfAnime);
+      const mockEnrichedAnime = {
+        ...mockAnimeData[0],
+        description: 'test description',
+      };
+      animeSearchService.findAnime.mockResolvedValueOnce([mockEnrichedAnime]);
+
       jest
         .spyOn(animeEnricherService, 'enrichAnime')
-        .mockReturnValue(
-          Promise.resolve({ ...givenAnime, description: 'test' }),
-        );
+        .mockResolvedValue(mockEnrichedAnime);
       jest.spyOn(animeEnricherService, 'isEnrichable').mockReturnValue(true);
       jest.spyOn(animeEnricherService, 'needsEnrichment').mockReturnValue(true);
-      const results = await animeDbService.queryAnime(
-        animeId,
-        undefined,
-        providerOfAnime,
+      await animeDbService.queryAnime(undefined, undefined, undefined);
+      expect(animeEnricherService.enrichAnime).toHaveBeenCalled();
+      expect(animeModel.updateOne).toHaveBeenCalledWith(
+        {
+          sources: getSource(
+            mockAnimeData[0],
+            getProviders(mockAnimeData[0])[0],
+          ),
+        },
+        {
+          $set: expect.objectContaining({
+            description: mockEnrichedAnime.description,
+          }),
+        },
       );
-      expect(results.length).toBe(1);
-      expect(results[0].description).toEqual('test');
-    });
-
-    it('should filter out adult anime', async () => {
-      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
-        Promise.resolve({
-          ...mockAnimeDb,
-          data: [{ ...mockAnimeDb.data[0], tags: [ADULT_TAGS[0]] }],
-        }),
-      );
-      const results = await animeDbService.queryAnime(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        false,
-      );
-      expect(results.length).toBe(0);
-    });
-
-    it('should include adult anime', async () => {
-      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
-        Promise.resolve({
-          ...mockAnimeDb,
-          data: [{ ...mockAnimeDb.data[0], tags: [ADULT_TAGS[0]] }],
-        }),
-      );
-      const results = await animeDbService.queryAnime(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        true,
-      );
-      expect(results.length).toBe(1);
-    });
-
-    it('should search with excluded tags', async () => {
-      jest.spyOn(animeDbDownloaderService, 'getAnimeDb').mockReturnValue(
-        Promise.resolve({
-          ...mockAnimeDb,
-          data: [
-            {
-              ...mockAnimeDb.data[0],
-              tags: ['action', 'comedy'],
-            },
-            { ...mockAnimeDb.data[0], tags: ['comedy'] },
-          ],
-        }),
-      );
-      const results = await animeDbService.queryAnime(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        ['action'],
-        true,
-      );
-      expect(results.length).toBe(1);
-      expect(results[0].tags).not.toContainValue('action');
     });
   });
 });

@@ -1,10 +1,10 @@
 import { Season } from '@find-my-anime/shared/constants/Season';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Test, TestingModule } from '@nestjs/testing';
-import { emptyAnime, mockAnimeDb } from '../../test/mockData';
+import { emptyAnime, mockTelemetry } from '../../test/mockData';
 import { AnimeDbService } from '../animedb/animedb.service';
 import { StatsService } from './stats.service';
-import { TelemetryService } from './telemetry.service';
+import { TelemetryDataService } from './telemetry-data.service';
 
 describe('StatsService', () => {
   let statsService: StatsService;
@@ -52,20 +52,22 @@ describe('StatsService', () => {
         {
           provide: AnimeDbService,
           useValue: {
-            getAllAnime: () => Promise.resolve(givenData),
-            getTags: () => Promise.resolve(givenTags),
-            getLastDownloaded: () => Promise.resolve(givenLastDownloadedTime),
+            getAllAnime: jest.fn().mockResolvedValue(givenData),
+            getTags: jest.fn().mockResolvedValue(givenTags),
+            getLastDownloaded: jest
+              .fn()
+              .mockResolvedValue(givenLastDownloadedTime),
           },
         },
         {
-          provide: TelemetryService,
+          provide: TelemetryDataService,
           useValue: {
-            getAnimeDbWithTelemetry: () => Promise.resolve(mockAnimeDb),
+            getTelemetryData: jest.fn().mockResolvedValue(mockTelemetry),
           },
         },
       ],
     }).compile();
-    statsService = module.get<StatsService>(StatsService);
+    statsService = module.get(StatsService);
   });
 
   describe('animeSeasons', () => {

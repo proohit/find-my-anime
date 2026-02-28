@@ -40,7 +40,7 @@ describe('MyAnimeListClient', () => {
         },
       ],
     }).compile();
-    myanimelistClient = module.get<MyAnimeListClient>(MyAnimeListClient);
+    myanimelistClient = module.get(MyAnimeListClient);
     httpService = module.get(HttpService);
   });
 

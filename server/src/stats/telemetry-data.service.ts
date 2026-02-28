@@ -2,7 +2,7 @@ import { TelemetryEntry } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { TelemetryDataModel } from './schemas/telemetry-data.schema';
+import { TelemetryDataModel } from '../animedb/schemas/telemetry-data.schema';
 
 @Injectable()
 export class TelemetryDataService {
@@ -24,9 +24,7 @@ export class TelemetryDataService {
     });
 
     if (updateResult.matchedCount === 0) {
-      await this.telemetryDataModel.create(
-        new this.telemetryDataModel(newEntry),
-      );
+      await this.telemetryDataModel.create(newEntry);
     }
   }
 

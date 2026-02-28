@@ -36,12 +36,12 @@ describe('AniDBClient', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: () => 'test',
+            getOrThrow: () => 'test',
           },
         },
       ],
     }).compile();
-    aniDbClient = module.get<AniDbClient>(AniDbClient);
+    aniDbClient = module.get(AniDbClient);
   });
 
   describe('getAnime', () => {

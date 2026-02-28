@@ -7,7 +7,7 @@ export class TelemetryDataModel {
   @Prop()
   data: string;
 
-  @Prop()
+  @Prop({ type: String, enum: TelemetrySource })
   source?: TelemetrySource;
 
   @Prop({ default: 0 })

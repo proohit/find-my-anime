@@ -3,14 +3,14 @@ import { Test } from '@nestjs/testing';
 import { mockAnimeDb } from '../test/mockData';
 import { AnimeDbService } from './animedb/animedb.service';
 import { AppController } from './app.controller';
-import { AppModule } from './app.module';
+import { RequestCollectorInterceptor } from './stats/collector.interceptor';
 
 describe('AppController', () => {
   let controller: AppController;
   let animeDbService: AnimeDbService;
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [AppModule],
+      controllers: [AppController],
       providers: [
         {
           provide: AnimeDbService,
@@ -20,10 +20,18 @@ describe('AppController', () => {
           },
         },
       ],
-    }).compile();
-    controller = module.get<AppController>(AppController);
-    animeDbService = module.get<AnimeDbService>(AnimeDbService);
+    })
+      .overrideInterceptor(RequestCollectorInterceptor)
+      .useValue({
+        intercept: jest
+          .fn()
+          .mockImplementation(() => Promise.resolve(undefined)),
+      })
+      .compile();
+    controller = module.get(AppController);
+    animeDbService = module.get(AnimeDbService);
   });
+
   it('should call queryAnime', async () => {
     const spy = jest
       .spyOn(animeDbService, 'queryAnime')

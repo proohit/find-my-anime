@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { MetadataService } from './metadata.service';
 import { AnimeDocument, AnimeModel } from './schemas/anime.schema';
 import { AnimeSearchService } from './anime-search.service';
-import { AnimeEnricherService } from 'src/enrichment/anime-enricher.service';
+import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
 import { Provider } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
@@ -31,13 +31,13 @@ export class AnimeDbService {
     limit = 20,
   ): Promise<Anime[]> {
     const foundAnime = await this.animeSearchService.findAnime(
-      Math.min(isNaN(limit) ? 20 : limit, this.UPPER_LIMIT),
       query,
       id,
       provider,
       tags,
       excludedTags,
       includeAdult,
+      Math.min(isNaN(limit) ? 20 : limit, this.UPPER_LIMIT),
     );
 
     if (
@@ -78,11 +78,7 @@ export class AnimeDbService {
     const providers = getProviders(anime);
     const source = providers.length ? getSource(anime, providers[0]) : '';
     if (source) {
-      await this.animeModel.updateOne(
-        { sources: source },
-        { $set: anime },
-        { upsert: true },
-      );
+      await this.animeModel.updateOne({ sources: source }, { $set: anime });
       Logger.log(`Updated anime ${anime.title} in Mongo`);
       return;
     }

@@ -1,8 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { emptyMockStats } from '../../test/mockData';
-import { AnimeDbService } from '../animedb/animedb.service';
 import { StatsController } from './stats.controller';
-import { StatsModule } from './stats.module';
 import { StatsService } from './stats.service';
 
 describe('StatsController', () => {
@@ -10,26 +8,18 @@ describe('StatsController', () => {
   let statsService: StatsService;
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [StatsModule],
       providers: [
+        StatsController,
         {
           provide: StatsService,
           useValue: {
-            getStats: () => Promise.resolve(emptyMockStats),
-          },
-        },
-        {
-          provide: AnimeDbService,
-          useValue: {
-            getLastDownloaded: () => Promise.resolve(new Date()),
-            getAllAnimes: () => Promise.resolve([]),
-            getTags: () => Promise.resolve([]),
+            getStats: jest.fn().mockResolvedValue(emptyMockStats),
           },
         },
       ],
     }).compile();
-    controller = module.get<StatsController>(StatsController);
-    statsService = module.get<StatsService>(StatsService);
+    controller = module.get(StatsController);
+    statsService = module.get(StatsService);
   });
   it('should call getStats', async () => {
     const spy = jest

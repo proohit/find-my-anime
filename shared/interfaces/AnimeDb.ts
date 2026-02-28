@@ -27,14 +27,18 @@ export interface AnimeDB {
 export interface Anime {
   sources: string[];
   title: string;
-  type: Type;
+  type: Type | `${Type}`;
   episodes: number;
-  status: Status;
+  status: Status | `${Status}`;
   animeSeason: AnimeSeason;
+  duration?: {
+    value: number;
+    unit: string;
+  };
   picture: string;
   thumbnail: string;
   synonyms: string[];
-  relations: string[];
+  relatedAnime: string[];
   tags: string[];
   description?: string;
   provider?: Provider;
@@ -44,7 +48,7 @@ export interface Anime {
 }
 
 export interface AnimeSeason {
-  season: Season;
+  season: Season | `${Season}`;
   year?: number;
 }
 

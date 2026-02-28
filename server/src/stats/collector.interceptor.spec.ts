@@ -6,13 +6,13 @@ import {
   AnimeRequestType,
   RequestCollectorInterceptor,
 } from './collector.interceptor';
-import { TelemetryService } from './telemetry.service';
 import { Request } from 'express';
+import { TelemetryDataService } from './telemetry-data.service';
 
 describe('RequestCollectorInterceptor', () => {
   let interceptor: RequestCollectorInterceptor;
   let configService: ConfigService;
-  let telemetryService: TelemetryService;
+  let telemetryDataService: TelemetryDataService;
   let saveEntrySpy: jest.SpyInstance;
   let req: AnimeRequestType;
   const nextFnMock = {
@@ -30,29 +30,27 @@ describe('RequestCollectorInterceptor', () => {
           },
         },
         {
-          provide: TelemetryService,
+          provide: TelemetryDataService,
           useValue: {
-            saveTelemetryEntry: () => Promise.resolve(),
+            incrementTelemetryEntry: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
     }).compile();
 
-    interceptor = module.get<RequestCollectorInterceptor>(
-      RequestCollectorInterceptor,
-    );
-    configService = module.get<ConfigService>(ConfigService);
-    telemetryService = module.get<TelemetryService>(TelemetryService);
+    interceptor = module.get(RequestCollectorInterceptor);
+    configService = module.get(ConfigService);
+    telemetryDataService = module.get(TelemetryDataService);
     req = {
       headers: {
-        host: 'some host',
+        origin: 'some host',
       },
       query: {
         query: 'sword art online',
         collectionConsent: 'true',
       },
     } as unknown as Request;
-    saveEntrySpy = jest.spyOn(telemetryService, 'saveTelemetryEntry');
+    saveEntrySpy = jest.spyOn(telemetryDataService, 'incrementTelemetryEntry');
   });
 
   it('should save telemetry entry with app on matching host and collectionConsent', () => {
@@ -72,7 +70,7 @@ describe('RequestCollectorInterceptor', () => {
   });
 
   it('should save telemetry entry with external on non matching host and collectionConsent', () => {
-    req.headers.host = 'some other host';
+    req.headers.origin = 'some other host';
     jest.spyOn(configService, 'get').mockReturnValue('some host');
     interceptor.intercept(
       {
