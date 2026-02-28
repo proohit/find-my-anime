@@ -100,7 +100,9 @@ const SearchPage: FC = () => {
 
   useEffect(() => {
     const filtersFromQuery = updateFiltersFromQuery();
+    
     loadAnimeWithFilters(filtersFromQuery);
+    console.log("filtering", filtersFromQuery);
   }, [query]);
 
   useEffect(() => {

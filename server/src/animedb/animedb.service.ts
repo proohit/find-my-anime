@@ -1,24 +1,20 @@
-import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
-import { ADULT_TAGS } from '@find-my-anime/shared/anime/tags';
-import {
-  Provider,
-  ProviderDomain,
-} from '@find-my-anime/shared/constants/Provider';
-import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
-import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
-import { AnimeDbDownloaderService } from './animedb-downloader.service';
-import { AnimeDocument, AnimeModel } from './schemas/anime.schema';
+import { Model } from 'mongoose';
 import { MetadataService } from './metadata.service';
+import { AnimeDocument, AnimeModel } from './schemas/anime.schema';
+import { AnimeSearchService } from './anime-search.service';
+import { AnimeEnricherService } from 'src/enrichment/anime-enricher.service';
+import { Provider } from '@find-my-anime/shared/constants/Provider';
+import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
 
 @Injectable()
 export class AnimeDbService {
   private readonly UPPER_LIMIT = 100;
 
   constructor(
-    private animeDbDownloaderService: AnimeDbDownloaderService,
+    private animeSearchService: AnimeSearchService,
     private metadataService: MetadataService,
     private readonly animeEnricherService: AnimeEnricherService,
     @InjectModel(AnimeModel.name)
@@ -34,7 +30,7 @@ export class AnimeDbService {
     includeAdult?: boolean,
     limit = 20,
   ): Promise<Anime[]> {
-    const foundAnime = await this.findAnime(
+    const foundAnime = await this.animeSearchService.findAnime(
       Math.min(isNaN(limit) ? 20 : limit, this.UPPER_LIMIT),
       query,
       id,
@@ -52,14 +48,10 @@ export class AnimeDbService {
       const enrichedAnime = await this.animeEnricherService.enrichAnime(
         foundAnime[0],
       );
-      await this.animeDbDownloaderService.updateAnimeEntry(enrichedAnime);
+      await this.updateAnimeEntry(enrichedAnime);
       return [enrichedAnime];
     }
 
-    foundAnime.forEach((anime) => {
-      const providerIdMapping = this.generateProviderIdMapping(anime);
-      anime.providerMapping = providerIdMapping;
-    });
     return foundAnime;
   }
 
@@ -82,89 +74,19 @@ export class AnimeDbService {
     return this.animeModel.find({}).lean().exec();
   }
 
-  private async findAnime(
-    limit: number,
-    query?: string,
-    id?: string,
-    provider?: Provider,
-    tags?: string[],
-    excludedTags?: string[],
-    includeAdult?: boolean,
-  ): Promise<Anime[]> {
-    const conditions: FilterQuery<AnimeModel>[] = [];
-
-    const escapedId = id ? this.escapeRegExp(id) : null;
-    const providerDomain = provider
-      ? this.escapeRegExp(ProviderDomain[provider])
-      : null;
-
-    if (providerDomain && escapedId) {
-      const combinedRegex = `^${providerDomain}.*${escapedId}$`;
-      conditions.push({
-        sources: { $regex: combinedRegex },
-      });
-    }
-
-    if (!providerDomain && escapedId) {
-      conditions.push({
-        sources: { $regex: `${escapedId}$` },
-      });
-    }
-
-    if (providerDomain && !escapedId) {
-      conditions.push({
-        sources: { $regex: `^${providerDomain}` },
-      });
-    }
-
-    if (tags?.length) {
-      conditions.push({ tags: { $all: tags } });
-    }
-
-    if (excludedTags?.length) {
-      conditions.push({ tags: { $nin: excludedTags } });
-    }
-
-    if (!includeAdult) {
-      conditions.push({ tags: { $nin: ADULT_TAGS } });
-    }
-
-    return this.animeModel
-      .find(
-        query
-          ? {
-              $text: { $search: query },
-              $and: conditions,
-            }
-          : { $and: conditions },
-        { _id: 0 },
-      )
-      .limit(limit)
-      .transform((docs) => {
-        return docs.map((anime: AnimeDocument) => {
-          const animeModel: Anime = { ...anime };
-          animeModel.providerMapping =
-            this.generateProviderIdMapping(animeModel);
-          return animeModel;
-        });
-      })
-      .lean()
-      .exec();
-  }
-
-  private generateProviderIdMapping(anime: Anime): Record<string, string> {
-    const mapping: Record<string, string> = {};
+  private async updateAnimeEntry(anime: Anime) {
     const providers = getProviders(anime);
-    providers.forEach((provider) => {
-      const source = getSource(anime, provider);
-      if (source) {
-        mapping[provider] = source;
-      }
-    });
-    return mapping;
-  }
-
-  private escapeRegExp(value: string) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const source = providers.length ? getSource(anime, providers[0]) : '';
+    if (source) {
+      await this.animeModel.updateOne(
+        { sources: source },
+        { $set: anime },
+        { upsert: true },
+      );
+      Logger.log(`Updated anime ${anime.title} in Mongo`);
+      return;
+    }
+    await this.animeModel.create(anime);
+    Logger.log(`Inserted anime ${anime.title} in Mongo`);
   }
 }

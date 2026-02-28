@@ -41,7 +41,7 @@ export const SearchForm: FC<Props> = (props) => {
         ...(localFilters.excludedTags || []),
       ]),
     ],
-    [localFilters.tags, localFilters.excludedTags]
+    [localFilters.tags, localFilters.excludedTags],
   );
   useEffect(() => {
     setLocalFilters(filters);
@@ -51,7 +51,7 @@ export const SearchForm: FC<Props> = (props) => {
     trailing: true,
   });
   const handleChange = (
-    event: ChangeEvent<HTMLSelectElement | HTMLInputElement>
+    event: ChangeEvent<HTMLSelectElement | HTMLInputElement>,
   ) => {
     const { name, value } = event.target;
     const isBoolean = value === "true" || value === "false";
@@ -99,12 +99,12 @@ export const SearchForm: FC<Props> = (props) => {
     if (shouldRemoveFromTags) {
       handleTagChange(
         "tags",
-        localFilters.tags?.filter((t) => t !== tag) ?? []
+        localFilters.tags?.filter((t) => t !== tag) ?? [],
       );
     } else if (shouldRemoveFromExludedTags) {
       handleTagChange(
         "excludedTags",
-        localFilters.excludedTags?.filter((t) => t !== tag) ?? []
+        localFilters.excludedTags?.filter((t) => t !== tag) ?? [],
       );
     }
   };
@@ -188,6 +188,7 @@ export const SearchForm: FC<Props> = (props) => {
         {allTags?.map((tag) => (
           <FilterTag
             tag={tag}
+            key={tag}
             onRemove={() => handleTagRemove(tag)}
             onExclude={() => handleTagExclude(tag)}
             excluded={localFilters.excludedTags?.includes(tag)}

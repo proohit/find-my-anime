@@ -14,7 +14,7 @@ export const TagList: FC<TagListProps> = (props) => {
   return (
     <HStack justifyContent={"flex-start"} flexWrap="wrap" gap={1}>
       {tags.slice(0, limit).map((tag) => (
-        <Tooltip label="Add to filter" openDelay={400} placement="top">
+        <Tooltip label="Add to filter" openDelay={400} placement="top" key={tag}>
           <Badge
             onClick={() => onTagClick?.(tag)}
             key={tag}

@@ -17,6 +17,7 @@ import {
 } from './schemas/telemetry-data.schema';
 import { TelemetryDataService } from './telemetry-data.service';
 import { MetadataService } from './metadata.service';
+import { AnimeSearchService } from './anime-search.service';
 
 @Module({
   imports: [
@@ -36,12 +37,14 @@ import { MetadataService } from './metadata.service';
     AnimeDbDownloaderService,
     TelemetryDataService,
     MetadataService,
+    AnimeSearchService,
   ],
   exports: [
     AnimeDbService,
     AnimeDbDownloaderService,
     TelemetryDataService,
     MetadataService,
+    AnimeSearchService,
   ],
 })
 export class AnimeDbModule {}

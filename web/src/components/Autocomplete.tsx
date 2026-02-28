@@ -31,7 +31,7 @@ export const Autocomplete: FC<{
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     setInputValue(value);
-    debouncedFilter(value);
+    filterItems(value);
   };
 
   const filterItems = (query: string) => {
@@ -55,7 +55,6 @@ export const Autocomplete: FC<{
     inputRef.current?.focus();
   };
 
-  const debouncedFilter = useDebouncedCallback(filterItems, 200);
 
   return (
     <Box w="100%" ref={popoverRef}>
