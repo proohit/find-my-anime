@@ -37,3 +37,4 @@ lerna-debug.log*
 .env
 
 anime-offline-database.json
+animedb-*.json
