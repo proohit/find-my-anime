@@ -7,11 +7,12 @@ type BooleanTransformerOptions = TransformerOptions;
 
 export const booleanQueryTransformer = (
   options?: BooleanTransformerOptions,
-): PipeTransform<string, boolean> => ({
+): PipeTransform<string, boolean | undefined> => ({
   transform: (value, metadata) => {
     if (!value && options?.required) {
       throw new MissingQuery(metadata.data);
     }
+
     if (value) {
       if (value === 'true') {
         return true;

@@ -10,10 +10,13 @@ export const getAnyIdOfAnime = (anime: Anime) => {
   return sources[0].split('/').pop();
 };
 
-export const getProviderIdOfAnime = (anime: Anime, provider: Provider) => {
+export const getProviderIdOfAnime = (
+  anime: Anime,
+  provider: Provider,
+): string => {
   if (!hasSource(anime, provider)) {
     throw new Error('Anime has no id for provider');
   }
   const source = getSource(anime, provider);
-  return source.split('/').pop();
+  return source.split('/').pop() || '';
 };

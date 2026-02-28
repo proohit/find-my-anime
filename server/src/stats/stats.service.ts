@@ -20,7 +20,7 @@ export class StatsService {
     const seasons = this.getAnimeCountBySeasonAndYear(allAnime);
     const tags = await this.animedbService.getTags();
     const lastDownloaded = await this.animedbService.getLastDownloaded();
-    const animeDb = await this.telemetryService.getAnimeDbWithTelemetry();
+    const telemetryData = await this.telemetryService.getAnimeDbWithTelemetry();
     return {
       lastDownloaded,
       anime: {
@@ -31,7 +31,7 @@ export class StatsService {
         count: tags.length,
         mostUsedTags: sortedMostUsedTags,
       },
-      telemetry: animeDb.telemetry,
+      telemetry: telemetryData,
     };
   }
 
@@ -40,7 +40,7 @@ export class StatsService {
     allAnime.forEach((anime) => {
       const season = anime.animeSeason.season;
       const year = anime.animeSeason.year;
-      if (season === Season.Undefined || isNaN(year)) {
+      if (season === Season.Undefined || !year || isNaN(year)) {
         return;
       }
       const entry: SeasonYear = `${season}-${year}`;

@@ -13,9 +13,9 @@ export class MyAnimeListClient implements AnimeClient {
   ) {}
 
   public async getAnime(id: string, externalFields?: string[]) {
-    const query = new URLSearchParams({
-      fields: externalFields?.join(','),
-    }).toString();
+    const query = new URLSearchParams();
+
+    query.append('fields', externalFields?.join(',') || '');
     const url = `${MYANIMELIST_API_URL}/anime/${id}?${query}`;
     const data = await this.get(url);
     if (!data) {

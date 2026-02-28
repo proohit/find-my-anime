@@ -132,5 +132,7 @@ export class AnimeEnricherService {
       Logger.log(`Enriched anime ${anime.title} with ${provider}`);
       return { ...anime, description: animeFromClient.description };
     }
+    Logger.error(`Failed to enrich anime ${anime.title} with ${provider}`);
+    return anime;
   }
 }

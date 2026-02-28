@@ -15,18 +15,23 @@ export class AniDbClient implements AnimeClient {
   ) {}
 
   public async getAnime(id: string) {
-    const query = new URLSearchParams({
-      client: this.configService.get('ANIDB_CLIENT_ID'),
-      clientver: this.configService.get('ANIDB_CLIENT_VERSION'),
-      request: 'anime',
-      protover: '1',
-      aid: id,
-    }).toString();
+    const query = new URLSearchParams();
+    query.append('client', this.configService.getOrThrow('ANIDB_CLIENT_ID'));
+    query.append(
+      'clientver',
+      this.configService.getOrThrow('ANIDB_CLIENT_VERSION'),
+    );
+    query.append('request', 'anime');
+    query.append('protover', '1');
+    query.append('aid', id);
 
     const url = `${ANIDB_API_URL}?${query}`;
     const data = await this.get(url);
     if (data.error && data.error._text) {
       throw new Error(JSON.stringify(data.error._text));
+    }
+    if (!data.anime?.description._text) {
+      throw new Error('Anime description is missing in the response');
     }
     const description = data.anime.description._text;
     return { description };

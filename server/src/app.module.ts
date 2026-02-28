@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AnimeDbModule } from './animedb/animedb.module';
@@ -15,6 +16,13 @@ import { StatsModule } from './stats/stats.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', '.env.dev'],
+    }),
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+        dbName: configService.get<string>('MONGODB_DB_NAME') ?? 'find-my-anime',
+      }),
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', '..', '..', 'web', 'dist'),

@@ -14,12 +14,15 @@ export const arrayQueryTransformer = (
     if (!value && options?.required) {
       throw new MissingQuery(metadata.data);
     }
-    if (value) {
-      let values = value.split(options?.separator || DEFAULT_SEPARATOR);
-      if (options?.trim) {
-        values = values.map((v) => v.trim());
-      }
-      return values;
+
+    if (!value) {
+      return [];
     }
+
+    let values = value.split(options?.separator ?? DEFAULT_SEPARATOR);
+    if (options?.trim) {
+      values = values.map((v) => v.trim());
+    }
+    return values;
   },
 });

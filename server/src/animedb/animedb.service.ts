@@ -1,21 +1,28 @@
-import { hasSource } from '@find-my-anime/shared/anime/sources';
-import { isAdult } from '@find-my-anime/shared/anime/tags';
+import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
+import { ADULT_TAGS } from '@find-my-anime/shared/anime/tags';
 import {
   Provider,
   ProviderDomain,
 } from '@find-my-anime/shared/constants/Provider';
-import { Anime, AnimeDB } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Injectable } from '@nestjs/common';
-import Fuse from 'fuse.js';
+import { InjectModel } from '@nestjs/mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
 import { AnimeDbDownloaderService } from './animedb-downloader.service';
+import { AnimeDocument, AnimeModel } from './schemas/anime.schema';
+import { MetadataService } from './metadata.service';
 
 @Injectable()
 export class AnimeDbService {
   private readonly UPPER_LIMIT = 100;
+
   constructor(
     private animeDbDownloaderService: AnimeDbDownloaderService,
+    private metadataService: MetadataService,
     private readonly animeEnricherService: AnimeEnricherService,
+    @InjectModel(AnimeModel.name)
+    private readonly animeModel: Model<AnimeDocument>,
   ) {}
 
   public async queryAnime(
@@ -27,17 +34,15 @@ export class AnimeDbService {
     includeAdult?: boolean,
     limit = 20,
   ): Promise<Anime[]> {
-    const animeDb = await this.animeDbDownloaderService.getAnimeDb();
-
-    const foundAnime = this.getMatches(
-      animeDb,
+    const foundAnime = await this.findAnime(
+      Math.min(isNaN(limit) ? 20 : limit, this.UPPER_LIMIT),
       query,
       id,
       provider,
       tags,
       excludedTags,
       includeAdult,
-    ).slice(0, Math.min(isNaN(limit) ? Infinity : limit, this.UPPER_LIMIT));
+    );
 
     if (
       foundAnime.length === 1 &&
@@ -47,128 +52,119 @@ export class AnimeDbService {
       const enrichedAnime = await this.animeEnricherService.enrichAnime(
         foundAnime[0],
       );
-      this.animeDbDownloaderService.updateAnimeEntry(enrichedAnime);
+      await this.animeDbDownloaderService.updateAnimeEntry(enrichedAnime);
       return [enrichedAnime];
     }
+
+    foundAnime.forEach((anime) => {
+      const providerIdMapping = this.generateProviderIdMapping(anime);
+      anime.providerMapping = providerIdMapping;
+    });
     return foundAnime;
   }
 
-  public async getTags(): Promise<string[]> {
-    const animeDb = await this.animeDbDownloaderService.getAnimeDb();
-    const tags = new Set(
-      animeDb.data
-        .map((anime) => anime.tags)
-        .filter((tag) => tag)
-        .flat(),
-    );
-    return [...tags];
+  public getTags(): Promise<string[]> {
+    return this.animeModel
+      .distinct('tags', {
+        tags: {
+          $ne: null,
+        },
+      })
+      .exec();
   }
 
   public async getLastDownloaded(): Promise<string> {
-    const animeDb = await this.animeDbDownloaderService.getAnimeDb();
-    return animeDb.lastDownloadTime;
+    const metadata = await this.metadataService.getMetadata();
+    return metadata?.lastDownload ?? '';
   }
 
   public async getAllAnime(): Promise<Anime[]> {
-    const animeDb = await this.animeDbDownloaderService.getAnimeDb();
-    return animeDb.data;
+    return this.animeModel.find({}).lean().exec();
   }
 
-  private getMatches(
-    animeDb: AnimeDB,
-    query: string,
-    id: string,
-    provider: Provider,
-    tags: string[],
-    excludedTags: string[],
-    includeAdult?: boolean,
-  ) {
-    let matchedAnimes: Anime[];
-    const shouldMatchTitle = !!query;
-    if (shouldMatchTitle) {
-      const fuse = new Fuse(animeDb.data, {
-        keys: ['synonyms', 'title'],
-        shouldSort: true,
-        threshold: 0.5,
-        isCaseSensitive: false,
-        findAllMatches: true,
-      });
-      matchedAnimes = fuse
-        .search({
-          $or: [{ title: query }, { synonyms: query }],
-        })
-        .map((result) => result.item);
-    }
-    matchedAnimes = (shouldMatchTitle ? matchedAnimes : animeDb.data).filter(
-      (anime) =>
-        this.strictMatches(
-          anime,
-          id,
-          provider,
-          tags,
-          excludedTags,
-          includeAdult,
-        ),
-    );
-    return matchedAnimes;
-  }
-
-  private strictMatches(
-    anime: Anime,
+  private async findAnime(
+    limit: number,
+    query?: string,
     id?: string,
     provider?: Provider,
     tags?: string[],
     excludedTags?: string[],
     includeAdult?: boolean,
-  ): boolean {
-    let matches = true;
-    if (id && !this.idMatches(anime, id, provider)) {
-      return false;
+  ): Promise<Anime[]> {
+    const conditions: FilterQuery<AnimeModel>[] = [];
+
+    const escapedId = id ? this.escapeRegExp(id) : null;
+    const providerDomain = provider
+      ? this.escapeRegExp(ProviderDomain[provider])
+      : null;
+
+    if (providerDomain && escapedId) {
+      const combinedRegex = `^${providerDomain}.*${escapedId}$`;
+      conditions.push({
+        sources: { $regex: combinedRegex },
+      });
     }
-    if (provider) {
-      matches = this.providerMatches(anime, provider) && matches;
+
+    if (!providerDomain && escapedId) {
+      conditions.push({
+        sources: { $regex: `${escapedId}$` },
+      });
     }
-    if (tags) {
-      matches = this.tagsMatch(anime, tags) && matches;
+
+    if (providerDomain && !escapedId) {
+      conditions.push({
+        sources: { $regex: `^${providerDomain}` },
+      });
     }
-    if (excludedTags) {
-      matches = !this.anyTagIsIncluded(anime, excludedTags) && matches;
+
+    if (tags?.length) {
+      conditions.push({ tags: { $all: tags } });
     }
+
+    if (excludedTags?.length) {
+      conditions.push({ tags: { $nin: excludedTags } });
+    }
+
     if (!includeAdult) {
-      matches = !isAdult(anime) && matches;
+      conditions.push({ tags: { $nin: ADULT_TAGS } });
     }
-    return matches;
+
+    return this.animeModel
+      .find(
+        query
+          ? {
+              $text: { $search: query },
+              $and: conditions,
+            }
+          : { $and: conditions },
+        { _id: 0 },
+      )
+      .limit(limit)
+      .transform((docs) => {
+        return docs.map((anime: AnimeDocument) => {
+          const animeModel: Anime = { ...anime };
+          animeModel.providerMapping =
+            this.generateProviderIdMapping(animeModel);
+          return animeModel;
+        });
+      })
+      .lean()
+      .exec();
   }
 
-  private providerMatches(anime: Anime, provider: Provider): boolean {
-    return hasSource(anime, provider);
-  }
-
-  private tagsMatch(anime: Anime, tags: string[]) {
-    return tags?.every((tag) => anime?.tags.includes(tag));
-  }
-
-  private anyTagIsIncluded(anime: Anime, tags: string[]) {
-    return anime.tags.some((tag) => tags.includes(tag));
-  }
-
-  private idMatches(anime: Anime, id: string, provider?: Provider): boolean {
-    const sources = anime.sources;
-    if (sources) {
-      if (provider) {
-        const providerDomain = ProviderDomain[provider];
-        const foundSource = sources.find((source) =>
-          source.includes(providerDomain),
-        );
-        if (foundSource) {
-          const sourceId = foundSource.split('/').pop();
-          return sourceId === id;
-        }
-      } else {
-        const sourcesIds = sources.map((source) => source.split('/').pop());
-        return sourcesIds.includes(id);
+  private generateProviderIdMapping(anime: Anime): Record<string, string> {
+    const mapping: Record<string, string> = {};
+    const providers = getProviders(anime);
+    providers.forEach((provider) => {
+      const source = getSource(anime, provider);
+      if (source) {
+        mapping[provider] = source;
       }
-    }
-    return false;
+    });
+    return mapping;
+  }
+
+  private escapeRegExp(value: string) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 }
