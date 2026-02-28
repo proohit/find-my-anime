@@ -10,11 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js 16.x
+      - uses: actions/checkout@v6
+      - name: Use Node.js 24.x
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 24.x
       - name: "Install dependencies"
         run: |
           npm install
@@ -29,6 +29,6 @@ jobs:
         working-directory: ./server
         run: |
           npm run lint
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v5
         with:
           directory: ./server/coverage
