@@ -50,3 +50,35 @@ export const getSource = (anime: Anime, provider: Provider): string => {
   }
   return '';
 };
+
+export const getProviderIdMappings = (
+  anime: Anime,
+): Record<Provider, string> => {
+  const sources = anime.sources;
+  const providerIdMapping: Record<string, string> = {};
+  if (sources) {
+    for (const source of sources) {
+      for (const provider of Object.values(Provider)) {
+        if (source.includes(ProviderDomain[provider])) {
+          const id = source.split('/').pop() || '';
+          providerIdMapping[provider] = id;
+        }
+      }
+    }
+  }
+  return providerIdMapping;
+};
+
+export const getProviderSourceMappings = (
+  anime: Anime,
+): Record<Provider, string> => {
+  const mapping: Record<string, string> = {};
+  const providers = getProviders(anime);
+  providers.forEach((provider) => {
+    const source = getSource(anime, provider);
+    if (source) {
+      mapping[provider] = source;
+    }
+  });
+  return mapping;
+};

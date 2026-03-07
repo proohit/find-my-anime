@@ -45,6 +45,9 @@ export interface Anime {
   providerMapping?: {
     [key in Provider]?: string;
   };
+  providerIdMappings?: {
+    [key in Provider]?: string;
+  };
 }
 
 export interface AnimeSeason {

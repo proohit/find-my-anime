@@ -1,27 +1,33 @@
 services:
-  mongo:
-    image: mongo:6.0
+  mongodb-atlas-local:
+    image: mongodb/mongodb-atlas-local:latest
     ports:
       - 27017:27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      - MONGODB_INITDB_ROOT_USERNAME=root
+      - MONGODB_INITDB_ROOT_PASSWORD=example
+
   mongo-express:
     image: mongo-express
     restart: always
     ports:
       - 8081:8081
     environment:
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongodb-atlas-local:27017/
       ME_CONFIG_BASICAUTH_ENABLED: true
       ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
       ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
+    depends_on:
+      mongodb-atlas-local:
+        condition: service_healthy
+
   animedb-loader:
-    build: 
+    build:
       context: .
       dockerfile: ./loader/Dockerfile
     environment:
-      - URI=mongodb://root:example@mongo:27017/find-my-anime
+      - URI=mongodb://root:example@mongodb-atlas-local:27017/find-my-anime?directConnection=true
     depends_on:
-      - mongo
+      mongodb-atlas-local:
+        condition: service_healthy
     restart: "no"

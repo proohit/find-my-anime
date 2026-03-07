@@ -1,13 +1,16 @@
-import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
+import {
+  getProviderIdMappings,
+  getProviderSourceMappings,
+} from '@find-my-anime/shared/anime/sources';
 import { ADULT_TAGS } from '@find-my-anime/shared/anime/tags';
 import {
   Provider,
   ProviderDomain,
 } from '@find-my-anime/shared/constants/Provider';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, PipelineStage } from 'mongoose';
 import { AnimeDocument, AnimeModel } from './schemas/anime.schema';
 
 @Injectable()
@@ -15,7 +18,15 @@ export class AnimeSearchService {
   constructor(
     @InjectModel(AnimeModel.name)
     private readonly animeModel: Model<AnimeDocument>,
-  ) {}
+  ) {
+    this.initializeSearchIndex()
+      .then(() => {
+        Logger.log('Anime Search index initialized');
+      })
+      .catch((error) => {
+        Logger.error('Error initializing Anime Search index:', error);
+      });
+  }
 
   public async getAllAnime(): Promise<Anime[]> {
     return this.animeModel.find({}).lean().exec();
@@ -37,22 +48,26 @@ export class AnimeSearchService {
       ? this.escapeRegExp(ProviderDomain[provider])
       : null;
 
-    if (providerDomain && escapedId) {
-      const combinedRegex = `^${providerDomain}.*${escapedId}$`;
+    if (provider && escapedId) {
       conditions.push({
-        sources: { $regex: combinedRegex },
+        [`providerIdMapping.${provider}`]: `${escapedId}`,
       });
     }
 
-    if (!providerDomain && escapedId) {
+    if (!provider && escapedId) {
       conditions.push({
-        sources: { $regex: `${escapedId}$` },
+        $or: Object.values(Provider).map((prov) => ({
+          [`providerIdMapping.${prov}`]: `${escapedId}`,
+        })),
       });
     }
 
-    if (providerDomain && !escapedId) {
+    if (provider && !escapedId) {
       conditions.push({
-        sources: { $regex: `^${providerDomain}` },
+        [`providerMapping.${provider}`]: {
+          $regex: providerDomain,
+          $options: 'i',
+        },
       });
     }
 
@@ -68,39 +83,117 @@ export class AnimeSearchService {
       conditions.push({ tags: { $nin: ADULT_TAGS } });
     }
 
-    return this.animeModel
-      .find(
-        query
-          ? {
-              $text: { $search: query },
-              $and: conditions,
-            }
-          : { $and: conditions },
-        { _id: 0 },
-      )
-      .limit(limit)
-      .transform((docs) => {
-        return docs.map((anime: AnimeDocument) => {
-          const animeModel: Anime = { ...anime };
-          animeModel.providerMapping =
-            this.generateProviderIdMapping(animeModel);
-          return animeModel;
-        });
-      })
-      .lean()
-      .exec();
+    const searchCondition: PipelineStage.Search = {
+      $search: {
+        index: 'titleSynonymsIndex',
+        compound: {
+          should: [
+            {
+              text: {
+                query,
+                path: 'title',
+              },
+            },
+            {
+              text: {
+                query,
+                path: 'synonyms',
+              },
+            },
+          ],
+        },
+      },
+    };
+
+    const pipeline: PipelineStage[] = [];
+    if (query) {
+      pipeline.push(searchCondition);
+    }
+    if (conditions.length) {
+      pipeline.push({ $match: { $and: conditions } });
+    }
+    pipeline.push({ $limit: limit });
+    pipeline.push({ $project: { _id: 0 } });
+    Logger.debug(`Search conditions: ${JSON.stringify(pipeline)}`);
+    return this.animeModel.aggregate<Anime>(pipeline).exec();
   }
 
-  private generateProviderIdMapping(anime: Anime): Record<string, string> {
-    const mapping: Record<string, string> = {};
-    const providers = getProviders(anime);
-    providers.forEach((provider) => {
-      const source = getSource(anime, provider);
-      if (source) {
-        mapping[provider] = source;
+  private async initializeSearchIndex() {
+    await this.createSearchIndexIfNeeded();
+    await this.createProviderMappings();
+  }
+
+  private async createProviderMappings() {
+    const anime = await this.animeModel.findOne();
+    if (anime?.providerMapping || anime?.providerIdMapping) {
+      Logger.log(`Provider mappings may already exist, skipping creation`);
+      return;
+    }
+
+    const batchSize = 500;
+    let skip = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const animeBatch = await this.animeModel
+        .find({})
+        .skip(skip)
+        .limit(batchSize)
+        .exec();
+
+      if (animeBatch.length === 0) {
+        hasMore = false;
+        break;
       }
-    });
-    return mapping;
+
+      const bulkOps = animeBatch.map((anime) => {
+        return {
+          updateOne: {
+            filter: { _id: anime._id },
+            update: {
+              $set: {
+                providerIdMapping: getProviderIdMappings(anime),
+                providerMapping: getProviderSourceMappings(anime),
+              },
+            },
+          },
+        };
+      });
+
+      await this.animeModel.bulkWrite(bulkOps, { ordered: false });
+      Logger.debug(
+        `Updated provider mappings for batch of ${animeBatch.length} anime`,
+      );
+
+      skip += batchSize;
+    }
+  }
+
+  private async createSearchIndexIfNeeded() {
+    const indexes = await this.animeModel.listSearchIndexes();
+    const searchIndexExists = indexes.some(
+      (index) => index.name === 'titleSynonymsIndex',
+    );
+    if (!searchIndexExists) {
+      const index = {
+        name: 'titleSynonymsIndex',
+        definition: {
+          mappings: {
+            dynamic: false,
+            fields: {
+              title: {
+                type: 'string',
+              },
+              synonyms: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      };
+
+      return this.animeModel.createSearchIndex(index);
+    }
   }
 
   private escapeRegExp(value: string) {

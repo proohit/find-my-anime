@@ -51,9 +51,20 @@ export class AnimeModel {
 
   @Prop({ type: String })
   provider?: Provider;
+
+  @Prop({ type: Map, of: String })
+  providerMapping?: Record<Provider, string>;
+
+  @Prop({ type: Map, of: String })
+  providerIdMapping?: Record<Provider, string>;
 }
 
 export type AnimeDocument = AnimeModel & Document;
 
 export const AnimeSchema = SchemaFactory.createForClass(AnimeModel);
-AnimeSchema.index({ title: 'text', synonyms: 'text' });
+
+AnimeSchema.index({
+  tags: 'text',
+  providerMapping: 'text',
+  providerIdMapping: 'text',
+});
