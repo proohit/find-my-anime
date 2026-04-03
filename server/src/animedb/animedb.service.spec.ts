@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/unbound-method */
 import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { getModelToken } from '@nestjs/mongoose';
@@ -98,42 +96,26 @@ describe('AnimeDbService', () => {
 
   describe('queryAnime', () => {
     it('should search with SearchService', async () => {
-      await animeDbService.queryAnime();
+      await animeDbService.queryAnime({});
       expect(animeSearchService.findAnime).toHaveBeenCalled();
     });
 
     it('should search with title', async () => {
       const givenTitle = 'sword art online';
-      await animeDbService.queryAnime(undefined, givenTitle);
+      await animeDbService.queryAnime({ query: givenTitle });
       expect(animeSearchService.findAnime).toHaveBeenCalledWith(
-        givenTitle,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        expect.anything(),
+        expect.objectContaining({
+          query: givenTitle,
+        }),
       );
     });
 
     it('should set upperlimit', async () => {
-      await animeDbService.queryAnime(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        101,
-      );
+      await animeDbService.queryAnime({ limit: 101 });
       expect(animeSearchService.findAnime).toHaveBeenCalledWith(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        100,
+        expect.objectContaining({
+          limit: 100,
+        }),
       );
     });
 
@@ -149,7 +131,7 @@ describe('AnimeDbService', () => {
         .mockResolvedValue(mockEnrichedAnime);
       jest.spyOn(animeEnricherService, 'isEnrichable').mockReturnValue(true);
       jest.spyOn(animeEnricherService, 'needsEnrichment').mockReturnValue(true);
-      await animeDbService.queryAnime(undefined, undefined, undefined);
+      await animeDbService.queryAnime({});
       expect(animeEnricherService.enrichAnime).toHaveBeenCalled();
       expect(animeModel.updateOne).toHaveBeenCalledWith(
         {

@@ -1,13 +1,15 @@
+import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
+import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
+import {
+  AnimeSearchService,
+  MaybeLimitedFilterCriteria,
+} from './anime-search.service';
 import { MetadataService } from './metadata.service';
 import { AnimeDocument, AnimeModel } from './schemas/anime.schema';
-import { AnimeSearchService } from './anime-search.service';
-import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
-import { Provider } from '@find-my-anime/shared/constants/Provider';
-import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
-import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
 
 @Injectable()
 export class AnimeDbService {
@@ -21,24 +23,24 @@ export class AnimeDbService {
     private readonly animeModel: Model<AnimeDocument>,
   ) {}
 
-  public async queryAnime(
-    id?: string,
-    query?: string,
-    provider?: Provider,
-    tags?: string[],
-    excludedTags?: string[],
-    includeAdult?: boolean,
-    limit = 20,
-  ): Promise<Anime[]> {
-    const foundAnime = await this.animeSearchService.findAnime(
+  public async queryAnime({
+    id,
+    query,
+    provider,
+    tags,
+    excludedTags,
+    includeAdult,
+    limit,
+  }: MaybeLimitedFilterCriteria): Promise<Anime[]> {
+    const foundAnime = await this.animeSearchService.findAnime({
       query,
       id,
       provider,
       tags,
       excludedTags,
       includeAdult,
-      Math.min(isNaN(limit) ? 20 : limit, this.UPPER_LIMIT),
-    );
+      limit: Math.min(!limit || isNaN(limit) ? 20 : limit, this.UPPER_LIMIT),
+    });
 
     if (
       foundAnime.length === 1 &&

@@ -41,12 +41,13 @@ describe('AppController', () => {
     ]);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(
-      '1234',
-      'sao',
-      Provider.AniDB,
-      ['tag1'],
-      undefined,
-      undefined,
+      expect.objectContaining({
+        id: '1234',
+        query: 'sao',
+        provider: Provider.AniDB,
+        tags: ['tag1'],
+        excludedTags: undefined,
+      }),
     );
     expect(anime).toEqual(mockAnimeDb.data);
   });

@@ -13,6 +13,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, PipelineStage } from 'mongoose';
 import { AnimeDocument, AnimeModel } from './schemas/anime.schema';
 
+export interface FilterCriteria {
+  query?: string;
+  id?: string;
+  provider?: Provider;
+  tags?: string[];
+  excludedTags?: string[];
+  includeAdult?: boolean;
+}
+
+export type LimitedFilterCriteria = FilterCriteria & { limit: number };
+export type MaybeLimitedFilterCriteria = FilterCriteria & { limit?: number };
 @Injectable()
 export class AnimeSearchService {
   constructor(
@@ -32,15 +43,15 @@ export class AnimeSearchService {
     return this.animeModel.find({}).lean().exec();
   }
 
-  public async findAnime(
-    query?: string,
-    id?: string,
-    provider?: Provider,
-    tags?: string[],
-    excludedTags?: string[],
-    includeAdult?: boolean,
-    limit: number = 100,
-  ): Promise<Anime[]> {
+  public async findAnime({
+    query,
+    id,
+    provider,
+    tags,
+    excludedTags,
+    includeAdult,
+    limit,
+  }: LimitedFilterCriteria): Promise<Anime[]> {
     const conditions: FilterQuery<AnimeModel>[] = [];
 
     const escapedId = id ? this.escapeRegExp(id) : null;

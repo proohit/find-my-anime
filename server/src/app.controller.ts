@@ -83,14 +83,14 @@ export class AppController {
     @Query('includeAdult', booleanQueryTransformer())
     includeAdult?: boolean,
   ): Promise<Anime[]> {
-    return this.animedbService.queryAnime(
+    return this.animedbService.queryAnime({
       id,
       query,
       provider,
       tags,
       excludedTags,
       includeAdult,
-    );
+    });
   }
   @ApiOperation({
     description: 'Get all available tags',

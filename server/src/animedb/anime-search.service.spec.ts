@@ -34,7 +34,7 @@ describe('AnimeSearchService', () => {
   describe('findAnime', () => {
     it('should search by id', async () => {
       const spy = jest.spyOn(animeModel, 'aggregate');
-      await animeSearchService.findAnime(undefined, '51478');
+      await animeSearchService.findAnime({ id: '51478' });
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -64,9 +64,7 @@ describe('AnimeSearchService', () => {
     it('should search by tag', async () => {
       const givenTag = 'action';
       const spy = jest.spyOn(animeModel, 'aggregate');
-      await animeSearchService.findAnime(undefined, undefined, undefined, [
-        givenTag,
-      ]);
+      await animeSearchService.findAnime({ tags: [givenTag] });
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -86,12 +84,10 @@ describe('AnimeSearchService', () => {
       const givenTags = ['action', 'drama'];
       const givenTitle = 'sword art online';
       const spy = jest.spyOn(animeModel, 'aggregate');
-      await animeSearchService.findAnime(
-        givenTitle,
-        undefined,
-        undefined,
-        givenTags,
-      );
+      await animeSearchService.findAnime({
+        query: givenTitle,
+        tags: givenTags,
+      });
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -122,7 +118,10 @@ describe('AnimeSearchService', () => {
     it('should search by provider and id', async () => {
       const givenId = '142051';
       const spy = jest.spyOn(animeModel, 'aggregate');
-      await animeSearchService.findAnime(undefined, givenId, Provider.Anilist);
+      await animeSearchService.findAnime({
+        id: givenId,
+        provider: Provider.Anilist,
+      });
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -141,11 +140,10 @@ describe('AnimeSearchService', () => {
     it('should search by provider and title', async () => {
       const givenTitle = 'sword art online';
       const spy = jest.spyOn(animeModel, 'aggregate');
-      await animeSearchService.findAnime(
-        givenTitle,
-        undefined,
-        Provider.Anilist,
-      );
+      await animeSearchService.findAnime({
+        query: givenTitle,
+        provider: Provider.Anilist,
+      });
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -167,15 +165,7 @@ describe('AnimeSearchService', () => {
     it('should accept limit', async () => {
       const spy = jest.spyOn(animeModel, 'aggregate');
 
-      await animeSearchService.findAnime(
-        'a',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        1,
-      );
+      await animeSearchService.findAnime({ query: 'a', limit: 1 });
 
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
@@ -188,14 +178,7 @@ describe('AnimeSearchService', () => {
 
     it('should filter out adult anime', async () => {
       const spy = jest.spyOn(animeModel, 'aggregate');
-      await animeSearchService.findAnime(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        false,
-      );
+      await animeSearchService.findAnime({ includeAdult: false });
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
