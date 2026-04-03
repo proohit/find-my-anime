@@ -55,6 +55,8 @@ export interface AnimeSeason {
   year?: number;
 }
 
+export type StringAnimeSeason = `${Season}-${number}`;
+
 export interface License {
   name: string;
   url: string;

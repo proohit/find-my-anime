@@ -1,9 +1,13 @@
 import { Provider } from '@find-my-anime/shared/constants/Provider';
-import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
+import {
+  Anime,
+  type AnimeSeason,
+} from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AnimeDbService } from './animedb/animedb.service';
 import { RequestCollectorInterceptor } from './stats/collector.interceptor';
+import { animeSeasonQueryTransformer } from './validators/AnimeSeason';
 import { arrayQueryTransformer } from './validators/Array';
 import { booleanQueryTransformer } from './validators/Boolean';
 import { validateEnumQueryTransformer as enumQueryTransformer } from './validators/Enum';
@@ -51,7 +55,7 @@ export class AppController {
     type: String,
     description: 'Comma separated list of tags to be excluded from search',
     required: false,
-    example: 'fantasy',
+    example: 'horror',
   })
   @ApiQuery({
     name: 'includeAdult',
@@ -66,6 +70,13 @@ export class AppController {
     description: 'Permit collection of (anonymous) data. Default is true',
     required: false,
     example: 'true',
+  })
+  @ApiQuery({
+    name: 'season',
+    type: String,
+    description: 'String pair representing season of type',
+    required: false,
+    example: 'SUMMER-2026',
   })
   async queryAnime(
     @Query('id') id?: string,
@@ -82,6 +93,8 @@ export class AppController {
     excludedTags?: string[],
     @Query('includeAdult', booleanQueryTransformer())
     includeAdult?: boolean,
+    @Query('season', animeSeasonQueryTransformer())
+    season?: AnimeSeason,
   ): Promise<Anime[]> {
     return this.animedbService.queryAnime({
       id,
@@ -90,6 +103,7 @@ export class AppController {
       tags,
       excludedTags,
       includeAdult,
+      season,
     });
   }
   @ApiOperation({

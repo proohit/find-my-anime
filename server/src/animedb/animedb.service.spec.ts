@@ -1,4 +1,5 @@
 import { getProviders, getSource } from '@find-my-anime/shared/anime/sources';
+import { Season } from '@find-my-anime/shared/index';
 import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -106,6 +107,21 @@ describe('AnimeDbService', () => {
       expect(animeSearchService.findAnime).toHaveBeenCalledWith(
         expect.objectContaining({
           query: givenTitle,
+        }),
+      );
+    });
+
+    it('should search with season', async () => {
+      const givenTitle = 'sword art online';
+      const givenSeason = { season: Season.Fall, year: 1234 };
+      await animeDbService.queryAnime({
+        query: givenTitle,
+        season: givenSeason,
+      });
+      expect(animeSearchService.findAnime).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: givenTitle,
+          season: givenSeason,
         }),
       );
     });

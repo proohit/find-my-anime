@@ -23,22 +23,12 @@ export class AnimeDbService {
     private readonly animeModel: Model<AnimeDocument>,
   ) {}
 
-  public async queryAnime({
-    id,
-    query,
-    provider,
-    tags,
-    excludedTags,
-    includeAdult,
-    limit,
-  }: MaybeLimitedFilterCriteria): Promise<Anime[]> {
+  public async queryAnime(
+    filterCriteria: MaybeLimitedFilterCriteria,
+  ): Promise<Anime[]> {
+    const { limit } = filterCriteria;
     const foundAnime = await this.animeSearchService.findAnime({
-      query,
-      id,
-      provider,
-      tags,
-      excludedTags,
-      includeAdult,
+      ...filterCriteria,
       limit: Math.min(!limit || isNaN(limit) ? 20 : limit, this.UPPER_LIMIT),
     });
 

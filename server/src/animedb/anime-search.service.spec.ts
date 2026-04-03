@@ -5,13 +5,17 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { mockAnimeData } from '../../test/mockData';
-import { AnimeSearchService } from './anime-search.service';
+import {
+  AnimeSearchService,
+  LimitedFilterCriteria,
+} from './anime-search.service';
 import { AnimeModel } from './schemas/anime.schema';
+import { AnimeSeason, Season } from '@find-my-anime/shared/index';
 
 describe('AnimeSearchService', () => {
   let animeSearchService: AnimeSearchService;
   let animeModel: Model<AnimeModel>;
-
+  const commonFilter: LimitedFilterCriteria = { limit: 20 };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,7 +38,7 @@ describe('AnimeSearchService', () => {
   describe('findAnime', () => {
     it('should search by id', async () => {
       const spy = jest.spyOn(animeModel, 'aggregate');
-      await animeSearchService.findAnime({ id: '51478' });
+      await animeSearchService.findAnime({ ...commonFilter, id: '51478' });
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -64,7 +68,7 @@ describe('AnimeSearchService', () => {
     it('should search by tag', async () => {
       const givenTag = 'action';
       const spy = jest.spyOn(animeModel, 'aggregate');
-      await animeSearchService.findAnime({ tags: [givenTag] });
+      await animeSearchService.findAnime({ ...commonFilter, tags: [givenTag] });
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -85,6 +89,7 @@ describe('AnimeSearchService', () => {
       const givenTitle = 'sword art online';
       const spy = jest.spyOn(animeModel, 'aggregate');
       await animeSearchService.findAnime({
+        ...commonFilter,
         query: givenTitle,
         tags: givenTags,
       });
@@ -119,6 +124,7 @@ describe('AnimeSearchService', () => {
       const givenId = '142051';
       const spy = jest.spyOn(animeModel, 'aggregate');
       await animeSearchService.findAnime({
+        ...commonFilter,
         id: givenId,
         provider: Provider.Anilist,
       });
@@ -141,6 +147,7 @@ describe('AnimeSearchService', () => {
       const givenTitle = 'sword art online';
       const spy = jest.spyOn(animeModel, 'aggregate');
       await animeSearchService.findAnime({
+        ...commonFilter,
         query: givenTitle,
         provider: Provider.Anilist,
       });
@@ -165,7 +172,11 @@ describe('AnimeSearchService', () => {
     it('should accept limit', async () => {
       const spy = jest.spyOn(animeModel, 'aggregate');
 
-      await animeSearchService.findAnime({ query: 'a', limit: 1 });
+      await animeSearchService.findAnime({
+        ...commonFilter,
+        query: 'a',
+        limit: 1,
+      });
 
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
@@ -178,7 +189,10 @@ describe('AnimeSearchService', () => {
 
     it('should filter out adult anime', async () => {
       const spy = jest.spyOn(animeModel, 'aggregate');
-      await animeSearchService.findAnime({ includeAdult: false });
+      await animeSearchService.findAnime({
+        ...commonFilter,
+        includeAdult: false,
+      });
       expect(spy).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -186,6 +200,28 @@ describe('AnimeSearchService', () => {
               $and: expect.arrayContaining([
                 expect.objectContaining({
                   tags: expect.objectContaining({ $nin: ADULT_TAGS }),
+                }),
+              ]),
+            }),
+          }),
+        ]),
+      );
+    });
+
+    it('should filter by season', async () => {
+      const spy = jest.spyOn(animeModel, 'aggregate');
+      const givenSeason: AnimeSeason = { season: Season.Fall, year: 1234 };
+      await animeSearchService.findAnime({
+        ...commonFilter,
+        season: givenSeason,
+      });
+      expect(spy).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            $match: expect.objectContaining({
+              $and: expect.arrayContaining([
+                expect.objectContaining({
+                  animeSeason: givenSeason,
                 }),
               ]),
             }),

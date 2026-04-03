@@ -7,7 +7,7 @@ import {
   Provider,
   ProviderDomain,
 } from '@find-my-anime/shared/constants/Provider';
-import { Anime } from '@find-my-anime/shared/interfaces/AnimeDb';
+import { Anime, AnimeSeason } from '@find-my-anime/shared/interfaces/AnimeDb';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, PipelineStage } from 'mongoose';
@@ -20,6 +20,7 @@ export interface FilterCriteria {
   tags?: string[];
   excludedTags?: string[];
   includeAdult?: boolean;
+  season?: AnimeSeason;
 }
 
 export type LimitedFilterCriteria = FilterCriteria & { limit: number };
@@ -51,6 +52,7 @@ export class AnimeSearchService {
     excludedTags,
     includeAdult,
     limit,
+    season,
   }: LimitedFilterCriteria): Promise<Anime[]> {
     const conditions: FilterQuery<AnimeModel>[] = [];
 
@@ -92,6 +94,12 @@ export class AnimeSearchService {
 
     if (!includeAdult) {
       conditions.push({ tags: { $nin: ADULT_TAGS } });
+    }
+
+    if (season) {
+      conditions.push({
+        animeSeason: season,
+      });
     }
 
     const searchCondition: PipelineStage.Search = {
