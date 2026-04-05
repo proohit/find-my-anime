@@ -16,7 +16,7 @@ describe('animeSeasonQueryTransformer', () => {
     expect(result).toEqual(expectedValue);
   });
   it('should return undefined for undefined query', () => {
-    const transformer = animeSeasonQueryTransformer({ trim: true });
+    const transformer = animeSeasonQueryTransformer();
     const givenQuery = undefined as unknown as string;
     const result = transformer.transform(givenQuery, {
       type: 'query',
