@@ -4,7 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   TelemetryDataModel,
   TelemetryDataSchema,
-} from 'src/animedb/schemas/telemetry-data.schema';
+} from '../animedb/schemas/telemetry-data.schema';
 import { AnimeDbModule } from '../animedb/animedb.module';
 import { RequestCollectorInterceptor } from './collector.interceptor';
 import { StatsController } from './stats.controller';
