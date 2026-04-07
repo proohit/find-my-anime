@@ -1,0 +1,14 @@
+@use '../../variables' as *;
+@use '../../colors' as *;
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+.search-container {
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+
+  @media screen and (min-width: $desktop) {
+    grid-template-columns: 33% 67%;
+  }
+}

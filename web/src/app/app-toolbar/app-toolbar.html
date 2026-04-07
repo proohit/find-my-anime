@@ -1,0 +1,45 @@
+<nav>
+  <mat-toolbar class="toolbar">
+    <button
+      matIconButton
+      class="mobile-menu-button"
+      (click)="mobileMenuOpen.set(!mobileMenuOpen())"
+    >
+      @if (mobileMenuOpen()) {
+        <mat-icon>close</mat-icon>
+      } @else {
+        <mat-icon>menu</mat-icon>
+      }
+    </button>
+    <img class="logo" src="android-chrome-512x512.png" alt="Find My Anime Logo" />
+    <span class="branding">Find My Anime</span>
+    <div class="desktop-links">
+      <ng-container *ngTemplateOutlet="links"></ng-container>
+    </div>
+    <span class="spacer"></span>
+    <span class="version">v{{ version }}</span>
+    <!-- <a matIconButton>
+      <mat-icon>dark_mode</mat-icon>
+    </a>
+    <a matIconButton>
+      <mat-icon>light_mode</mat-icon>
+    </a> -->
+    <a matIconButton href="https://github.com/proohit/find-my-anime">
+      <mat-icon svgIcon="github"></mat-icon>
+    </a>
+  </mat-toolbar>
+  <div class="mobile-links" [class.open]="mobileMenuOpen()">
+    <ng-container *ngTemplateOutlet="links"></ng-container>
+  </div>
+  <ng-template #links>
+    <a
+      matButton
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      >Search</a
+    >
+    <a matButton href="/api/docs">API Docs</a>
+    <a matButton routerLink="/stats" routerLinkActive="active">Stats</a>
+  </ng-template>
+</nav>

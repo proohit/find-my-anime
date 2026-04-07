@@ -13,3 +13,4 @@ export type {
   AnimeSeason,
   License,
 } from './interfaces/AnimeDb';
+export * from './interfaces/FilterCriteria';

@@ -1,0 +1,93 @@
+@use '../../variables.scss' as *;
+@use '@angular/material' as mat;
+
+.toolbar {
+  @include mat.toolbar-overrides(
+    (
+      standard-height: auto,
+      mobile-height: auto,
+    )
+  );
+  min-height: 64px;
+  border-bottom: 1px solid var(--mat-sys-outline);
+  box-shadow: 0 2px 4px var(--mat-sys-shadow-1);
+}
+
+.logo {
+  height: var(--logo-size, 2rem);
+  margin-right: 1rem;
+}
+
+.branding {
+  overflow-wrap: break-word;
+  white-space: normal;
+  font-size: var(--mat-sys-title-large-size);
+  font-weight: var(--mat-sys-title-medium-weight);
+}
+
+a.active {
+  font-weight: var(--mat-sys-title-medium-weight-prominent);
+}
+
+a.active {
+  font-weight: var(--mat-sys-title-medium-weight);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.version {
+  display: none;
+  font-size: var(--mat-sys-label-medium-size);
+
+  @media screen and (min-width: $desktop) {
+    display: block;
+  }
+}
+
+.container {
+  display: grid;
+  justify-self: center;
+  grid-template-columns: 1fr;
+  @media screen and (min-width: $desktop) {
+    max-width: 50%;
+  }
+}
+
+.mobile-menu-button {
+  display: block;
+
+  @media screen and (min-width: $desktop) {
+    display: none;
+  }
+}
+
+.mobile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transform: scaleY(0);
+  transform-origin: top;
+  height: 0;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+
+  @media screen and (min-width: $desktop) {
+    display: none;
+  }
+
+  &.open {
+    height: auto;
+    transform: scaleY(1);
+  }
+}
+
+.desktop-links {
+  display: none;
+
+  @media screen and (min-width: $desktop) {
+    display: flex;
+    gap: 1rem;
+  }
+}

@@ -1,0 +1,47 @@
+@use '../../variables' as *;
+@use '../../colors' as *;
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+.search-box {
+  display: flex;
+  box-shadow: var(--mat-sys-level2);
+  padding: 1rem;
+  gap: 1rem;
+  border-radius: 1rem;
+  flex-direction: column;
+}
+
+.search-input {
+  @include mat.form-field-overrides(
+    (
+      filled-container-shape: 20px,
+    )
+  );
+}
+
+.tag-search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 200px;
+}
+
+.tag-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tag-label {
+  flex: 1;
+}
+
+.tag-chip {
+  &.excluded {
+    background-color: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error);
+  }
+}

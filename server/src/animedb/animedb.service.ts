@@ -4,77 +4,71 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AnimeEnricherService } from '../enrichment/anime-enricher.service';
-import {
-  AnimeSearchService,
-  MaybeLimitedFilterCriteria,
-} from './anime-search.service';
+import { AnimeSearchService } from './anime-search.service';
 import { MetadataService } from './metadata.service';
 import { AnimeDocument, AnimeModel } from './schemas/anime.schema';
+import { MaybeLimitedFilterCriteria } from '@find-my-anime/shared/index';
 
 @Injectable()
 export class AnimeDbService {
-  private readonly UPPER_LIMIT = 100;
+    private readonly UPPER_LIMIT = 100;
 
-  constructor(
-    private animeSearchService: AnimeSearchService,
-    private metadataService: MetadataService,
-    private readonly animeEnricherService: AnimeEnricherService,
-    @InjectModel(AnimeModel.name)
-    private readonly animeModel: Model<AnimeDocument>,
-  ) {}
+    constructor(
+        private animeSearchService: AnimeSearchService,
+        private metadataService: MetadataService,
+        private readonly animeEnricherService: AnimeEnricherService,
+        @InjectModel(AnimeModel.name)
+        private readonly animeModel: Model<AnimeDocument>,
+    ) {}
 
-  public async queryAnime(
-    filterCriteria: MaybeLimitedFilterCriteria,
-  ): Promise<Anime[]> {
-    const { limit } = filterCriteria;
-    const foundAnime = await this.animeSearchService.findAnime({
-      ...filterCriteria,
-      limit: Math.min(!limit || isNaN(limit) ? 20 : limit, this.UPPER_LIMIT),
-    });
+    public async queryAnime(filterCriteria: MaybeLimitedFilterCriteria): Promise<Anime[]> {
+        const { limit } = filterCriteria;
+        const foundAnime = await this.animeSearchService.findAnime({
+            ...filterCriteria,
+            limit: Math.min(!limit || isNaN(limit) ? 20 : limit, this.UPPER_LIMIT),
+        });
 
-    if (
-      foundAnime.length === 1 &&
-      this.animeEnricherService.isEnrichable(foundAnime[0]) &&
-      this.animeEnricherService.needsEnrichment(foundAnime[0])
-    ) {
-      const enrichedAnime = await this.animeEnricherService.enrichAnime(
-        foundAnime[0],
-      );
-      await this.updateAnimeEntry(enrichedAnime);
-      return [enrichedAnime];
+        if (
+            foundAnime.length === 1 &&
+            this.animeEnricherService.isEnrichable(foundAnime[0]) &&
+            this.animeEnricherService.needsEnrichment(foundAnime[0])
+        ) {
+            const enrichedAnime = await this.animeEnricherService.enrichAnime(foundAnime[0]);
+            await this.updateAnimeEntry(enrichedAnime);
+            return [enrichedAnime];
+        }
+
+        return foundAnime;
     }
 
-    return foundAnime;
-  }
-
-  public getTags(): Promise<string[]> {
-    return this.animeModel
-      .distinct('tags', {
-        tags: {
-          $ne: null,
-        },
-      })
-      .exec();
-  }
-
-  public async getLastDownloaded(): Promise<string> {
-    const metadata = await this.metadataService.getMetadata();
-    return metadata?.lastDownload ?? '';
-  }
-
-  public async getAllAnime(): Promise<Anime[]> {
-    return this.animeModel.find({}).lean().exec();
-  }
-
-  private async updateAnimeEntry(anime: Anime) {
-    const providers = getProviders(anime);
-    const source = providers.length ? getSource(anime, providers[0]) : '';
-    if (source) {
-      await this.animeModel.updateOne({ sources: source }, { $set: anime });
-      Logger.log(`Updated anime ${anime.title} in Mongo`);
-      return;
+    public getTags(): Promise<string[]> {
+        return this.animeModel
+            .distinct('tags', {
+                tags: {
+                    $ne: null,
+                },
+            })
+            .exec();
     }
-    await this.animeModel.create(anime);
-    Logger.log(`Inserted anime ${anime.title} in Mongo`);
-  }
+
+    public async getLastDownloaded(): Promise<string> {
+        const metadata = await this.metadataService.getMetadata();
+        return metadata?.lastDownload ?? '';
+    }
+
+    public async getAllAnime(): Promise<Anime[]> {
+        return this.animeModel.find({}).lean().exec();
+    }
+
+    private async updateAnimeEntry(anime: Anime) {
+        const providers = getProviders(anime);
+        const source = providers.length ? getSource(anime, providers[0]) : '';
+        if (source) {
+            await this.animeModel.updateOne({ sources: source }, { $set: anime });
+            Logger.log(`Updated anime ${anime.title} in Mongo`);
+            return;
+        }
+        await this.animeModel.create(anime);
+        Logger.log(`Inserted anime ${anime.title} in Mongo`);
+    }
 }

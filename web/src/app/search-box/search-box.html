@@ -1,0 +1,49 @@
+<form class="search-box" (submit)="search($event)">
+  <mat-form-field appearance="fill" class="search-input">
+    <mat-label>Title</mat-label>
+    <input matInput [formField]="searchForm.title" />
+    <button mat-icon-button matSuffix>
+      <mat-icon>search</mat-icon>
+    </button>
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="search-input">
+    <mat-label>Id</mat-label>
+    <input matInput [formField]="searchForm.id" />
+    <button mat-icon-button matSuffix>
+      <mat-icon>search</mat-icon>
+    </button>
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="search-input">
+    <mat-label>Provider</mat-label>
+    <mat-select [formField]="searchForm.provider">
+      <mat-option value="provider1">Provider 1</mat-option>
+      <mat-option value="provider2">Provider 2</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-chip-set>
+    @for (tag of searchForm.tags().value(); track tag.name && tag.excluded) {
+      <mat-chip-row class="tag-chip" [class.excluded]="tag.excluded">
+        {{ tag.name }}
+        <button matChipRemove (click)="removeTag(tag.name)">
+          <mat-icon>remove</mat-icon>
+        </button>
+      </mat-chip-row>
+    }
+  </mat-chip-set>
+  <mat-form-field appearance="fill" class="search-input">
+    <mat-label>Search tags...</mat-label>
+    <input type="text" matInput [formField]="searchForm.tagSearch" />
+  </mat-form-field>
+  <div class="tag-search-results">
+    @for (tag of filteredTags(); track tag) {
+      <span class="tag-wrapper">
+        <span class="tag-label">{{ tag }}</span>
+        <button matIconButton raised (click)="addTag(tag)"><mat-icon>add</mat-icon></button>
+        <button matIconButton (click)="excludeTag(tag)"><mat-icon>block</mat-icon></button>
+      </span>
+    }
+  </div>
+
+  <button mat-raised-button color="primary" type="submit">Search</button>
+  <button mat-button type="button" (click)="searchForm().reset(initialState)">Reset</button>
+</form>
